@@ -1,4 +1,4 @@
-# MotoLab — Project Progress
+# RideCraft — Project Progress
 
 Interactive motorcycle education platform. Built strictly phase by phase; each phase stops for review and approval before the next begins.
 
@@ -33,7 +33,7 @@ The same roadmap lives in code at `src/config/roadmap.ts` (drives the home page 
 ## Phase 0 — Project Foundation & Architecture · COMPLETED
 
 ### Completed tasks
-- [x] Inspected workspace: it contained only an unrelated Kaggle project (`H&M_recommendation/`, `Py_3.13_venv/`) and no Node.js. MotoLab was created in a separate `motolab/` folder; nothing existing was touched.
+- [x] Inspected workspace: it contained only an unrelated Kaggle project (`H&M_recommendation/`, `Py_3.13_venv/`) and no Node.js. RideCraft was created in a separate `motolab/` folder; nothing existing was touched.
 - [x] Installed Node.js 26 (Homebrew).
 - [x] Scaffolded Vite 8 + React 19 + TypeScript 7.
 - [x] Tailwind CSS v4 via `@tailwindcss/vite`, with design tokens in `@theme`.
@@ -395,7 +395,7 @@ npm run lint
 | Checklist severities `stop` / `soon` | Matches real advice: brakes, tyres, steering, throttle and lights are "don't ride"; indicators, freeplay, fuel and mirrors are "fix soon". |
 | Checklist state is in memory only | Saving progress belongs to Phase 12; the component is ready for it. |
 | Figures that vary by motorcycle are examples | 29 psi, 20–30 mm chain slack, ~1.5 mm pad limit, an 11 L tank with a 12 % reserve are each labelled as examples with a pointer to the owner's manual. |
-| Status colours on warning lights | Green/blue information, amber caution, red stop — the real-world convention, and the same as MotoLab's feedback palette. |
+| Status colours on warning lights | Green/blue information, amber caution, red stop — the real-world convention, and the same as RideCraft's feedback palette. |
 | Posture checker starts with every point wrong | The learner actively corrects each fault and reads why. |
 
 ### Testing status (Phase 4)
@@ -1027,7 +1027,7 @@ npm run lint
 - **Colour contrast (1,025 elements on 81 pages):** small text in the subtle grey (`ink-subtle` #6b7482) fell to 3.87:1. Raised to #848d9b, which clears 4.5:1 on every surface (4.59 on the lightest) and stays below `ink-muted`.
 - **Unlit warning lamps** in the instrument-cluster lesson were 1.87:1; they now use the readable subtle ink (lit lamps keep their coloured fill).
 - **Tablet layout:** on the four module pages the lesson lists overflowed sideways by up to 272 px at 768 px; the list items can now shrink.
-- **Page titles:** 80 of 81 pages shared one `<title>`; added `usePageTitle`, so every page has its own (for example "Countersteering · Turning & Handling · MotoLab").
+- **Page titles:** 80 of 81 pages shared one `<title>`; added `usePageTitle`, so every page has its own (for example "Countersteering · Turning & Handling · RideCraft").
 - **Stale content:**
   - the home learning path stopped at Phase 10 ("Nine stages") — it now includes Advanced Mechanics and Check what you know ("Eleven stages");
   - removed the obsolete pending route and the unused `PhasePendingPage`;

@@ -73,7 +73,7 @@ export function HeroSection() {
             <span className="block text-ignition-500">Then learn to ride it.</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="max-w-xl text-lg text-ink-muted">
-            MotoLab teaches how a geared motorcycle works and how to ride one. Every control you touch is linked to what
+            RideCraft teaches how a geared motorcycle works and how to ride one. Every control you touch is linked to what
             happens inside the engine, clutch, gearbox and drivetrain.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row">

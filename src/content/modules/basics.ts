@@ -44,7 +44,7 @@ export const basicsLessons: Lesson[] = [
         heading: 'Geared motorcycles and automatics',
         body: [
           'On a geared motorcycle you control the clutch with your left hand and change gear with your left foot. On most scooters a continuously variable transmission (CVT) does this automatically — there is no clutch lever and no gear lever.',
-          'MotoLab teaches geared motorcycles. Learning to use the clutch and gears well is the biggest step for a new rider, and the knowledge transfers to every other kind of motorcycle.',
+          'RideCraft teaches geared motorcycles. Learning to use the clutch and gears well is the biggest step for a new rider, and the knowledge transfers to every other kind of motorcycle.',
         ],
       },
       {

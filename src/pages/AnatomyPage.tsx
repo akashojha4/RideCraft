@@ -24,9 +24,9 @@ export default function AnatomyPage() {
   const reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    document.title = `${parts[selected].name} · Anatomy Explorer · MotoLab`
+    document.title = `${parts[selected].name} · Anatomy Explorer · RideCraft`
     return () => {
-      document.title = 'MotoLab — Interactive Motorcycle Academy'
+      document.title = 'RideCraft — Interactive Motorcycle Academy'
     }
   }, [selected])
 

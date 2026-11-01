@@ -30,7 +30,7 @@ export const phases: Phase[] = [
   {
     number: 1,
     title: 'Landing Page',
-    summary: 'The MotoLab visual identity: hero, motorcycle visual, roadmap and categories.',
+    summary: 'The RideCraft visual identity: hero, motorcycle visual, roadmap and categories.',
     status: 'COMPLETED',
     route: '/',
     scope: ['Navigation bar', 'Hero section', 'Motorcycle visual', 'Roadmap preview', 'Learning categories', 'Anatomy preview'],

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 
-/** The MotoLab mark: a stylised wheel/gear with an ignition-orange hub. */
+/** The RideCraft mark: a stylised wheel/gear with an ignition-orange hub. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn('size-8', className)} aria-hidden>
@@ -20,10 +20,10 @@ export function LogoMark({ className }: { className?: string }) {
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link to="/" className={cn('group flex items-center gap-2.5', className)} aria-label="MotoLab home">
+    <Link to="/" className={cn('group flex items-center gap-2.5', className)} aria-label="RideCraft home">
       <LogoMark className="transition-transform duration-500 group-hover:rotate-90" />
       <span className="font-display text-lg font-semibold tracking-tight text-ink">
-        Moto<span className="text-ignition-500">Lab</span>
+        Ride<span className="text-ignition-500">Craft</span>
       </span>
     </Link>
   )

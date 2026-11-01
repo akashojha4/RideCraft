@@ -83,7 +83,7 @@ export default function DesignSystemPage() {
         as="h1"
         eyebrow="Phase 0 · Foundation"
         title="Design system"
-        description="The tokens, components and motion rules every MotoLab page and simulator is built from."
+        description="The tokens, components and motion rules every RideCraft page and simulator is built from."
       />
 
       <Section title="Colour" description="Colour carries meaning: orange is the rider, cyan is the machine.">

@@ -41,7 +41,7 @@ export const motoTypes: MotoType[] = [
     strokes: ['M178,96 L300,108 L300,170', 'M178,100 L222,168', 'M298,170 L345,180', 'M330,110 L344,172', 'M222,176 C250,186 300,182 330,168 L372,156'],
     posture: 'Upright, with the feet under the hips and the hands at chest height.',
     use: 'Commuting, learning and everyday riding. Comfortable, easy to see from and to see over traffic. Typically 100–400 cc.',
-    note: 'This is the kind of motorcycle MotoLab is modelled on.',
+    note: 'This is the kind of motorcycle RideCraft is modelled on.',
     controls: 'Geared',
   },
   {
@@ -149,7 +149,7 @@ export const motoTypes: MotoType[] = [
     strokes: ['M120,200 L150,150', 'M150,92 L196,80'],
     posture: 'Seated upright with the feet flat on a floorboard.',
     use: 'Short urban trips. Small wheels and a step-through frame make it easy to get on and manoeuvre; storage under the seat.',
-    note: 'Most scooters are automatic (a CVT): no clutch lever and no gear lever — both brakes are levers on the handlebar. MotoLab focuses on geared motorcycles.',
+    note: 'Most scooters are automatic (a CVT): no clutch lever and no gear lever — both brakes are levers on the handlebar. RideCraft focuses on geared motorcycles.',
     controls: 'Usually automatic',
   },
 ]

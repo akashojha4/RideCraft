@@ -25,7 +25,7 @@ export const LEVELS = [
   { name: 'Novice rider', from: 0.3, text: 'You understand the controls and have practised the basics.' },
   { name: 'Road-ready', from: 0.55, text: 'You can explain riding technique and have made safe decisions in real scenarios.' },
   { name: 'Skilled rider', from: 0.8, text: 'Strong knowledge across riding, handling and mechanics.' },
-  { name: 'Expert', from: 0.95, text: 'You have completed almost everything MotoLab has to teach.' },
+  { name: 'Expert', from: 0.95, text: 'You have completed almost everything RideCraft has to teach.' },
 ] as const
 
 export function summarize(p: Progress) {

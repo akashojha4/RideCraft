@@ -40,7 +40,7 @@ export function MethodSection() {
     <section className="border-y border-line bg-surface-sunken/60 py-20 sm:py-28">
       <Container>
         <SectionHeading
-          eyebrow="How MotoLab teaches"
+          eyebrow="How RideCraft teaches"
           title="See what you do — and what the machine does"
           description="Every lesson and simulator connects three things. Here is one example: pulling in the clutch lever."
         />

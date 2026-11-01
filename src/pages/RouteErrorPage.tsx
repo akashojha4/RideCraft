@@ -37,7 +37,7 @@ export default function RouteErrorPage() {
   if (stale) {
     return (
       <Container width="prose" className="flex min-h-dvh flex-col justify-center gap-5 py-20">
-        <h1 className="text-3xl font-semibold text-ink">MotoLab has been updated.</h1>
+        <h1 className="text-3xl font-semibold text-ink">RideCraft has been updated.</h1>
         <p className="text-ink-muted">Loading the latest version…</p>
         <button
           type="button"
@@ -58,7 +58,7 @@ export default function RouteErrorPage() {
         {message}
       </pre>
       <a href="/" className="text-ignition-400 hover:text-ignition-300">
-        Reload MotoLab →
+        Reload RideCraft →
       </a>
     </Container>
   )

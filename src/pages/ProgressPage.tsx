@@ -66,7 +66,7 @@ export default function ProgressPage() {
             </div>
           </div>
           <p className="text-ink-muted">{s.level.text}</p>
-          <ProgressBar value={s.points} max={s.max} label="Progress through all of MotoLab" />
+          <ProgressBar value={s.points} max={s.max} label="Progress through all of RideCraft" />
           <p className="tabular font-mono text-sm text-ink-muted" data-points>
             {s.points} of {s.max} points · {Math.round(s.share * 100)} %{s.next ? ` · ${s.toNext} to ${s.next.name}` : ''}
           </p>

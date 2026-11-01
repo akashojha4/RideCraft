@@ -1,4 +1,4 @@
-# MotoLab
+# RideCraft
 
 An interactive platform that teaches how a geared motorcycle works and how to ride one.
 

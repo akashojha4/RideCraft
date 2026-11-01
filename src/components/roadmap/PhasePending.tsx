@@ -33,7 +33,7 @@ export function PhasePending({
         <h1 className="text-3xl font-semibold text-ink sm:text-4xl">{title}</h1>
         <p className="text-lg text-ink-muted">{description}</p>
         <p className="text-ink-muted">
-          This part of MotoLab is built in Phase {phase.number} and is not available yet. When it is complete it will
+          This part of RideCraft is built in Phase {phase.number} and is not available yet. When it is complete it will
           cover:
         </p>
         <ul className="flex flex-wrap gap-2">

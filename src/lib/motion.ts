@@ -1,7 +1,7 @@
 import type { Transition, Variants } from 'motion/react'
 
 /**
- * MotoLab animation system.
+ * RideCraft animation system.
  *
  * Two kinds of motion exist in the app:
  *  1. UI motion (page reveals, panels, feedback) — use the tokens and variants below.

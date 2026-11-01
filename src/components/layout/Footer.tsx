@@ -13,7 +13,7 @@ export function Footer() {
             Learn how a geared motorcycle works, and how to ride one, through interactive mechanical simulations.
           </p>
           <p className="text-xs text-ink-subtle">
-            MotoLab is a learning aid. It does not replace professional rider training or a licensed instructor.
+            RideCraft is a learning aid. It does not replace professional rider training or a licensed instructor.
           </p>
         </div>
         <nav aria-label="Footer">
