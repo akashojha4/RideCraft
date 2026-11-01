@@ -1,0 +1,253 @@
+@import 'tailwindcss';
+
+/*
+ * MotoLab design tokens.
+ *
+ * Colour semantics are part of the teaching language and must stay consistent:
+ *   ignition  — rider-facing controls, primary actions, "what the rider does"
+ *   coolant   — internal mechanical view, "what the machine does inside"
+ *   ok / caution / danger — feedback, safety information and warnings
+ */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Surfaces (asphalt) */
+  --color-bg: #0a0c0f;
+  --color-surface-sunken: #07080b;
+  --color-surface: #12151a;
+  --color-surface-raised: #191d24;
+  --color-surface-overlay: #20252e;
+  --color-line: #262b34;
+  --color-line-strong: #363d49;
+
+  /* Text */
+  --color-ink: #eef1f5;
+  --color-ink-muted: #a3acb9;
+  --color-ink-subtle: #848d9b;
+
+  /* Ignition — rider actions & primary accent */
+  --color-ignition-200: #ffd2b0;
+  --color-ignition-300: #ffb27a;
+  --color-ignition-400: #ff8a3d;
+  --color-ignition-500: #ff6a1a;
+  --color-ignition-600: #e5530a;
+  --color-ignition-700: #b53f06;
+  --color-ignition-950: #2a1306;
+
+  /* Coolant — internal mechanics */
+  --color-coolant-200: #c2f3fb;
+  --color-coolant-300: #8ae9f7;
+  --color-coolant-400: #3fd4ec;
+  --color-coolant-500: #14b8d4;
+  --color-coolant-600: #0e8fa6;
+  --color-coolant-950: #062229;
+
+  /* Feedback */
+  --color-ok-400: #4ade80;
+  --color-ok-500: #22c55e;
+  --color-ok-950: #062312;
+  --color-caution-400: #fbbf24;
+  --color-caution-500: #f59e0b;
+  --color-caution-950: #2a1d04;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-950: #2b0b0b;
+
+  /* Elevation */
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-glow-ignition: 0 0 0 1px rgb(255 106 26 / 0.35), 0 8px 32px -8px rgb(255 106 26 / 0.45);
+  --shadow-glow-coolant: 0 0 0 1px rgb(20 184 212 / 0.35), 0 8px 32px -8px rgb(20 184 212 / 0.4);
+
+  /* CSS keyframe animations (for ambient, non-interactive motion) */
+  --animate-spin-slow: spin 6s linear infinite;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: rgb(255 106 26 / 0.35);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ignition-400);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Subtle engineering-grid backdrop used on hero and simulator stages */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+@layer components {
+  /* Range slider used for rider inputs (lever pull, twist grip…). Fill set via --range-pct. */
+  .range {
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to right,
+      var(--range-fill) var(--range-pct),
+      var(--color-surface-overlay) var(--range-pct)
+    );
+    cursor: pointer;
+  }
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    border: 4px solid var(--range-fill);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.5);
+  }
+  .range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    border: 4px solid var(--range-fill);
+  }
+  .range:focus-visible {
+    outline: 2px solid var(--color-ignition-400);
+    outline-offset: 6px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * MotorcycleSideView states. Unlayered on purpose so these rules override the Tailwind
+ * colour utilities on individual shapes. `.moto-keep` opts a shape out of recolouring.
+ */
+.moto .moto-part,
+.moto .moto-far,
+.moto .moto-internal,
+.moto .moto-shell {
+  transition:
+    opacity 300ms ease,
+    fill-opacity 300ms ease,
+    filter 300ms ease;
+}
+.moto .moto-far {
+  opacity: 0.5;
+}
+.moto .moto-internal,
+.moto .moto-marker {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.moto.moto-mode-mechanical .moto-internal,
+.moto .moto-part.is-active .moto-internal {
+  pointer-events: auto;
+}
+
+/* Highlighting one component */
+.moto.moto-dim .moto-part:not(.is-active) {
+  opacity: 0.16;
+}
+.moto .moto-part.is-active {
+  filter: drop-shadow(0 0 6px rgb(20 184 212 / 0.55));
+}
+.moto .moto-part.is-active :is(path, circle, rect, line, ellipse):not(.moto-keep) {
+  stroke: var(--color-coolant-400);
+}
+.moto .moto-part.is-active .moto-far,
+.moto .moto-part.is-active .moto-internal {
+  opacity: 1;
+}
+.moto .moto-part.is-active .moto-shell {
+  fill-opacity: 0.25;
+}
+
+/* Rider view: every control the rider operates, in ignition orange */
+.moto.moto-mode-rider .moto-part:not(:has(.moto-control)) {
+  opacity: 0.4;
+}
+.moto.moto-mode-rider .moto-marker {
+  opacity: 1;
+}
+.moto.moto-mode-rider .moto-control {
+  opacity: 1;
+  stroke: var(--color-ignition-400);
+  filter: drop-shadow(0 0 5px rgb(255 106 26 / 0.6));
+}
+.moto.moto-mode-rider .moto-control :is(line, path) {
+  stroke: var(--color-ignition-400);
+}
+
+/* Mechanical view: see through the engine cases to the internals, in coolant cyan */
+.moto.moto-mode-mechanical .moto-internal {
+  opacity: 1;
+}
+.moto.moto-mode-mechanical .moto-part:not(:has(.moto-internal)) {
+  opacity: 0.4;
+}
+.moto.moto-mode-mechanical .moto-shell {
+  fill-opacity: 0.25;
+}
+
+/* Cockpit view: the selected control glows in ignition orange (a rider control). */
+.cockpit .cockpit-control {
+  transition: opacity 250ms ease, filter 250ms ease;
+}
+.cockpit .cockpit-control.is-active {
+  filter: drop-shadow(0 0 6px rgb(255 106 26 / 0.6));
+}
+.cockpit .cockpit-control.is-active :is(path, rect, circle, ellipse) {
+  stroke: var(--color-ignition-400);
+}
