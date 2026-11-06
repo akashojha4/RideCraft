@@ -94,7 +94,7 @@ export const parts: Record<PartId, PartInfo> = {
     category: 'brakes',
     location: 'Lever on the right handlebar · disc on the front wheel',
     summary:
-      'The lever pushes brake fluid to the caliper, whose pads squeeze the disc. Because weight shifts forward when braking, it provides most of the stopping force.',
+      'The lever pressurises the brake fluid, which pushes the caliper’s pads against the disc. Because braking transfers load to the front tyre, it provides most of the stopping force.',
   },
   'rear-brake': {
     name: 'Rear brake',

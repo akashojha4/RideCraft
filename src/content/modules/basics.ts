@@ -212,6 +212,7 @@ export const basicsLessons: Lesson[] = [
         illustration: 'cockpit',
         caption: 'The rider’s view. Select any control to see what it does and how to use it.',
       },
+      { type: 'cta', to: '/simulators/cockpit', title: 'Sit in the cockpit', text: 'Every control where it is on a real motorcycle: try them and see what each one does.' },
       {
         type: 'keyPoints',
         heading: 'An easy way to remember',
@@ -586,6 +587,7 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'gearbox', caption: 'Shift through the gears with the lever buttons, just as your foot would. Notice how neutral is reached.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/basics/understanding-gears', title: 'Practise it in the cockpit', text: 'Change up and down while riding and watch the gearbox and the engine speed change.' },
       {
         type: 'concept',
         heading: 'Choosing a gear',
@@ -613,7 +615,7 @@ export const basicsLessons: Lesson[] = [
       {
         type: 'callout',
         tone: 'tip',
-        body: 'The usual pattern is 1–N–2–3–4–5: press down for first, lift for the rest. Neutral is a half-step between first and second — the green N light confirms it.',
+        body: 'On almost all road motorcycles the pattern is 1–N–2–3–4–5 (some have a sixth gear): press down for first, lift for the rest. Neutral is a half-step between first and second — the green N light confirms it.',
       },
       { type: 'explore', part: 'gearbox', text: 'See the gearbox’s shafts, dogs and shift drum.' },
     ],
@@ -682,10 +684,11 @@ export const basicsLessons: Lesson[] = [
         heading: 'Connecting and disconnecting',
         body: [
           'The engine never stops turning while it runs, but the rear wheel often must — at a junction, for example. The clutch lets you connect and disconnect the two.',
-          'Inside, friction plates and steel plates are clamped together by springs. Lever out: clamped, so the engine drives the gearbox. Lever in: the pressure is released, the plates slip, and the engine spins freely.',
+          'Inside, friction plates and steel plates are clamped together by springs. Lever out: clamped, so the engine drives the gearbox. Lever in: the springs no longer clamp the plates, so they can turn at different speeds and almost no torque passes. (A wet clutch still drags a little through its oil — which is why first gear goes in with a clunk.)',
         ],
       },
       { type: 'illustration', illustration: 'clutch', caption: 'Pull the lever slowly. Notice the freeplay at the start, then the friction zone, then full disengagement.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=clutch-drill&from=/learn/basics/understanding-clutch', title: 'Practise it in the cockpit', text: 'Pull the lever and watch the plates separate, slip and grip — and what reaches the rear wheel.' },
       {
         type: 'terms',
         heading: 'Key terms',
@@ -694,7 +697,7 @@ export const basicsLessons: Lesson[] = [
           { term: 'Disengaged', definition: 'Lever pulled in: the plates slip freely and no drive is passed on.' },
           { term: 'Friction zone', definition: 'The part of the lever’s travel where the plates are partly clamped and pass on some of the engine’s torque.' },
           { term: 'Biting point', definition: 'The point in the lever’s travel where the clutch starts to take up the drive.' },
-          { term: 'Freeplay', definition: 'A little slack at the start of the lever’s travel, so the clutch always fully engages.' },
+          { term: 'Freeplay', definition: 'A little slack at the start of the lever’s travel. On a cable clutch it makes sure the clutch always engages fully; a hydraulic clutch adjusts itself and has only a little.' },
         ],
       },
       {
@@ -719,6 +722,7 @@ export const basicsLessons: Lesson[] = [
         tone: 'mistake',
         body: 'Riding with the clutch partly pulled in for long periods. Slipping plates make heat and wear quickly — release the clutch fully once you’re moving.',
       },
+      { type: 'cta', to: '/simulators/clutch-explorer', title: 'Look inside the clutch', text: 'Pull the lever in the clutch explorer and watch the pushrod, pressure plate and plates — and what reaches the rear wheel.' },
       { type: 'explore', part: 'clutch', text: 'See where the clutch sits between the crankshaft and gearbox.' },
     ],
     knowledgeCheck: [
@@ -749,7 +753,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'Why does the motorcycle stall if you release the clutch too quickly in first gear?',
         options: [
           { id: 'a', label: 'The clutch overheats instantly' },
-          { id: 'b', label: 'The engine is suddenly asked to turn the rear wheel before it has enough power, and slows to a stop' },
+          { id: 'b', label: 'The engine is suddenly asked to turn the rear wheel before it can produce enough torque, and slows to a stop' },
           { id: 'c', label: 'The fuel supply is cut off' },
         ],
         correctOptionId: 'b',
@@ -764,7 +768,7 @@ export const basicsLessons: Lesson[] = [
           { id: 'c', label: 'It is a fault that should be removed' },
         ],
         correctOptionId: 'a',
-        explanation: 'With no slack, the cable could hold the pressure plate slightly open, causing the clutch to slip even with the lever released.',
+        explanation: 'On a cable clutch, with no slack the cable could hold the pressure plate slightly open as it stretches and the plates wear, so the clutch slips even with the lever released. Hydraulic clutches adjust for wear automatically.',
       },
     ],
   },
@@ -790,11 +794,12 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'throttle', caption: 'Roll the grip open and watch the valve and airflow. Then press “Let go”.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=start-and-move-off&from=/learn/basics/understanding-throttle', title: 'Practise it in the cockpit', text: 'Start the engine and move off: balance a little throttle against a slow clutch release.' },
       {
         type: 'keyPoints',
         heading: 'Why smoothness matters',
         points: [
-          'Opening the throttle shifts weight to the rear; closing it shifts weight forward.',
+          'Opening the throttle transfers load to the rear tyre; closing it transfers load to the front.',
           'Abrupt changes upset the suspension and the tyres’ grip — especially mid-corner or on wet roads.',
           '“Roll on, roll off”: move the grip progressively, never snap it.',
         ],
@@ -802,7 +807,7 @@ export const basicsLessons: Lesson[] = [
       {
         type: 'example',
         body: [
-          'Riding through a bend, a rider holds a small, steady throttle opening, then rolls on gently as the road straightens. Snapping the throttle shut halfway round would pitch weight onto the front tyre and could make the motorcycle run wide.',
+          'Riding through a bend, a rider holds a small, steady throttle opening, then rolls on gently as the road straightens. Snapping the throttle shut halfway round would transfer load onto the front tyre and off the rear: the motorcycle slows and tightens its line, the front works harder, and on a slippery road engine braking can make the rear slide.',
         ],
       },
       {
@@ -840,11 +845,11 @@ export const basicsLessons: Lesson[] = [
         prompt: 'Why should the throttle be used smoothly in a bend?',
         options: [
           { id: 'a', label: 'To save fuel' },
-          { id: 'b', label: 'Sudden changes shift weight between the tyres and can upset grip and the line' },
+          { id: 'b', label: 'Sudden changes transfer load between the tyres and can upset grip and the line' },
           { id: 'c', label: 'The throttle can’t move quickly' },
         ],
         correctOptionId: 'b',
-        explanation: 'Throttle changes transfer weight between front and rear. Abrupt ones unsettle the suspension and use up grip the tyres need for cornering.',
+        explanation: 'Throttle changes transfer load between front and rear. Abrupt ones unsettle the suspension and use up grip the tyres need for cornering.',
       },
     ],
   },
@@ -865,16 +870,17 @@ export const basicsLessons: Lesson[] = [
         type: 'concept',
         heading: 'Turning motion into heat',
         body: [
-          'Brakes slow you by friction. Squeeze the front lever and a piston pushes brake fluid along a hose to the caliper, where larger pistons press pads against the spinning disc. Because the caliper pistons are larger, the force is multiplied.',
+          'Brakes slow you by friction. Squeeze the front lever and a piston pressurises the brake fluid, and the pressure travels through the hose to the caliper, where larger pistons press pads against the spinning disc. Because the caliper pistons are larger, the force is multiplied.',
           'The friction turns the motorcycle’s energy of motion into heat in the disc and pads. The rear brake works the same way through a foot pedal — or, on many small motorcycles, with shoes inside a drum.',
         ],
       },
       { type: 'illustration', illustration: 'front-brake', caption: 'Squeeze the lever: the pads first close a small gap, then pressure builds.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=brakes-drill&from=/learn/basics/understanding-brakes', title: 'Practise it in the cockpit', text: 'Try the front brake, the rear brake and both together, and watch the load transfer.' },
       {
         type: 'concept',
-        heading: 'Weight moves forward',
+        heading: 'Load transfers to the front',
         body: [
-          'As you slow down, the motorcycle’s momentum tries to keep it going, and because its centre of mass sits well above the road, it pitches forward. Load comes off the rear tyre and presses the front tyre into the road.',
+          'The braking force acts where the tyres touch the road, well below the motorcycle’s centre of mass, so it tries to pitch the motorcycle forward. The mass itself doesn’t move: instead the front tyre is pressed harder into the road and the rear is unloaded. Riders call this weight transfer; physically it is load transfer.',
           'A tyre can only provide braking force in proportion to the load on it. So under hard braking the front tyre can do most of the work, while the lightly loaded rear locks easily.',
         ],
       },
@@ -884,8 +890,8 @@ export const basicsLessons: Lesson[] = [
         heading: 'Progressive braking',
         steps: [
           { title: 'Roll off the throttle', body: 'Engine braking begins to slow you.' },
-          { title: 'Apply both brakes gently', body: 'A light first squeeze lets weight settle onto the front tyre.' },
-          { title: 'Increase the pressure', body: 'Squeeze the front harder as the front tyre takes the load; keep the rear steady.' },
+          { title: 'Apply both brakes gently', body: 'A light first squeeze compresses the fork and builds the load on the front tyre.' },
+          { title: 'Increase the pressure', body: 'Squeeze the front harder as the front tyre takes the load; ease the rear slightly as load comes off it.' },
           { title: 'Ease off as you stop', body: 'Release slightly just before stopping, and pull in the clutch so the engine doesn’t stall.' },
         ],
       },
@@ -921,14 +927,14 @@ export const basicsLessons: Lesson[] = [
           { id: 'c', label: 'Both provide exactly half' },
         ],
         correctOptionId: 'a',
-        explanation: 'Weight transfers onto the front tyre, so it can grip harder and supply most of the braking force.',
+        explanation: 'Load transfers onto the front tyre, so it can grip harder and supply most of the braking force.',
       },
       {
         id: 'q2',
         prompt: 'Why does the rear wheel lock more easily under hard braking?',
         options: [
           { id: 'a', label: 'The rear brake is stronger' },
-          { id: 'b', label: 'Weight moves off the rear tyre, reducing its grip' },
+          { id: 'b', label: 'Load transfers off the rear tyre, reducing its grip' },
           { id: 'c', label: 'The rear tyre is narrower' },
         ],
         correctOptionId: 'b',
@@ -950,7 +956,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'What does “progressive braking” mean?',
         options: [
           { id: 'a', label: 'Applying the brakes as hard as possible immediately' },
-          { id: 'b', label: 'Applying gently first, then increasing pressure as the weight transfers' },
+          { id: 'b', label: 'Applying gently first, then increasing pressure as the load transfers' },
           { id: 'c', label: 'Using only the rear brake' },
         ],
         correctOptionId: 'b',

@@ -17,9 +17,10 @@ const hillScripts: Record<string, (t: number) => Partial<PowertrainInputs>> = {
   dump: (t) => (t < 0.5 ? { throttle: Math.min(0.7, t * 2) } : { rear: 0, throttle: 0.7, clutch: 0 }),
   correct: (t) => {
     if (t < 0.6) return { throttle: Math.min(0.35, t) }
-    if (t < 1.6) return { throttle: 0.35, clutch: 1 - (t - 0.6) * 0.45 }
-    if (t < 2.2) return { throttle: 0.35, clutch: 0.55, rear: Math.max(0, 0.4 - (t - 1.6)) }
-    return { rear: 0, throttle: 0.4, clutch: Math.max(0, 0.55 - (t - 2.2) * 0.35) }
+    // Biting point at 30 % of lever travel (about 10 % of the clamp load, clutch.ts).
+    if (t < 1.6) return { throttle: 0.35, clutch: 1 - (t - 0.6) * 0.7 }
+    if (t < 2.2) return { throttle: 0.35, clutch: 0.3, rear: Math.max(0, 0.4 - (t - 1.6)) }
+    return { rear: 0, throttle: 0.4, clutch: Math.max(0, 0.3 - (t - 2.2) * 0.2) }
   },
 }
 
@@ -73,7 +74,7 @@ export const uphillStart: Scenario = {
         verdict: 'risky',
         rider: 'Revs the engine hard, releases the brake and drops the clutch.',
         motorcycle: `The clutch bites violently: the motorcycle lurches forward at up to ${fmt(peak)} m/s² and reaches ${Math.round(kmh(end.s.speed))} km/h in a few metres. No roll-back — but the front lifts and the rear tyre is near its grip limit.`,
-        explanation: 'High revs and a sudden clutch release put all the engine’s spinning energy into the wheel at once. On a hill, with weight already on the rear, the front can lift off the ground.',
+        explanation: 'High revs and a sudden clutch release put all the engine’s spinning energy into the wheel at once. On a hill, with load already on the rear, the motorcycle lurches — on a more powerful motorcycle the front can even lift.',
         consequence: 'Risky: you get away, but out of control for a moment — straight into a junction.',
         metrics: [
           { label: 'Peak acceleration', value: `${fmt(peak)} m/s²`, tone: 'danger' },

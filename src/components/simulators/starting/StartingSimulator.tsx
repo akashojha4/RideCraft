@@ -8,12 +8,13 @@ import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Readout } from '@/components/simulation/Readouts'
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
-import { actionLabels, derive, diagnose, startingSteps as steps, startingTimeline as tl, VISUAL_SLOWDOWN, type ActionId } from '@/content/simulators/starting'
+import { actionLabels, assumptions, derive, diagnose, startingSteps as steps, startingTimeline as tl, VISUAL_SLOWDOWN, type ActionId } from '@/content/simulators/starting'
 import { useSimulationClock } from '@/hooks/useSimulationClock'
 import { cn } from '@/lib/cn'
 import { strokeIndex, strokes } from '@/lib/mechanics/engine'
 import { DrivetrainPanel } from './DrivetrainPanel'
 import { ElectricalPanel } from './ElectricalPanel'
+import { AssumptionsPanel } from '@/components/simulation/AssumptionsPanel'
 
 type Mode = 'watch' | 'diy'
 const ACTION_ORDER = steps.map((s) => s.action)
@@ -345,6 +346,7 @@ export function StartingSimulator() {
           )}
         </section>
       </div>
+      <AssumptionsPanel assumptions={assumptions} />
     </div>
   )
 }

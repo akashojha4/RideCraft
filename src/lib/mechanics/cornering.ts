@@ -24,6 +24,8 @@ export const CG_AHEAD = 0.6
 export const CLEARANCE_LEAN = 40
 /** Handlebar steering lock, deg. */
 export const STEERING_LOCK = 38
+/** Steering-head rake: the steering axis leans back this far from vertical, deg (typical small commuter). */
+export const RAKE = 26
 
 export const rad = (d: number) => (d * Math.PI) / 180
 export const deg = (r: number) => (r * 180) / Math.PI
@@ -39,8 +41,22 @@ export const speedFor = (r: number, leanDeg: number) => Math.sqrt(G * r * Math.t
 export const gripLean = (mu: number) => deg(Math.atan(mu))
 /** Lateral acceleration at a given lean, in g. */
 export const lateralG = (leanDeg: number) => Math.tan(rad(leanDeg))
-/** Tightest turn radius at full steering lock (walking pace, kinematic), m. */
-export const LOCK_RADIUS = WHEELBASE / Math.tan(rad(STEERING_LOCK))
+/**
+ * Steer angle at the road for a handlebar angle, deg. Because the steering axis is raked back,
+ * turning the bars turns the wheel's contact line on the road by less: tan δ = tan(bar) · cos(rake)
+ * (upright motorcycle; lean and trail ignored).
+ */
+export const roadSteer = (barDeg: number) => deg(Math.atan(Math.tan(rad(barDeg)) * Math.cos(rad(RAKE))))
+/** Full lock measured at the road, deg (≈ 35° for 38° at the bars). */
+export const ROAD_LOCK = roadSteer(STEERING_LOCK)
+/**
+ * Walking-pace turning radius for a handlebar angle, m, measured at the front wheel — the
+ * outermost track, and how manufacturers quote it: wheelbase / sin(road steer). The rear wheel
+ * follows a tighter circle, wheelbase / tan(road steer).
+ */
+export const turnRadius = (barDeg: number) => WHEELBASE / Math.sin(rad(Math.max(0.5, roadSteer(barDeg))))
+/** Tightest turning radius at full lock, m (≈ 2.3 m; owner's manuals list about 1.9–2.9 m for 125 cc motorcycles). */
+export const LOCK_RADIUS = turnRadius(STEERING_LOCK)
 /** Steer angle needed to hold a lean at speed v, deg (small-angle kinematic turn). */
 export const steerFor = (v: number, leanDeg: number) => deg(Math.atan((G * WHEELBASE * Math.tan(rad(leanDeg))) / Math.max(0.01, v * v)))
 
@@ -116,6 +132,6 @@ export function riderSteer(s: LeanState, targetPhi: number, v: number, w = 3) {
   const k2 = (2 * 0.8 * w * hl) / (v * v)
   const balance = (G * WHEELBASE * Math.tan(s.phi)) / (v * v)
   const delta = balance + k1 * (s.phi - targetPhi) + k2 * s.phiDot
-  const lock = rad(STEERING_LOCK)
+  const lock = rad(ROAD_LOCK)
   return Math.max(-lock, Math.min(lock, delta))
 }

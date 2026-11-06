@@ -169,9 +169,9 @@ export function KnowledgeCheck({
 
             <div className="mt-6 flex justify-end">
               {checked ? (
-                <Button onClick={next}>{isLast ? 'See result' : 'Next question'}</Button>
+                <Button className="h-11" onClick={next}>{isLast ? 'See result' : 'Next question'}</Button>
               ) : (
-                <Button onClick={check} disabled={!selected}>
+                <Button className="h-11" onClick={check} disabled={!selected}>
                   Check answer
                 </Button>
               )}

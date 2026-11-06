@@ -1,6 +1,7 @@
 import type { CalloutTone } from '@/components/ui/Callout'
 import type { PartId } from '@/components/motorcycle/parts'
 import type { IllustrationId } from './illustrations/registry'
+import type { SituationTeaching } from './situations/types'
 
 /**
  * Lesson content model.
@@ -46,6 +47,8 @@ export interface Lesson {
   objectives: string[]
   blocks: LessonBlock[]
   knowledgeCheck: QuizQuestion[]
+  /** A Riding Situations lesson: taught in seven sections around a cockpit scenario (blocks are then unused). */
+  situation?: SituationTeaching
 }
 
 export interface LearningModule {

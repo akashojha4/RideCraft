@@ -52,3 +52,47 @@ export function shiftLever(gear: number, action: LeverAction): { gear: number; m
   if (gear === 2) return { gear: 0, moved: true, note: 'A gentle half-press from second selected neutral.' }
   return { gear, moved: false, note: gear === 0 ? 'Already in neutral.' : 'Neutral sits between first and second — you can only reach it from those gears.' }
 }
+
+/**
+ * A gear-lever pattern: the gear at each lever position from the bottom of its travel to the
+ * top, with 0 for neutral. A full press or lift moves one gear and goes straight past neutral;
+ * neutral is found with a half movement from the gear on either side of it.
+ */
+export type GearPattern = readonly number[]
+
+/** The usual road pattern, 1-N-2-3-4-5: press down for first, lift for every other gear. */
+export const STANDARD_PATTERN: GearPattern = [1, 0, 2, 3, 4, 5]
+/** The reversed ("race" or "GP") pattern: lift for first, press down for every other gear. */
+export const REVERSED_PATTERN: GearPattern = [5, 4, 3, 2, 0, 1]
+
+const gearWord = (g: number) => (g === 0 ? 'neutral' : `gear ${g}`)
+
+/** Move the lever in a pattern. Returns the new gear (0 = neutral) and what happened. */
+export function shiftInPattern(pattern: GearPattern, gear: number, action: LeverAction): { gear: number; moved: boolean; note: string } {
+  const at = pattern.indexOf(gear)
+  const n = pattern.indexOf(0)
+  if (action === 'half') {
+    if (gear !== 0 && Math.abs(at - n) === 1) return { gear: 0, moved: true, note: `A gentle half-${at < n ? 'lift' : 'press'} from ${gearWord(gear)} selected neutral.` }
+    return { gear, moved: false, note: gear === 0 ? 'Already in neutral.' : `Neutral sits next to ${pattern.filter((g, i) => g && Math.abs(i - n) === 1).map(gearWord).join(' and ')} — you can only reach it from there.` }
+  }
+  const dir = action === 'up' ? 1 : -1
+  let to = at + dir
+  const skipped = gear !== 0 && pattern[to] === 0
+  if (skipped) to += dir
+  if (to < 0 || to >= pattern.length) return { gear, moved: false, note: `The lever is already at the ${dir > 0 ? 'top' : 'bottom'} of its travel (${gearWord(gear)}).` }
+  const verb = dir > 0 ? 'Lifted' : 'Pressed down'
+  return { gear: pattern[to], moved: true, note: `${verb} from ${gearWord(gear)}${skipped ? ', through neutral,' : ''} into ${gearWord(pattern[to])}.` }
+}
+
+/** Final-drive sprockets (15 / 45 teeth, the 3 : 1 FINAL_RATIO) on a 520 chain (15.875 mm pitch). */
+export const FRONT_SPROCKET_TEETH = 15
+export const REAR_SPROCKET_TEETH = 45
+export const CHAIN_PITCH = 0.015875
+/** Pitch radius of a sprocket, m: p / (2 · sin(π / teeth)). */
+export const sprocketRadius = (teeth: number) => CHAIN_PITCH / (2 * Math.sin(Math.PI / teeth))
+/**
+ * Average chain speed for a front-sprocket speed in RPM, m/s: teeth passing per second × pitch,
+ * the same at both sprockets. (Pitch radii aren't exactly proportional to tooth count, so
+ * ω × pitch radius would differ slightly between them — the chain's "chordal" ripple.)
+ */
+export const chainSpeed = (frontRpm: number) => (frontRpm / 60) * FRONT_SPROCKET_TEETH * CHAIN_PITCH

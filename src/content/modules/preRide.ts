@@ -552,7 +552,7 @@ export const preRideLessons: Lesson[] = [
           { id: 'c', label: 'It isn’t dangerous' },
         ],
         correctOptionId: 'b',
-        explanation: 'When the swingarm moves, the sprockets move further apart; a tight chain has no slack left to allow for it.',
+        explanation: 'As the swingarm moves, the distance between the sprockets changes, and is greatest at one point in its travel; a chain that is too tight has no slack left for it.',
       },
       {
         id: 'q3',

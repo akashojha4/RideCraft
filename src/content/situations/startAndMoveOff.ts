@@ -1,0 +1,158 @@
+import type { SituationTeaching } from './types'
+
+/** Teaching for the cockpit scenario "Starting and moving off". */
+export const startAndMoveOffTeaching: SituationTeaching = {
+  scenario: 'start-and-move-off',
+  situation: {
+    where: 'Sitting on a stationary motorcycle on a level, quiet road, engine switched off, the road ahead clear.',
+    happening: 'Nothing yet: the engine is off and the gear lever could be in any gear. Before you can ride, the engine has to be running and its turning has to be fed, gently, to a rear wheel that is standing still.',
+    goal: 'Start the engine safely, move off smoothly without stalling or jerking, and change up to second once rolling.',
+    challenge:
+      'The engine spins at well over a thousand RPM even at idle, while the rear wheel is at zero. Something has to bridge that difference gradually — that is the clutch, and the friction zone is where the bridging happens.',
+    before: [
+      'The clutch lever is a coupling, not an on/off switch. Between fully in and fully out is the friction zone, where the plates slip and pass only part of the engine’s torque.',
+      'Engine speed and wheel speed are different things. Only when the clutch fully grips are they tied together, by the gear ratio — in first, the engine turns many times for each turn of the rear wheel.',
+      'An engine has a minimum speed. Ask it to drive the motorcycle before it has the torque to spare, and it is dragged below that speed and stalls.',
+    ],
+  },
+  controls: [
+    {
+      control: 'clutch',
+      what: 'The clutch lever, under your left hand. It controls how hard the clutch plates are clamped together — and so how much of the engine’s torque reaches the gearbox and rear wheel.',
+      when: 'Pull it fully in before starting the engine and before selecting first. Ease it out to the biting point once you have a little throttle, then on through the friction zone as the motorcycle moves away.',
+      how: 'Squeeze it fully in with all four fingers. Release it slowly and smoothly: pause at the biting point (you feel the motorcycle want to move and the engine note dips), then keep releasing gradually. Never let it snap out.',
+      howMuch:
+        'The friction zone is a small part of the lever’s travel — on this simulated motorcycle roughly the middle third of a full pull (about 12–36 % pulled in). On a real motorcycle find it by feel: it depends on the clutch, its adjustment and its wear.',
+      why: 'The engine is turning and the wheel isn’t. Slipping plates let the two run at different speeds while still passing some torque, so the motorcycle accelerates gently and the engine keeps running.',
+      mechanics:
+        'Pulling the lever lifts the pressure plate off the stack of friction and steel plates: no clamp, no torque passes. Letting it out lets the springs clamp the plates again. Partly clamped, they slip — friction passes torque from the basket (turned by the crank) to the hub (on the gearbox shaft) while they turn at different speeds. Fully clamped, they grip and turn as one.',
+      result: 'At the biting point the motorcycle starts to creep. Through the friction zone it accelerates progressively; once the clutch is fully out, engine and rear wheel turn together and the throttle alone sets your speed.',
+      shownAt: 0.33,
+      illustration: 'clutch',
+    },
+    {
+      control: 'throttle',
+      what: 'The twist grip on the right handlebar. It controls how much air (and fuel) the engine takes in — and so how much torque it makes.',
+      when: 'Open it slightly just before the clutch reaches the biting point, then add a little more as the clutch grips and the motorcycle speeds up. Close it for the gear change, then open it again.',
+      how: 'Roll it towards you smoothly with your wrist; avoid snapping it open or shut.',
+      howMuch:
+        'Only enough to lift the engine a little above idle — a fraction of the twist grip’s travel. Too little and the engine bogs or stalls as the clutch takes up the load; too much and the clutch slips at high revs, wearing and heating the plates. The right amount depends on the engine and the load (more uphill or with a passenger).',
+      why: 'At idle the engine has very little torque to spare. A touch of throttle gives it enough to pull the motorcycle away through the slipping clutch without being dragged down.',
+      mechanics: 'Opening the throttle lets more air into the cylinder, each combustion pushes harder, and the engine’s torque rises. With the clutch slipping, that torque is shared: part accelerates the motorcycle, part is turned into heat in the plates.',
+      result: 'The revs rise a little, then dip as the clutch takes up the load; the motorcycle pulls away instead of stalling.',
+      shownAt: 0.25,
+      illustration: 'throttle',
+    },
+    {
+      control: 'gear',
+      what: 'The gear lever at your left foot. First gear is a press down; neutral is a half-movement between first and second; second and above are lifts.',
+      when: 'Find neutral before starting the engine. Select first with the clutch fully in, before moving. Change up to second once you are rolling and the revs have risen.',
+      how: 'With the clutch fully in, press firmly down for first; lift positively for second. A clunk into first is normal on a wet clutch.',
+      howMuch: 'One full movement per gear. Neutral needs only a gentle half-movement from first or second.',
+      why: 'First gear multiplies the engine’s torque the most, so a small engine can move the motorcycle from rest. It also limits your speed, so you change up once moving.',
+      mechanics:
+        'The gear lever turns the selector drum, which slides a dog ring along the shaft to lock a pair of gears to it. In first, the engine turns many times for every turn of the rear wheel; in second, fewer. Changing gear needs the clutch in, so the dogs aren’t loaded while they slide.',
+      result: 'In first the motorcycle pulls strongly but the revs climb quickly with speed. In second the revs drop for the same speed and you can go faster.',
+      shownAt: 1,
+      illustration: 'gearbox',
+    },
+    {
+      control: 'front',
+      what: 'The front brake lever, under your right hand.',
+      when: 'Not needed to move off on level ground. On a slope, or if the motorcycle could roll while you prepare, hold it still with a brake — usually the rear, so your right hand is free for the throttle.',
+      how: 'Keep your fingers ready to cover it as you move off, without dragging it.',
+      howMuch: 'None while moving away on the level.',
+      why: 'Moving off is about the clutch and throttle together; any brake left on fights the drive and can stall the engine.',
+      mechanics: 'With the lever released, the pads are clear of the disc and the front wheel turns freely.',
+      result: 'Nothing holds the motorcycle back as the clutch takes up the drive.',
+      shownAt: 0,
+      illustration: 'front-brake',
+    },
+  ],
+  mistakes: [
+    {
+      title: 'Releasing the clutch too quickly',
+      does: 'Lets the lever snap out, or moves through the friction zone in a fraction of a second.',
+      feels: 'A lurch forward and a sudden drop in engine note — often followed by silence.',
+      mechanics: 'The plates go from slipping to gripping almost at once. The stationary wheel, through first gear, suddenly loads the engine far more than its torque can match, dragging it below its minimum speed.',
+      motorcycle: 'It jerks forward and stalls, or jumps forward in a jolt.',
+      cause: 'Treating the lever as an on/off switch, or nervousness about the motorcycle moving.',
+      fix: 'Pause at the biting point, then release slowly and keep releasing. Practise finding the biting point while standing still.',
+      cockpit: 'stall',
+    },
+    {
+      title: 'Too much throttle',
+      does: 'Revs the engine hard and slips the clutch for a long time.',
+      feels: 'A loud, high engine note while the motorcycle moves only slowly; sometimes a smell of hot clutch.',
+      mechanics: 'With the plates slipping at high speed difference, much of the engine’s power turns into heat in the clutch instead of moving the motorcycle.',
+      motorcycle: 'It surges forward when the clutch finally grips, and the clutch wears quickly.',
+      cause: 'Fear of stalling.',
+      fix: 'Use only a little throttle, and let the clutch out further so it stops slipping sooner.',
+      cockpit: 'slip-heat',
+    },
+    {
+      title: 'Releasing the clutch with too little throttle',
+      does: 'Lets the clutch out with the engine at, or below, idle.',
+      feels: 'The engine labours and shudders, then dies.',
+      mechanics: 'At idle the engine has very little spare torque; the load of the stationary motorcycle through the clutch drags it below its minimum running speed.',
+      motorcycle: 'It creeps, shudders, and stalls.',
+      cause: 'Forgetting the throttle while concentrating on the clutch.',
+      fix: 'Open the throttle a little before the biting point, and hold it there as the clutch takes up.',
+      cockpit: 'stall',
+    },
+    {
+      title: 'Selecting the wrong gear',
+      does: 'Tries to move off in second (or in neutral), or changes gear without the clutch.',
+      feels: 'In second: the engine bogs and struggles. In neutral: revs rise, nothing happens. Without the clutch: the lever won’t move, or crunches.',
+      mechanics: 'Second gear multiplies the torque less, so the engine can’t pull the motorcycle away easily. Without the clutch, the dogs are loaded and can’t slide.',
+      motorcycle: 'It stalls, barely moves, or doesn’t move at all.',
+      cause: 'Not checking the gear indicator, or rushing.',
+      fix: 'Check the indicator shows 1 before moving; always pull the clutch in fully to change gear.',
+      cockpit: 'shift-without-clutch',
+    },
+    {
+      title: 'Looking down at the controls',
+      does: 'Watches the levers, the gear indicator or the front wheel while moving off.',
+      feels: 'Wobbly, uncertain steering; the motorcycle drifts.',
+      mechanics: 'Nothing changes in the machine — but balance and steering depend on where you look.',
+      motorcycle: 'It wanders and is harder to balance at low speed.',
+      cause: 'Unfamiliarity with the controls.',
+      fix: 'Learn the controls by feel while stationary; when moving off, look where you want to go.',
+    },
+  ],
+  questions: [
+    {
+      id: 'q1',
+      prompt: 'You are in first gear with a little throttle. As you ease the clutch out, where should you slow down and take most care?',
+      options: [
+        { id: 'a', label: 'At the very start of the lever’s travel, where it is fully pulled in' },
+        { id: 'b', label: 'Through the friction zone, starting at the biting point' },
+        { id: 'c', label: 'Only at the very end, once the clutch is fully out' },
+      ],
+      correctOptionId: 'b',
+      explanation: 'In the friction zone the plates slip and start passing torque — this is where the motorcycle begins to move. Releasing slowly here lets the engine take up the load without stalling or jerking.',
+    },
+    {
+      id: 'q2',
+      prompt: 'While the clutch is slipping in the friction zone, how do the engine speed and the rear wheel speed compare?',
+      options: [
+        { id: 'a', label: 'They are the same — the gearbox always ties them together' },
+        { id: 'b', label: 'The engine turns faster than first gear would make it for that wheel speed; the difference is the slip' },
+        { id: 'c', label: 'The wheel turns faster than the engine' },
+      ],
+      correctOptionId: 'b',
+      explanation: 'Only a fully gripping clutch ties engine and wheel together through the gear ratio. While it slips, the engine runs faster than the wheel side, and the friction between the plates passes part of the torque across.',
+    },
+    {
+      id: 'q3',
+      prompt: 'The engine stalls the moment the motorcycle starts to move. What is the most likely fix?',
+      options: [
+        { id: 'a', label: 'Release the clutch more slowly, with a little more throttle' },
+        { id: 'b', label: 'Move off in second gear instead' },
+        { id: 'c', label: 'Hold the front brake on while releasing the clutch' },
+      ],
+      correctOptionId: 'a',
+      explanation: 'A stall on moving off means the clutch loaded the engine faster than its torque could cope with. Releasing more slowly and giving it a little more throttle lets it take up the load. Second gear makes it harder; a brake left on adds load.',
+    },
+  ],
+}

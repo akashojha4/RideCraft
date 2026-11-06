@@ -62,7 +62,7 @@ export const handlingLessons: Lesson[] = [
         heading: 'Weight and grip, balanced about the tyres',
         body: [
           'In a turn, the tyres push the motorcycle sideways towards the centre of the turn — that push is what makes it follow the curve. On an upright motorcycle, a push at ground level would tip it over towards the outside. Leaning moves the centre of mass of motorcycle and rider inside the tyres, where its weight balances the push.',
-          'The lean needed is set by speed and radius alone: tan(lean) = speed² ÷ (g × radius). Double the speed and the push is four times bigger. It does not depend on the weight of the motorcycle or the rider — a heavy tourer and a light commuter lean the same for the same bend at the same speed.',
+          'The lean needed is set by speed and radius alone: tan(lean) = speed² ÷ (g × radius). (That treats the tyres as thin discs; real, rounded tyres need a few degrees more, because the contact patch moves inward as the motorcycle leans.) Double the speed and the push is four times bigger. It does not depend on the weight of the motorcycle or the rider — a heavy tourer and a light commuter lean the same for the same bend at the same speed.',
         ],
       },
       { type: 'illustration', illustration: 'lean-angle', caption: 'Pick a corner and a speed. The blue arrow is the tyres’ sideways grip; the black arrow is the weight.' },
@@ -70,14 +70,14 @@ export const handlingLessons: Lesson[] = [
         type: 'terms',
         heading: 'The two limits',
         items: [
-          { term: 'Grip', definition: 'The tyres can push sideways with at most μ × the weight. On dry asphalt (μ ≈ 0.9) that allows about 42° of lean; in the wet (μ ≈ 0.5), only about 27°.' },
+          { term: 'Grip', definition: 'The tyres can push sideways with at most μ × the weight. With the typical figures this course uses — μ ≈ 0.9 on dry asphalt, 0.5 in the wet — that allows about 42° of lean dry and only about 27° wet. Real values vary with the tyre, its temperature and the surface.' },
           { term: 'Ground clearance', definition: 'On a commuter motorcycle the footpegs touch the road at about 40°. The motorcycle can’t lean further, so it can’t turn any tighter at that speed.' },
         ],
       },
       {
         type: 'example',
         body: [
-          'Taking a roundabout at 30 km/h needs about 30° of lean — exciting but well inside the limits on a dry day. In the rain, the same roundabout at the same speed would need 0.58 g of sideways grip — more than a wet road can give (about 0.5 g). Riding it at 20 km/h needs only about 15°.',
+          'Taking a small roundabout (about 12 m radius) at 30 km/h needs about 30° of lean — exciting but well inside the limits on a dry day. In the rain, the same roundabout at the same speed would need 0.58 g of sideways grip — more than a wet road can give (about 0.5 g). Riding it at 20 km/h needs only about 15°.',
         ],
       },
       { type: 'callout', tone: 'tip', body: 'Lean angle is your margin. The less you need for a bend, the more grip and clearance are left for a damp patch, a bit of gravel or a bend that tightens.' },
@@ -124,7 +124,7 @@ export const handlingLessons: Lesson[] = [
           'A rider at 60 km/h sees a pothole at the last moment. Instead of “turning” the handlebar, they give the left bar a firm, quick push: the motorcycle flicks left round the pothole, and a push on the right bar brings it straight again — all in about a second.',
         ],
       },
-      { type: 'callout', tone: 'info', body: 'Countersteering works above roughly 15–20 km/h. At walking pace there is too little speed for this effect, and you steer directly, as on a bicycle — see the slow-speed lesson.' },
+      { type: 'callout', tone: 'info', body: 'Physically, every turn begins with a small countersteer — even on a bicycle. Above roughly 15–20 km/h it is the main thing you feel and how you control lean. At walking pace the countersteer is tiny compared with the large steering angle the turn needs, so it feels as if you simply steer where you want to go — see the slow-speed lesson.' },
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'At 50 km/h you want to turn left. What do you do with the handlebar?', options: [{ id: 'a', label: 'Press the left handlebar forward' }, { id: 'b', label: 'Pull the left handlebar back' }, { id: 'c', label: 'Press the right handlebar forward' }], correctOptionId: 'a', explanation: 'Pressing the left bar points the front wheel briefly right, which makes the motorcycle lean left — and turn left.' },
@@ -186,8 +186,8 @@ export const handlingLessons: Lesson[] = [
         type: 'concept',
         heading: 'At walking pace, the handlebar sets the radius',
         body: [
-          'At very low speed a motorcycle turns like a bicycle: the angle of the handlebar sets the turn. At full lock (about 38° on this motorcycle) the tightest turn is about 1.7 m radius — a U-turn about 3.5 m across, plus room to start from the kerb.',
-          'Speed works against you. The faster you go round that tight circle, the more lean it needs: at 8 km/h about 17°, at 15 km/h more than the footpegs allow, and the turn widens. A tight U-turn is a walking-pace manoeuvre.',
+          'At walking pace the angle of the handlebar sets the turn. At full lock — 38° at the bars on this motorcycle, about 35° at the road because the steering axis is raked back — the front wheel follows a circle about 2.3 m in radius. That makes a U-turn about 4.5 m across, plus room to start from the kerb: roughly 6 m of road. Owner’s manuals list the minimum turning radius; for small motorcycles it is typically about 2–3 m.',
+          'Speed works against you. The faster you go round that tight circle, the more lean it needs: at 8 km/h about 13°, at 12 km/h about 27°, and above about 15 km/h more than the footpegs allow — so the turn widens. A tight U-turn is a walking-pace manoeuvre.',
         ],
       },
       { type: 'illustration', illustration: 'u-turn', caption: 'Set the road width, the speed and how far the handlebar is turned. Does the U-turn fit between the kerbs?' },
@@ -205,7 +205,7 @@ export const handlingLessons: Lesson[] = [
       {
         type: 'example',
         body: [
-          'On a 6 m street, a rider tries to U-turn at 12 km/h with the handlebar half turned and drifts towards the far kerb. At walking pace and full lock the same motorcycle turns in about 4.5 m with room to spare. On a 4 m lane, even full lock won’t fit — so they stop and do a three-point turn, pushing back with their feet.',
+          'On a 7 m street, a rider tries to U-turn at 12 km/h with the handlebar half turned and drifts towards the far kerb. At walking pace and full lock, starting from the kerb, the same motorcycle turns in about 4.5 m and fits. On a 5 m lane even full lock won’t fit — so they stop and do a three-point turn, pushing back with their feet.',
         ],
       },
       { type: 'callout', tone: 'safety', body: 'Using the front brake at full lock with the motorcycle leaned is the classic way to drop it. Speed control in slow turns comes from the clutch and the rear brake.' },
@@ -314,7 +314,7 @@ export const handlingLessons: Lesson[] = [
         heading: 'Balance comes from steering — and steering needs speed',
         body: [
           'A motorcycle is always starting to fall one way or the other. You catch it by steering towards the fall: the turn creates a sideways force that lifts the motorcycle back up. That force grows with speed squared, so at road speed a tiny steering movement is enough.',
-          'At walking pace the same correction needs a huge handlebar movement — catching a 5° lean at 5 km/h takes about 30° of steering, and below about 4 km/h you run out of lock. An uncaught lean doubles in about a third of a second. That is why slow riding feels wobbly, and why riders keep the engine pulling to stay above that speed.',
+          'At walking pace the same correction needs a huge handlebar movement — catching a 5° lean at 5 km/h takes about 30° of steering, and below about 4.5 km/h you run out of lock. An uncaught lean doubles in about a third of a second. That is why slow riding feels wobbly, and why riders keep the engine pulling to stay above that speed.',
         ],
       },
       { type: 'illustration', illustration: 'slow-balance', caption: 'Change the speed and see how much steering it takes to catch a lean.' },
@@ -324,7 +324,7 @@ export const handlingLessons: Lesson[] = [
         steps: [
           { title: 'Throttle', body: 'A small, constant amount — just above idle — so the engine never bogs down.' },
           { title: 'Clutch', body: 'Held in the friction zone: let it out a little to go faster, pull it in a little to slow down. This is your main speed control.' },
-          { title: 'Rear brake', body: 'Dragged lightly against the engine. It steadies the motorcycle and gives fine speed control — never the front brake at walking pace.' },
+          { title: 'Rear brake', body: 'Dragged lightly against the engine. It steadies the motorcycle and gives fine speed control. Avoid the front brake while the handlebar is turned or the motorcycle is leaned.' },
           { title: 'Eyes up', body: 'Look where you want to go, not at the ground in front of the wheel.' },
         ],
       },
@@ -397,7 +397,7 @@ export const handlingLessons: Lesson[] = [
         type: 'concept',
         heading: 'Load moves; the cornering job doesn’t',
         body: [
-          'Braking pitches the motorcycle forward and moves load onto the front tyre; accelerating moves it to the rear. A tyre’s grip is proportional to its load, so each tyre’s grip circle grows or shrinks as the load moves.',
+          'Braking pitches the motorcycle forward and moves load onto the front tyre; accelerating moves it to the rear. A tyre’s grip is roughly proportional to its load, so each tyre’s grip circle grows or shrinks as the load moves.',
           'In a bend, each tyre must still carry its share of the cornering force — about 45 % front, 55 % rear — whatever you do with the controls. Brake while leaned and the rear tyre loses load but keeps its cornering job, so it gets closer to sliding. Snap the throttle open and the front loses load. A steady, gentle throttle keeps the load near its natural split, and both tyres work equally.',
         ],
       },
@@ -422,7 +422,7 @@ export const handlingLessons: Lesson[] = [
       { type: 'cta', to: '/simulators/ride-and-stop', title: 'Feel the load move', text: 'Brake in the riding-and-stopping simulator and watch the load shift onto the front tyre.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'Braking hard in a bend makes which tyre most likely to slide?', options: [{ id: 'a', label: 'The rear — it loses load but still has to carry its share of the cornering force' }, { id: 'b', label: 'Neither' }, { id: 'c', label: 'The front only' }], correctOptionId: 'a', explanation: 'Load moves forward under braking. The rear tyre has less grip but the same cornering job, so it reaches its limit first.' },
+      { id: 'q1', prompt: 'Braking hard in a bend makes which tyre most likely to slide?', options: [{ id: 'a', label: 'The rear — it loses load but still has to carry its share of the cornering force' }, { id: 'b', label: 'Neither' }, { id: 'c', label: 'The front only' }], correctOptionId: 'a', explanation: 'Load moves forward under braking. The rear tyre has less grip but the same cornering job, so it reaches its limit first. Heavy front braking while leaned is dangerous too: the front tyre is asked to brake and corner at once and can wash out.' },
       { id: 'q2', prompt: 'Why hold a steady throttle through a bend?', options: [{ id: 'a', label: 'To go as fast as possible' }, { id: 'b', label: 'It keeps the load near its natural split, so both tyres work equally' }, { id: 'c', label: 'It keeps the engine cool' }], correctOptionId: 'b', explanation: 'A steady throttle avoids pitching load forward or backward, so neither tyre is overloaded.' },
       { id: 'q3', prompt: 'What happens to the front tyre if you open the throttle hard while leaned?', options: [{ id: 'a', label: 'It gains load and grip' }, { id: 'b', label: 'It loses load, so it has less grip for its cornering job' }, { id: 'c', label: 'Nothing changes' }], correctOptionId: 'b', explanation: 'Acceleration moves load to the rear, leaving the front with less grip — it can wash out.' },
     ],

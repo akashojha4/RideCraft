@@ -102,7 +102,7 @@ export const mechanicsLessons: Lesson[] = [
         heading: 'Squeeze more, expand more',
         body: [
           'Compression ratio compares the cylinder’s volume with the piston at the bottom (swept + clearance volume) to its volume at the top (clearance volume only). At 9.5 : 1 the mixture is squeezed into about a tenth of the space.',
-          'The more the charge is compressed before it burns, the further it can expand afterwards — so more of its heat becomes work. The ideal efficiency rises from about 59 % at 9.5 : 1 to 64 % at 13 : 1. The price: by the end of compression a 9.5 : 1 engine has the mixture at about 19 bar and 375 °C, and a 13 : 1 engine at 28 bar and 440 °C — closer to the point where it knocks.',
+          'The more the charge is compressed before it burns, the further it can expand afterwards — so more of its heat becomes work. The ideal (air-standard) efficiency rises from about 59 % at 9.5 : 1 to 64 % at 13 : 1. The price: allowing for the heat lost while compressing, by the end of compression a 9.5 : 1 engine has the mixture at about 19 bar and 375 °C, and a 13 : 1 engine at 28 bar and 440 °C — closer to the point where it knocks.',
         ],
       },
       { type: 'illustration', illustration: 'compression-ratio', caption: 'Change the compression ratio and compare the clearance volume, the efficiency and the fuel it needs.' },
@@ -186,11 +186,12 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'gearbox', caption: 'Select gears and see which pair carries the power.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/mechanics/gear-ratios', title: 'Practise it in the cockpit', text: 'See each gear change the engine speed for the same road speed.' },
       { type: 'illustration', illustration: 'gear-speed-chart', caption: 'From the basics module: the speed range of each gear.' },
       {
         type: 'example',
         body: [
-          'Fitting a rear sprocket with three more teeth (say 42 → 45) shortens every gear by 7 %: quicker acceleration, but higher revs at cruising speed and a slightly lower top speed. Riders who carry a pillion uphill often do the opposite of what racers do.',
+          'Fitting a rear sprocket with three more teeth (say 42 → 45) shortens every gear by 7 %: quicker acceleration, but higher revs at cruising speed and a slightly lower top speed. A smaller rear sprocket does the opposite: calmer cruising, gentler acceleration.',
         ],
       },
       { type: 'illustration', illustration: 'wheel-torque', caption: 'Engine torque multiplied through the gears into force at the tyre.' },
@@ -219,6 +220,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'clutch-capacity', caption: 'Change the lever pull, the number of plates and their condition. When does the clutch slip?' },
+      { type: 'cta', to: '/simulators/cockpit?practice=clutch-drill&from=/learn/mechanics/clutch-plates', title: 'Practise it in the cockpit', text: 'Watch the clamp load and the torque the plates pass as you work the lever.' },
       { type: 'illustration', illustration: 'clutch', caption: 'The clutch from the basics module: lever travel, friction zone and clamping force.' },
       {
         type: 'keyPoints',
@@ -226,8 +228,14 @@ export const mechanicsLessons: Lesson[] = [
         points: [
           'Worn friction material: thinner plates mean less spring force on the stack.',
           'The wrong oil: car oils with friction modifiers make the plates slippery. Use oil rated JASO MA for wet clutches.',
-          'No free play at the lever: the springs are never fully clamping.',
+          'No freeplay at a cable clutch’s lever: the springs are never fully clamping. (A hydraulic clutch adjusts for wear itself.)',
         ],
+      },
+      {
+        type: 'callout',
+        tone: 'info',
+        title: 'Variations',
+        body: 'Many modern motorcycles have a slipper clutch, which lets the plates slip when the rear wheel tries to drive the engine too hard — after a clumsy downshift — so the rear tyre doesn’t hop. Assist clutches use ramps to add clamp under drive, so lighter springs (and a lighter lever) can be used. A few motorcycles have a dry clutch that runs without oil.',
       },
       {
         type: 'example',
@@ -235,6 +243,7 @@ export const mechanicsLessons: Lesson[] = [
           'After an oil change with cheap car oil, a rider notices the revs rising but the motorcycle not accelerating when they open the throttle in top gear. The clutch is slipping under full load. Draining and refilling with JASO MA oil cures it.',
         ],
       },
+      { type: 'cta', to: '/simulators/clutch-explorer', title: 'See it working', text: 'Open the clutch explorer: the clamp load, the torque the plates can pass and the torque they are passing, live.' },
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'How many friction surfaces do 5 friction plates provide?', options: [{ id: 'a', label: '5' }, { id: 'b', label: '10' }, { id: 'c', label: '20' }], correctOptionId: 'b', explanation: 'Each friction plate has two faces, so 5 plates give 10 surfaces.' },
@@ -260,6 +269,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'shift-drum', caption: 'Shift through the gears and watch the drum turn, the forks move and the dogs engage.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/mechanics/transmission', title: 'Practise it in the cockpit', text: 'Shift through the gears and watch the selected pair engage.' },
       {
         type: 'steps',
         heading: 'One gear change, inside',
@@ -467,6 +477,7 @@ export const mechanicsLessons: Lesson[] = [
           'In an emergency, brake hard with both brakes and keep squeezing — let ABS work, even if the lever pulses.',
           'ABS keeps the wheels from locking; it doesn’t create grip. It can’t stop you sooner than the tyres and surface allow.',
           'Standard ABS works best upright. Some modern systems (“cornering ABS”) also account for lean angle.',
+          'On loose gravel or snow, standard ABS can make the stop longer — some off-road motorcycles let you switch it off at the rear.',
         ],
       },
       {
@@ -536,8 +547,8 @@ export const mechanicsLessons: Lesson[] = [
         type: 'concept',
         heading: 'Spring absorbs, damper controls',
         body: [
-          'Suspension exists to keep the tyres pressed onto the road — grip depends on load. The spring absorbs a bump by compressing, storing its energy. Left alone it would give that energy back as a bounce, over and over; the damper forces oil through small holes, turning the motion into heat so it dies away after one smooth movement.',
-          'Sag is how far the suspension settles under the motorcycle’s own weight (and the rider’s): typically about 30 % of travel. Preload compresses the spring beforehand, so it changes sag and ride height — but not the spring’s stiffness. Too much sag leaves too little travel for bumps; too little lets the wheel drop into holes poorly.',
+          'Suspension has two jobs: keeping the tyres pressed onto the road — grip depends on load — and isolating the rider and chassis from bumps. The spring absorbs a bump by compressing, storing its energy. Left alone it would give that energy back as a bounce, over and over; the damper forces oil through small holes, turning the motion into heat so it dies away after one smooth movement.',
+          'Rider sag is how far the suspension settles under the motorcycle with the rider aboard: typically about 25–33 % of travel (less with the motorcycle alone). Preload compresses the spring beforehand, so it changes sag and ride height — but not the spring’s stiffness. Too much sag leaves too little travel for bumps; too little lets the wheel drop into holes poorly.',
         ],
       },
       { type: 'illustration', illustration: 'suspension-tuning', caption: 'Ride over a speed breaker at 30 km/h. Change the spring, preload and damping and watch the body and the tyre load.' },
@@ -618,11 +629,12 @@ export const mechanicsLessons: Lesson[] = [
         type: 'concept',
         heading: 'A high centre of mass on a short wheelbase',
         body: [
-          'The combined centre of mass of motorcycle and rider sits about 0.6 m up, on a wheelbase of about 1.3 m. Braking at a g, its momentum pitches load forward: the front’s share grows by 0.6/1.3 × a/g — from 45 % at rest to over 80 % in a hard stop. Accelerating does the opposite.',
-          'Each tyre’s grip is proportional to its load, so the front can provide most of the braking while the lightly loaded rear locks easily. Load doesn’t move instantly: the suspension takes a fraction of a second to pitch, which is why brakes must be applied progressively.',
+          'The combined centre of mass of motorcycle and rider sits about 0.6 m up, on a wheelbase of about 1.3 m. Braking at a g, the braking force acts at the road, below the centre of mass, and the pitching moment it creates transfers load to the front — riders say weight transfer, but the mass stays where it is: the front’s share grows by 0.6/1.3 × a/g — from 45 % at rest to over 80 % in a hard stop. Accelerating does the opposite.',
+          'Each tyre’s grip is roughly proportional to its load, so the front can provide most of the braking while the lightly loaded rear locks easily. The load on the front tyre rises as the deceleration builds, but the fork takes a fraction of a second to compress and the chassis to settle. A grabbed lever asks for full braking before the front tyre is loaded and settled, and can lock it; squeezing progressively lets the load and the grip build with the demand.',
         ],
       },
       { type: 'illustration', illustration: 'weight-transfer', caption: 'Braking from rolling to an emergency stop: how the load shifts.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=brakes-drill&from=/learn/mechanics/weight-transfer', title: 'Practise it in the cockpit', text: 'Brake and watch the load move onto the front tyre and the fork compress.' },
       { type: 'illustration', illustration: 'corner-grip', caption: 'In a bend: how much of each tyre’s grip is used when braking or accelerating.' },
       {
         type: 'example',
@@ -635,7 +647,7 @@ export const mechanicsLessons: Lesson[] = [
     knowledgeCheck: [
       { id: 'q1', prompt: 'With h/L = 0.46, how much does the front share grow when braking at 0.5 g?', options: [{ id: 'a', label: 'About 23 percentage points' }, { id: 'b', label: 'About 5 percentage points' }, { id: 'c', label: 'About 50 percentage points' }], correctOptionId: 'a', explanation: '0.46 × 0.5 = 0.23, so 45 % becomes about 68 %.' },
       { id: 'q2', prompt: 'Why does the rear wheel lock easily in a hard stop?', options: [{ id: 'a', label: 'Most of the load has moved to the front' }, { id: 'b', label: 'The rear brake is bigger' }, { id: 'c', label: 'The rear tyre is narrower' }], correctOptionId: 'a', explanation: 'Little load on the rear tyre means little grip.' },
-      { id: 'q3', prompt: 'Why should braking be applied progressively?', options: [{ id: 'a', label: 'The suspension needs time to pitch and move the load onto the front tyre' }, { id: 'b', label: 'To save the brake pads' }, { id: 'c', label: 'It isn’t necessary' }], correctOptionId: 'a', explanation: 'The front tyre’s grip grows as the load arrives; a grab arrives before it.' },
+      { id: 'q3', prompt: 'Why should braking be applied progressively?', options: [{ id: 'a', label: 'The fork needs a moment to compress and the front tyre’s load to build' }, { id: 'b', label: 'To save the brake pads' }, { id: 'c', label: 'It isn’t necessary' }], correctOptionId: 'a', explanation: 'The front tyre’s grip grows as the load arrives; a grab arrives before it.' },
     ],
   },
 
@@ -652,16 +664,17 @@ export const mechanicsLessons: Lesson[] = [
         heading: 'Friction and vacuum, multiplied by the gearing',
         body: [
           'With the throttle closed and the clutch out, the rear wheel has to keep the engine turning. Two things resist it: internal friction (pistons, bearings, valve springs) and pumping loss — with the throttle closed, the pistons pull against a near-vacuum on every intake stroke.',
-          'Both grow with engine speed, and the gearing multiplies them at the wheel. A lower gear turns the engine faster for the same road speed and multiplies its resistance by a bigger ratio, so the slowing effect is several times stronger than coasting with the clutch in. Fuel-injected engines also cut the fuel completely on a closed throttle above idle, so engine braking uses no fuel.',
+          'Both grow with engine speed, and the gearing multiplies them at the wheel. A lower gear turns the engine faster for the same road speed and multiplies its resistance by a bigger ratio, so in the lower gears the slowing effect is several times stronger than coasting with the clutch in. Many fuel-injected engines cut the fuel on a closed throttle above a set engine speed, so engine braking can use almost no fuel.',
         ],
       },
       { type: 'illustration', illustration: 'engine-braking', caption: 'Deceleration from engine braking at different speeds in each gear, measured on the simulator’s powertrain.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/mechanics/engine-braking', title: 'Practise it in the cockpit', text: 'Change down with the throttle closed and watch the power flow run backwards.' },
       {
         type: 'keyPoints',
         heading: 'Using it well',
         points: [
           'Close the throttle early to slow gently — it is smooth, free and keeps the brakes cool.',
-          'Change down for stronger engine braking on hills, but only once the speed suits the lower gear.',
+          'Change down for stronger engine braking on hills, but only once the speed suits the lower gear — an abrupt downshift at too high a speed can make the rear tyre hop or slide (a slipper clutch reduces this).',
           'Engine braking acts on the rear wheel only and doesn’t turn on the brake light. In traffic, a touch on the brakes warns the driver behind.',
         ],
       },

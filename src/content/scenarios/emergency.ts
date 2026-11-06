@@ -62,7 +62,7 @@ export const emergencyBraking: Scenario = {
         verdict: 'crash',
         rider: 'Stamps on the rear brake pedal.',
         motorcycle: `The rear wheel locks (${lk?.wheel === 'rear' ? 'skid marks' : 'it slides'}) and the engine stalls with it. The rear tyre alone can only slow the motorcycle at about a third of a g: it reaches the car at ${Math.round(kmh(vHit))} km/h.`,
-        explanation: 'Braking moves the weight forward, leaving little on the rear tyre. The rear brake alone can’t stop a motorcycle quickly — the front brake provides most of the stopping power.',
+        explanation: 'Braking transfers load to the front, leaving little on the rear tyre. The rear brake alone can’t stop a motorcycle quickly — the front brake provides most of the stopping power.',
         consequence: `Crash into the side of the car at ${Math.round(kmh(vHit))} km/h.`,
         metrics: [
           { label: 'Rear wheel', value: 'Locked', tone: 'danger' },
@@ -77,7 +77,7 @@ export const emergencyBraking: Scenario = {
       verdict: ok ? 'safe' : 'crash',
       rider: 'Closes the throttle, pulls the clutch in, presses the rear brake lightly and squeezes the front brake on hard over half a second.',
       motorcycle: ok ? `No wheel locks. The motorcycle stops in ${fmt(end.s.distance)} m (${fmt(ms(50) * REACTION)} m of that during the reaction second) — ${fmt(left)} m short of the car.` : `Stops too late, reaching the car at ${Math.round(kmh(end.s.speed))} km/h.`,
-      explanation: 'Squeezing progressively lets the weight move onto the front tyre as the braking builds, so its grip grows with the demand. The rear adds a little, and the clutch keeps the engine from stalling.',
+      explanation: 'Squeezing progressively lets the load on the front tyre build with the braking, so its grip grows with the demand. The rear adds a little, and the clutch keeps the engine from stalling.',
       consequence: ok ? `Safe: stopped with ${fmt(left)} m to spare.` : 'Crash.',
       metrics: [
         { label: 'Stopping distance', value: `${fmt(end.s.distance)} m` },

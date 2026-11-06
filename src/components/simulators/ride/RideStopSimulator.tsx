@@ -1,6 +1,8 @@
 import { Power } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { ExerciseBar } from '@/components/simulation/ExerciseBar'
+import { CauseEffectChain } from '@/components/simulation/CauseEffectChain'
+import { ExplanationPanel } from '@/components/simulation/ExplanationPanel'
 import { GearLever } from '@/components/simulation/GearLever'
 import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Readout } from '@/components/simulation/Readouts'
@@ -9,7 +11,7 @@ import { TopicCards } from '@/components/simulation/TopicCards'
 import { DualTach } from '@/components/simulators/clutch/DualTach'
 import { Button } from '@/components/ui/Button'
 import { Slider } from '@/components/ui/Slider'
-import { exerciseProgress, exercises, explainRide, gradeAt, leadAt, topics, type RideExercise } from '@/content/simulators/rideStop'
+import { assumptions, exerciseProgress, exercises, explainRide, gradeAt, leadAt, topics, type RideExercise } from '@/content/simulators/rideStop'
 import { useExercises } from '@/hooks/useExercises'
 import { useGearLever } from '@/hooks/useGearLever'
 import { usePowertrainSim, VISUAL_SLOWDOWN } from '@/hooks/usePowertrainSim'
@@ -22,6 +24,9 @@ import { RoadView, type Skid } from './RoadView'
 import { SpeedChart } from './SpeedChart'
 import { StoppingDistances } from './StoppingDistances'
 import { TyreGrip } from './TyreGrip'
+import { AssumptionsPanel } from '@/components/simulation/AssumptionsPanel'
+import type { Stage } from '@/lib/simulation/model'
+import { powertrainChain, sideViewParts, type PowertrainPart } from '@/lib/simulation/models/powertrain'
 
 const FREE_RIDE: PowertrainInputs = { gear: 0, clutch: 0, throttle: 0, brake: 0, grade: 0, front: 0, rear: 0, abs: false, cbs: false, grip: GRIP.dry }
 const GEAR_NAME = ['Neutral', '1st', '2nd', '3rd', '4th', '5th']
@@ -104,6 +109,9 @@ export function RideStopSimulator() {
   const lead = course?.lead ? leadAt(course.lead, exerciseTime) : null
   const leadBraking = course?.lead && lead ? lead.speed < leadAt(course.lead, exerciseTime - 0.1).speed - 0.01 : false
   const story = explainRide(s, inputs)
+  const [focus, setFocus] = useState<{ stage: Stage | null; parts: PowertrainPart[] }>({ stage: null, parts: [] })
+  const chain = powertrainChain(s, inputs, sim.snapshot.derived)
+  const focusParts = focus.parts.length ? sideViewParts(focus.parts) : null
   const live = active && progress ? exerciseProgress(active, progress, s) : null
   const share = frontShare(s.loadAccel)
 
@@ -125,7 +133,7 @@ export function RideStopSimulator() {
           </SimCard>
           <SimCard title={`Load and brake forces · wheels shown ${VISUAL_SLOWDOWN}× slower`}>
             <div className="bg-blueprint rounded-xl">
-              <BrakingView state={s} weight={WEIGHT} frontWheel={sim.angles.frontWheel} rearWheel={sim.angles.rearWheel} road={sim.angles.wheel} />
+              <BrakingView state={s} weight={WEIGHT} frontWheel={sim.angles.frontWheel} rearWheel={sim.angles.rearWheel} road={sim.angles.wheel} highlighted={focusParts ?? undefined} />
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-line pt-3 sm:grid-cols-4">
               <Readout label={decel >= 0 ? 'Deceleration' : 'Acceleration'} value={`${(Math.abs(s.acceleration) / G).toFixed(2)} g`} />
@@ -137,10 +145,8 @@ export function RideStopSimulator() {
               <Readout label="Gradient" value={inputs.grade ? `${(inputs.grade * 100).toFixed(1)} %` : 'Flat'} />
             </dl>
           </SimCard>
-          <section aria-live="polite" aria-label="What is happening" className={cn('rounded-2xl border p-5', story.tone === 'danger' ? 'border-danger-500/40 bg-danger-950/40' : story.tone === 'caution' ? 'border-caution-500/40 bg-caution-950/30' : story.tone === 'ok' ? 'border-ok-500/30 bg-ok-950/30' : 'border-line bg-surface')}>
-            <h2 className={cn('text-lg font-semibold', story.tone === 'danger' ? 'text-danger-400' : story.tone === 'caution' ? 'text-caution-400' : story.tone === 'ok' ? 'text-ok-400' : 'text-ink')}>{story.title}</h2>
-            <p className="mt-1 leading-relaxed text-ink-muted">{story.text}</p>
-          </section>
+          <CauseEffectChain chain={chain} active={focus.stage} onActiveChange={(stage, parts) => setFocus({ stage, parts })} />
+          <ExplanationPanel tone={story.tone} title={story.title} text={story.text} />
           <SimCard title="Speed · last 12 s">
             <SpeedChart samples={history} now={t} band={course?.band} />
           </SimCard>
@@ -216,6 +222,8 @@ export function RideStopSimulator() {
       <StoppingDistances />
 
       <TopicCards topics={topics} exercises={exercises} onStart={startExercise} onFreeRide={goFree} />
+
+      <AssumptionsPanel assumptions={assumptions} />
     </div>
   )
 }

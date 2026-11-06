@@ -3,6 +3,8 @@ import { useTransform } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import { MotorcycleSideView } from '@/components/motorcycle/MotorcycleSideView'
 import { ExerciseBar } from '@/components/simulation/ExerciseBar'
+import { CauseEffectChain } from '@/components/simulation/CauseEffectChain'
+import { ExplanationPanel } from '@/components/simulation/ExplanationPanel'
 import { GearLever } from '@/components/simulation/GearLever'
 import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Readout } from '@/components/simulation/Readouts'
@@ -12,11 +14,10 @@ import { DualTach } from '@/components/simulators/clutch/DualTach'
 import { StripChart } from '@/components/simulators/clutch/StripChart'
 import { Button } from '@/components/ui/Button'
 import { Slider } from '@/components/ui/Slider'
-import { exercises, explainGears, topics, type ShiftRecord } from '@/content/simulators/gears'
+import { assumptions, exercises, explainGears, topics, type ShiftRecord } from '@/content/simulators/gears'
 import { useExercises } from '@/hooks/useExercises'
 import { useGearLever } from '@/hooks/useGearLever'
 import { usePowertrainSim, VISUAL_SLOWDOWN } from '@/hooks/usePowertrainSim'
-import { cn } from '@/lib/cn'
 import { clampingForce } from '@/lib/mechanics/clutch'
 import { gearRatio } from '@/lib/mechanics/gearbox'
 import { EFFICIENCY, canRestart, drivelineSpeed, overallRatioFor, radToRpm, type PowertrainInputs } from '@/lib/mechanics/powertrain'
@@ -24,6 +25,9 @@ import { SHIFT_DURATION } from '@/lib/simulation/autoShift'
 import type { Exercise } from '@/lib/simulation/exercises'
 import { GearboxView } from './GearboxView'
 import { GearChooser } from './GearChooser'
+import { AssumptionsPanel } from '@/components/simulation/AssumptionsPanel'
+import type { Stage } from '@/lib/simulation/model'
+import { powertrainChain, sideViewParts, type PowertrainPart } from '@/lib/simulation/models/powertrain'
 
 const FREE_RIDE: PowertrainInputs = { gear: 0, clutch: 0, throttle: 0, brake: 0, grade: 0 }
 const GEAR_NAME = ['Neutral', '1st', '2nd', '3rd', '4th', '5th']
@@ -85,6 +89,9 @@ export function GearShiftingSimulator() {
   const enginePower = (passing * s.engine) / 1000
   const wheelPower = (passing * drivelineSpeed(s.speed, inputs.gear) * EFFICIENCY) / 1000
   const story = explainGears(s, inputs, lastShift)
+  const [focus, setFocus] = useState<{ stage: Stage | null; parts: PowertrainPart[] }>({ stage: null, parts: [] })
+  const chain = powertrainChain(s, inputs, sim.snapshot.derived)
+  const focusParts = focus.parts.length ? sideViewParts(focus.parts) : null
   const wheelAngle = useTransform(sim.angles.wheel, (a) => -a)
 
   return (
@@ -106,13 +113,11 @@ export function GearShiftingSimulator() {
               <Readout label="Wheel power" value={inputs.gear ? `${Math.max(0, wheelPower).toFixed(1)} kW` : '—'} />
             </dl>
           </SimCard>
-          <section aria-live="polite" aria-label="What is happening" className={cn('rounded-2xl border p-5', story.tone === 'danger' ? 'border-danger-500/40 bg-danger-950/40' : story.tone === 'caution' ? 'border-caution-500/40 bg-caution-950/30' : story.tone === 'ok' ? 'border-ok-500/30 bg-ok-950/30' : 'border-line bg-surface')}>
-            <h2 className={cn('text-lg font-semibold', story.tone === 'danger' ? 'text-danger-400' : story.tone === 'caution' ? 'text-caution-400' : story.tone === 'ok' ? 'text-ok-400' : 'text-ink')}>{story.title}</h2>
-            <p className="mt-1 leading-relaxed text-ink-muted">{story.text}</p>
-          </section>
+          <CauseEffectChain chain={chain} active={focus.stage} onActiveChange={(stage, parts) => setFocus({ stage, parts })} />
+          <ExplanationPanel tone={story.tone} title={story.title} text={story.text} />
           <SimCard title="The motorcycle">
             <div className="bg-blueprint rounded-xl">
-              <MotorcycleSideView wheelAngle={wheelAngle} highlighted={busy ? ['clutch', 'gearbox'] : slipping ? 'clutch' : null} title="Motorcycle" />
+              <MotorcycleSideView wheelAngle={wheelAngle} highlighted={focusParts ?? (busy ? ['clutch', 'gearbox'] : slipping ? 'clutch' : null)} title="Motorcycle" />
             </div>
           </SimCard>
           <SimCard title="Engine vs wheel side · last 12 s">
@@ -152,6 +157,8 @@ export function GearShiftingSimulator() {
       <GearChooser />
 
       <TopicCards topics={topics} exercises={exercises} onStart={startExercise} onFreeRide={goFree} />
+
+      <AssumptionsPanel assumptions={assumptions} />
     </div>
   )
 }

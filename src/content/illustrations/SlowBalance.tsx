@@ -5,7 +5,7 @@ import { TopBike } from '@/components/handling/TopBike'
 import { Readout } from '@/components/simulation/Readouts'
 import { Slider } from '@/components/ui/Slider'
 import { G, WHEELBASE } from '@/lib/mechanics/braking'
-import { CG_HEIGHT_TURN, STEERING_LOCK, ms, steerFor } from '@/lib/mechanics/cornering'
+import { CG_HEIGHT_TURN, ROAD_LOCK, ms, steerFor } from '@/lib/mechanics/cornering'
 
 /*
  * Handling lesson 8: why slow is hard. A motorcycle that starts to lean is caught by
@@ -26,10 +26,10 @@ export default function SlowBalance() {
   const [kmh, setKmh] = useState(10)
   const [lean, setLean] = useState(5)
   const steer = steerFor(ms(kmh), lean)
-  const beyond = steer > STEERING_LOCK
+  const beyond = steer > ROAD_LOCK
   const doubleTime = Math.acosh(2) / Math.sqrt(G / CG_HEIGHT_TURN)
   // Slowest speed at which this lean can still be caught within the steering lock.
-  const minKmh = Math.sqrt((G * WHEELBASE * Math.tan((lean * Math.PI) / 180)) / Math.tan((STEERING_LOCK * Math.PI) / 180)) * 3.6
+  const minKmh = Math.sqrt((G * WHEELBASE * Math.tan((lean * Math.PI) / 180)) / Math.tan((ROAD_LOCK * Math.PI) / 180)) * 3.6
   const curve: string[] = []
   for (let k = SPEEDS[0]; k <= SPEEDS[1]; k += 0.25) curve.push(`${curve.length ? 'L' : 'M'}${cx(k).toFixed(1)},${cy(steerFor(ms(k), lean)).toFixed(1)}`)
 
@@ -37,10 +37,10 @@ export default function SlowBalance() {
     <DiagramFrame
       stage={
         <div className="grid items-center gap-4 sm:grid-cols-[1fr_2fr]">
-          <svg viewBox="0 0 200 200" className="w-full" role="img" aria-label={`Motorcycle leaning ${lean} degrees, front wheel steered ${Math.min(steer, STEERING_LOCK).toFixed(0)} degrees`}>
+          <svg viewBox="0 0 200 200" className="w-full" role="img" aria-label={`Motorcycle leaning ${lean} degrees, front wheel steered ${Math.min(steer, ROAD_LOCK).toFixed(0)} degrees`}>
             <line x1={0} x2={110} y1={185} y2={185} strokeWidth={1.5} className="stroke-line-strong" />
             <RearView x={55} y={185} scale={95} lean={lean} />
-            <TopBike x={160} y={110} scale={46} heading={0} steer={Math.min(steer, STEERING_LOCK)} />
+            <TopBike x={160} y={110} scale={46} heading={0} steer={Math.min(steer, ROAD_LOCK)} />
             <DiagramLabel x={4} y={14}>Leaning</DiagramLabel>
             <DiagramLabel x={122} y={14}>Steering</DiagramLabel>
           </svg>
@@ -62,9 +62,9 @@ export default function SlowBalance() {
               <text x={CHART.right} y={CHART.bottom + 26} textAnchor="end" className="fill-ink-subtle text-[9px]">
                 speed, km/h
               </text>
-              <line x1={CHART.left} x2={CHART.right} y1={cy(STEERING_LOCK)} y2={cy(STEERING_LOCK)} strokeWidth={1.5} strokeDasharray="5 4" className="stroke-danger-400" />
-              <text x={CHART.right} y={cy(STEERING_LOCK) - 5} textAnchor="end" className="fill-ink-muted text-[10px]">
-                steering lock {STEERING_LOCK}°
+              <line x1={CHART.left} x2={CHART.right} y1={cy(ROAD_LOCK)} y2={cy(ROAD_LOCK)} strokeWidth={1.5} strokeDasharray="5 4" className="stroke-danger-400" />
+              <text x={CHART.right} y={cy(ROAD_LOCK) - 5} textAnchor="end" className="fill-ink-muted text-[10px]">
+                steering lock ({Math.round(ROAD_LOCK)}° at the road)
               </text>
               <path d={curve.join(' ')} fill="none" strokeWidth={2} className="stroke-coolant-400" />
               <circle cx={cx(kmh)} cy={cy(steer)} r={5} strokeWidth={2} className={beyond ? 'fill-danger-400 stroke-bg' : 'fill-coolant-400 stroke-bg'} />
@@ -93,7 +93,7 @@ export default function SlowBalance() {
       }
       status={
         beyond
-          ? `At ${kmh} km/h, catching a ${lean}° lean would need ${steer > MAX_STEER ? 'more than 60°' : `${steer.toFixed(0)}°`} of steering — past the ${STEERING_LOCK}° lock. Steering alone can’t save it: keep moving with steady drive from the clutch, use the rear brake to control speed, and put a foot down when you stop.`
+          ? `At ${kmh} km/h, catching a ${lean}° lean would need ${steer > MAX_STEER ? 'more than 60°' : `${steer.toFixed(0)}°`} of steering — past the ${Math.round(ROAD_LOCK)}° lock (measured at the road). Steering alone can’t save it: keep moving with steady drive from the clutch, use the rear brake to control speed, and put a foot down when you stop.`
           : kmh < 10
             ? `At ${kmh} km/h a ${lean}° lean needs ${steer.toFixed(0)}° of handlebar — big, quick movements. And an uncaught lean doubles in ${doubleTime.toFixed(2)} s. This is why walking pace feels wobbly: keep the engine pulling gently against the rear brake, eyes up, and steer early.`
             : `At ${kmh} km/h only ${steer.toFixed(1)}° of steering catches a ${lean}° lean — the cornering force grows with speed squared, so the motorcycle feels steadier the faster it goes.`

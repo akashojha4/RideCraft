@@ -2,6 +2,7 @@ import { exercises as clutchExercises } from '@/content/simulators/clutchThrottl
 import { exercises as gearExercises } from '@/content/simulators/gears'
 import { exercises as rideExercises } from '@/content/simulators/rideStop'
 import { scenarios } from '@/content/scenarios'
+import { cockpitScenarios } from '@/content/scenarios/cockpit'
 import { visibleModules } from '@/content/curriculum'
 import type { Progress } from './store'
 
@@ -17,6 +18,8 @@ export const SIMULATORS = [
   { id: 'clutch-throttle', title: 'Clutch & throttle', path: '/simulators/clutch-throttle', exercises: clutchExercises },
   { id: 'gears', title: 'Gear shifting', path: '/simulators/gears', exercises: gearExercises },
   { id: 'ride-and-stop', title: 'Riding & stopping', path: '/simulators/ride-and-stop', exercises: rideExercises },
+  // Guided cockpit scenarios and drills, recorded with source 'cockpit'.
+  { id: 'cockpit', title: 'Rider cockpit', path: '/simulators/cockpit', exercises: cockpitScenarios },
 ] as const
 
 export const LEVELS = [

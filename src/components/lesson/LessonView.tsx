@@ -136,7 +136,7 @@ export function LessonView({
   )
 }
 
-function PagerLink({
+export function PagerLink({
   module,
   lesson,
   direction,

@@ -1,4 +1,5 @@
 import { clampingForce } from '@/lib/mechanics/clutch'
+import type { Tone } from '@/lib/simulation/model'
 import {
   CLUTCH_CAPACITY,
   EFFICIENCY,
@@ -15,6 +16,8 @@ import {
 } from '@/lib/mechanics/powertrain'
 
 import type { Exercise, ExerciseContext, Topic } from '@/lib/simulation/exercises'
+import { powertrainAssumptions } from '@/lib/simulation/models/powertrain'
+import type { Assumption } from '@/lib/simulation/model'
 
 /** Content and scoring for the clutch & throttle simulator. */
 
@@ -145,7 +148,7 @@ export const topics: Topic[] = [
 ]
 
 /** A plain-language account of what the clutch, engine and wheel are doing right now. */
-export function explain(s: PowertrainState, input: PowertrainInputs): { title: string; text: string; tone: 'ok' | 'caution' | 'danger' | 'info' } {
+export function explain(s: PowertrainState, input: PowertrainInputs): { title: string; text: string; tone: Tone } {
   const engineRpm = radToRpm(s.engine)
   const wheelRpm = radToRpm(drivelineSpeed(s.speed, input.gear))
   const capacity = clutchCapacity(input.clutch)
@@ -204,3 +207,9 @@ export function explain(s: PowertrainState, input: PowertrainInputs): { title: s
         : `The clutch isn’t slipping, so engine speed is tied to road speed: ${rpmPerKmh(input.gear).toFixed(0)} RPM per km/h in first. The ${s.clutchTorque.toFixed(1)} N·m passing through the clutch becomes a push of about ${Math.round(push)} N at the tyre — well within the clutch’s ${CLUTCH_CAPACITY} N·m capacity.`,
   }
 }
+
+/** What this simulator simplifies, shown in its "Model limits" panel. */
+export const assumptions: readonly Assumption[] = [
+  ...powertrainAssumptions.filter((a) => a.id !== 'load'),
+  { id: 'gears', text: 'Only neutral and first gear are available, so the clutch and throttle can be studied on their own.' },
+]

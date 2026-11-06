@@ -1,5 +1,5 @@
 import { GRIP, LOAD_TAU, LOCK_MIN_SPEED, brakeRequests, frontShare, wheelBrake, type WheelBrake } from './braking'
-import { clampingForce } from './clutch'
+import { CLUTCH, clampingForce, torqueCapacity, type Actuation } from './clutch'
 import { G } from './braking'
 import { FINAL_RATIO, PRIMARY_RATIO, TYRE_CIRCUMFERENCE, gearRatio } from './gearbox'
 
@@ -12,16 +12,22 @@ import { FINAL_RATIO, PRIMARY_RATIO, TYRE_CIRCUMFERENCE, gearRatio } from './gea
  *          valve as RPM falls below 1,400 (as fuel-injected engines do). With the throttle
  *          closed above idle, only friction remains: engine braking.
  *          Below 600 RPM the engine stalls. Rev limiter at 9,500 RPM.
- * Clutch:  torque capacity = 18 N·m (at the crankshaft) × clamping force, from the same
- *          lever model as the anatomy diagram. While slipping it passes the capacity in the
- *          direction of slip; it locks (static friction) when the slip speed is nearly zero
- *          and the torque needed to stay locked is within capacity.
+ * Clutch:  capacity from the lever → pushrod → clamp-load model in clutch.ts (the same
+ *          model as the anatomy diagram and the clutch explorer), referred to the crankshaft
+ *          through the primary ratio. While slipping it passes its sliding capacity in the
+ *          direction of slip (never less than the oil-drag torque); it locks when the slip
+ *          speed is nearly zero and the torque needed to stay locked is within its higher
+ *          static capacity.
  * Vehicle: 225 kg (motorcycle + rider), 90 % drivetrain efficiency, rolling resistance,
  *          air drag, gradient and brakes. All quantities are worked at the crankshaft
  *          through the overall ratio (primary × gear × final drive).
+ * Inertia: the spinning wheels (0.9 kg·m² together, as in tyre.ts) add about 10 kg to the
+ *          mass that has to be accelerated or braked; the engine's own inertia is reflected
+ *          through the gearing when the clutch is locked.
  * Brakes:  front and rear, each limited by the grip of its tyre under the current load
- *          transfer (see braking.ts). A locked rear wheel no longer turns the gearbox: with
- *          the clutch engaged it stops the engine.
+ *          transfer (see braking.ts). A locked rear wheel holds the gearbox still: with the
+ *          clutch engaged the plates drag the engine down and it stalls within a fraction of
+ *          a second.
  *
  * Values are representative of a small commuter motorcycle, not a specific model.
  */
@@ -29,9 +35,14 @@ import { FINAL_RATIO, PRIMARY_RATIO, TYRE_CIRCUMFERENCE, gearRatio } from './gea
 export const IDLE_RPM = 1400
 export const STALL_RPM = 600
 export const LIMITER_RPM = 9500
-export const CLUTCH_CAPACITY = 18
+/** Sliding capacity of the fully clamped clutch, N·m at the crankshaft (≈ 18). */
+export const CLUTCH_CAPACITY = torqueCapacity(1, true) / PRIMARY_RATIO
+/** Oil-shear drag of a disengaged clutch, N·m at the crankshaft. */
+export const DRAG_AT_CRANK = CLUTCH.drag / PRIMARY_RATIO
 const ENGINE_INERTIA = 0.012
 export const MASS = 225
+/** Rotational inertia of both wheels, kg·m². */
+export const WHEEL_INERTIA = 0.9
 export const EFFICIENCY = 0.9
 export const WHEEL_RADIUS = TYRE_CIRCUMFERENCE / (2 * Math.PI)
 const ROLLING = 0.015
@@ -82,6 +93,8 @@ export const throttleDemand = (throttle: number) => Math.pow(Math.min(Math.max(t
 export interface PowertrainInputs {
   /** Clutch lever pull, 0 (released) – 1 (at the grip). */
   clutch: number
+  /** How the lever operates the clutch (default: cable). */
+  actuation?: Actuation
   throttle: number
   /** Ideal combined brake, always shared between the wheels in proportion to their load (0–1 = 0–0.8 g). */
   brake: number
@@ -142,7 +155,8 @@ export const overallRatioFor = (gear: number) => (gear > 0 ? PRIMARY_RATIO * gea
 /** Crankshaft speed that corresponds to the current road speed in this gear ("wheel side"), rad/s. */
 export const drivelineSpeed = (speed: number, gear: number) => (gear > 0 ? (speed / WHEEL_RADIUS) * overallRatioFor(gear) : 0)
 
-export const clutchCapacity = (pull: number) => CLUTCH_CAPACITY * clampingForce(pull)
+/** Torque the clutch can pass, N·m at the crankshaft: sliding (default) or gripping. */
+export const clutchCapacity = (pull: number, actuation: Actuation = 'cable', sliding = true) => torqueCapacity(clampingForce(pull, actuation), sliding) / PRIMARY_RATIO
 
 function engineTorqueAt(state: PowertrainState, throttle: number) {
   const rpm = radToRpm(state.engine)
@@ -166,6 +180,8 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
   const tEngine = engineTorqueAt(s, input.throttle)
 
   const mass = MASS + (input.extraMass ?? 0)
+  // Mass to accelerate, including the spinning wheels; weight (and so grip) uses the real mass.
+  const inertialMass = mass + WHEEL_INERTIA / WHEEL_RADIUS ** 2
   const weight = mass * G
   const share = frontShare(s.loadAccel)
   const grip = input.grip ?? GRIP.dry
@@ -176,13 +192,18 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
   const rear = wheelBrake(request.rear, (1 - share) * weight, grip, s.brakes.rear.locked, abs, rolling)
   const brakeForce = front.force + rear.force
   // A locked rear wheel doesn't turn, so it no longer drives (or is driven by) the gearbox.
-  const capacity = input.gear > 0 && !rear.locked ? clutchCapacity(input.clutch) : 0
+  const connected = input.gear > 0
+  // A locked rear wheel doesn't turn, so it holds the gearbox (and the wheel side of the clutch) still.
+  const held = rear.locked
+  const capacity = connected ? clutchCapacity(input.clutch, input.actuation) : 0
+  const staticCapacity = connected ? clutchCapacity(input.clutch, input.actuation, false) : 0
+  const wheelSide = (v: number) => (held ? 0 : drivelineSpeed(v, input.gear))
   const roadForce = resistance(s.speed, input.grade, mass)
   const stationary = Math.abs(s.speed) < 0.02
 
   let engine = s.engine
   let speed = s.speed
-  let locked = s.locked && capacity > 0
+  let locked = s.locked && staticCapacity > 0 && !held
   let tClutch = 0
 
   /** Vehicle acceleration from a drive force at the wheel, handling brakes and standing still. */
@@ -190,12 +211,12 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
     const net = driveForce - roadForce
     if (stationary && Math.abs(net) <= brakeForce + ROLLING * mass * G) return { a: 0, hold: true }
     const braking = brakeForce * Math.sign(stationary ? net : s.speed)
-    return { a: (net - braking) / mass, hold: false }
+    return { a: (net - braking) / inertialMass, hold: false }
   }
 
   /** Engine and vehicle turning together: combined acceleration and the clutch torque that requires. */
   const lockedSolution = () => {
-    const vehicleInertia = (mass * WHEEL_RADIUS ** 2) / ratio ** 2
+    const vehicleInertia = (inertialMass * WHEEL_RADIUS ** 2) / ratio ** 2
     const loadAtCrank = ((roadForce + brakeForce * Math.sign(s.speed || 1)) * WHEEL_RADIUS) / (ratio * EFFICIENCY)
     const alpha = (tEngine - loadAtCrank) / (ENGINE_INERTIA + vehicleInertia)
     return { alpha, required: tEngine - ENGINE_INERTIA * alpha }
@@ -203,7 +224,7 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
 
   if (locked) {
     const { alpha, required } = lockedSolution()
-    if (Math.abs(required) <= capacity && !(stationary && alpha <= 0 && brakeForce > 0)) {
+    if (Math.abs(required) <= staticCapacity && !(stationary && alpha <= 0 && brakeForce > 0)) {
       engine += alpha * dt
       speed = (engine / ratio) * WHEEL_RADIUS
       tClutch = required
@@ -213,15 +234,16 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
   }
 
   if (!locked) {
-    const slip = engine - drivelineSpeed(speed, input.gear)
-    tClutch = capacity * Math.tanh(slip / SLIP_SMOOTHING)
+    const slip = engine - wheelSide(speed)
+    tClutch = (connected ? Math.max(capacity, DRAG_AT_CRANK) : 0) * Math.tanh(slip / SLIP_SMOOTHING)
     engine += ((tEngine - tClutch) / ENGINE_INERTIA) * dt
-    const { a, hold } = vehicleAccel(input.gear > 0 ? (tClutch * ratio * EFFICIENCY) / WHEEL_RADIUS : 0)
+    // A sliding rear tyre can't pass drive to the road: the clutch torque goes into the held wheel.
+    const { a, hold } = vehicleAccel(connected && !held ? (tClutch * ratio * EFFICIENCY) / WHEEL_RADIUS : 0)
     speed = hold ? 0 : speed + a * dt
     // Stop cleanly instead of oscillating through zero under braking.
     if (!hold && Math.sign(speed) !== Math.sign(s.speed) && s.speed !== 0 && brakeForce > 0) speed = 0
-    const newSlip = engine - drivelineSpeed(speed, input.gear)
-    if (input.gear > 0 && capacity > 0 && (Math.sign(newSlip) !== Math.sign(slip) || Math.abs(newSlip) < LOCK_SLIP) && Math.abs(lockedSolution().required) <= capacity) {
+    const newSlip = engine - wheelSide(speed)
+    if (input.gear > 0 && capacity > 0 && !held && (Math.sign(newSlip) !== Math.sign(slip) || Math.abs(newSlip) < LOCK_SLIP) && Math.abs(lockedSolution().required) <= staticCapacity) {
       locked = true
       engine = drivelineSpeed(speed, input.gear)
     }
@@ -229,16 +251,10 @@ function substep(s: PowertrainState, input: PowertrainInputs, dt: number): Power
 
   let running = s.running
   let stallCause = s.stallCause
-  if (running && rear.locked && input.gear > 0 && clutchCapacity(input.clutch) > Math.max(tEngine, 0)) {
-    // In gear with the clutch out, the locked wheel holds the gearbox still: the engine stops with it.
-    running = false
-    stallCause = 'wheel'
-    engine = 0
-  }
   if (running && radToRpm(engine) < STALL_RPM) {
     running = false
-    // Slipping clutch: engaged too abruptly (or too little throttle). Locked: the wheel dragged it down.
-    stallCause = locked ? 'load' : 'clutch'
+    // Held: a locked rear wheel stopped it. Slipping clutch: engaged too abruptly (or too little throttle). Locked: the wheel dragged it down.
+    stallCause = held && connected ? 'wheel' : locked ? 'load' : 'clutch'
   }
   if (!running) {
     // A dead engine never turns backwards; at a standstill in gear its compression holds the motorcycle.
@@ -280,7 +296,7 @@ export function stepPowertrain(state: PowertrainState, input: PowertrainInputs, 
 
 /** Restart after a stall (the starting procedure itself is Phase 5). Allowed in neutral or with the clutch in. */
 export function canRestart(input: PowertrainInputs) {
-  return input.gear === 0 || clampingForce(input.clutch) === 0
+  return input.gear === 0 || clampingForce(input.clutch, input.actuation) === 0
 }
 
 export const kmh = (ms: number) => ms * 3.6

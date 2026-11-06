@@ -53,7 +53,7 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
     howItWorks: [
       'The clutch sits between the crankshaft and the gearbox. The crankshaft drives the clutch basket through the primary drive gears; the clutch hub is splined to the gearbox mainshaft.',
       'Inside, friction plates locked to the basket alternate with steel plates locked to the hub. Strong springs clamp the stack together so the basket and hub turn as one — the clutch is engaged.',
-      'Pulling the lever moves a cable that operates the release mechanism. It lifts the pressure plate against its springs; the clamping force disappears and the plates slip past each other — the clutch is disengaged.',
+      'Pulling the lever operates the release mechanism — through a cable on most small motorcycles, or hydraulically (a master cylinder at the lever and a slave cylinder at the engine) on many larger ones. It lifts the pressure plate against its springs; the clamping force disappears and the plates slip past each other — the clutch is disengaged.',
       'In between is the friction zone, around the biting point. The plates slip partly and pass on some of the engine’s torque. Controlling this zone is how you pull away smoothly.',
       'Most motorcycle clutches are “wet”: they run in the engine oil, which cools them and smooths engagement.',
     ],
@@ -69,11 +69,11 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
       { name: 'Friction plates', role: 'Plates faced with friction material, turning with the basket.' },
       { name: 'Steel plates', role: 'Plain steel plates between the friction plates, turning with the hub.' },
       { name: 'Pressure plate & springs', role: 'The springs push the pressure plate to clamp the whole stack together.' },
-      { name: 'Release mechanism', role: 'Lever → cable → release arm → pushrod, which lifts the pressure plate. A little freeplay at the lever ensures the clutch fully engages when released.' },
+      { name: 'Release mechanism', role: 'Lever → cable and release arm (or hydraulic master and slave cylinders) → pushrod, which lifts the pressure plate. A cable clutch needs a little freeplay at the lever so it always engages fully; a hydraulic one adjusts itself for wear.' },
     ],
     callout: {
       tone: 'mistake',
-      text: 'Letting the lever out abruptly in first gear. The clutch engages before the engine is making enough power, and the motorcycle stalls or lurches forward.',
+      text: 'Letting the lever out abruptly in first gear. The clutch engages before the engine can produce enough torque, and the motorcycle stalls or lurches forward.',
     },
   },
 
@@ -141,13 +141,13 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
       'Squeezing the lever pushes a piston in the master cylinder on the handlebar. Brake fluid can’t be compressed, so the pressure travels through the hose to the caliper.',
       'In the caliper the fluid pushes larger pistons, which press the brake pads against both faces of the disc. Because the caliper pistons have a larger area than the master cylinder piston, the force is multiplied (Pascal’s principle).',
       'Friction between pads and disc turns the motorcycle’s energy of motion into heat.',
-      'Under braking, weight transfers forward onto the front tyre, pressing it into the road and increasing its grip. That is why the front brake can provide most of the stopping force in a hard stop — often quoted as around 70 % or more.',
+      'Under braking, load transfers to the front tyre: the braking force acts at the road, below the centre of mass, pressing the front tyre into the road and increasing its grip. That is why the front brake can provide most of the stopping force in a hard stop — from about two-thirds in moderate braking to well over 80 % in an emergency stop on a dry road.',
       'Many modern motorcycles have ABS, which releases and reapplies the pressure many times a second if the wheel starts to lock.',
     ],
     connections: [
       { to: 'wheels', how: 'The disc is bolted to the front wheel hub.' },
       { to: 'handlebar', how: 'Operated by the lever on the right handlebar.' },
-      { to: 'suspension', how: 'Braking compresses the front forks as weight shifts forward (“dive”).' },
+      { to: 'suspension', how: 'Braking compresses the front forks as load transfers to the front (“dive”).' },
       { to: 'rear-brake', how: 'Use both together for the shortest, most stable stops. Some motorcycles link them (combined braking).' },
       { to: 'lights', how: 'A switch at the lever turns on the brake light.' },
     ],
@@ -161,7 +161,7 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
     ],
     callout: {
       tone: 'tip',
-      text: 'Apply the front brake progressively: gently at first so weight settles onto the front tyre, then firmer. Never grab it.',
+      text: 'Apply the front brake progressively: gently at first so the load on the front tyre builds, then firmer. Never grab it.',
     },
   },
 
@@ -170,7 +170,7 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
     howItWorks: [
       'Pressing the pedal with your right foot operates the rear brake. A disc system works like the front: master cylinder, hose, caliper and pads clamping a disc on the rear wheel.',
       'Many small motorcycles use a drum brake instead: a rod or cable turns a cam that pushes curved brake shoes outwards against the inside of a drum in the wheel hub.',
-      'Under braking, weight moves off the rear wheel, so it has less grip and locks more easily than the front. It contributes the smaller share of the stopping force.',
+      'Under braking, load transfers off the rear tyre, so it has less grip and locks more easily than the front. It contributes the smaller share of the stopping force.',
       'At low speed — in traffic or making a U-turn — light rear brake pressure steadies the motorcycle without making the front suspension dive.',
     ],
     connections: [
@@ -188,7 +188,7 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
     ],
     callout: {
       tone: 'mistake',
-      text: 'Stamping on the rear brake in an emergency. With weight thrown forward, the rear wheel locks and skids easily.',
+      text: 'Stamping on the rear brake in an emergency. With most of the load transferred to the front, the rear wheel locks and skids easily.',
     },
   },
 
@@ -221,10 +221,10 @@ export const anatomy: Record<PartId, AnatomyEntry> = {
   wheels: {
     purpose: 'Support the motorcycle and provide its only contact with the road.',
     howItWorks: [
-      'Each tyre touches the road in a contact patch roughly the size of your palm. Every force — driving, braking and cornering — passes through those two patches.',
+      'Each tyre touches the road in a contact patch about the size of a credit card — roughly 50 cm² per tyre on a small motorcycle. Every force — driving, braking and cornering — passes through those two patches.',
       'Motorcycle tyres have a rounded profile. When the motorcycle leans into a turn, the patch moves from the centre of the tread towards the edge, keeping a similar footprint at lean.',
       'The tread grooves channel water out from under the tyre on wet roads. Rubber compound and pressure determine grip: under-inflated tyres overheat and steer heavily; over-inflated ones have a smaller patch.',
-      'Spinning wheels behave like gyroscopes, which helps keep the motorcycle stable as speed rises.',
+      'As speed rises a motorcycle becomes self-stabilising: when it starts to lean, its steering geometry turns the front wheel into the lean and catches it. The front wheel’s gyroscopic effect helps that steering response, but it is not the main source of stability.',
     ],
     connections: [
       { to: 'front-brake', how: 'The front disc is bolted to the front hub.' },

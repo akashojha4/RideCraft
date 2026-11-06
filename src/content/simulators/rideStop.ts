@@ -1,7 +1,10 @@
 import { GRIP, G, frontShare } from '@/lib/mechanics/braking'
+import type { Tone } from '@/lib/simulation/model'
 import { clampingForce } from '@/lib/mechanics/clutch'
 import { drivelineSpeed, radToRpm, type PowertrainInputs, type PowertrainState } from '@/lib/mechanics/powertrain'
 import type { Exercise, ExerciseContext, Topic, Verdict } from '@/lib/simulation/exercises'
+import { powertrainAssumptions } from '@/lib/simulation/models/powertrain'
+import type { Assumption } from '@/lib/simulation/model'
 
 /** Content, course layouts and scoring for the riding-and-stopping simulator. */
 
@@ -110,7 +113,7 @@ export const exercises: RideExercise[] = [
       const fail = commonFailure(c)
       if (fail) return fail
       const over = c.state.distance - STOP_LINE
-      if (over > 0.2) return { result: 'fail', text: `Over the line by ${over.toFixed(1)} m. Start braking earlier — stopping distance grows with the square of speed.` }
+      if (over > 0.2) return { result: 'fail', text: `Over the line by ${over.toFixed(1)} m. Start braking earlier — braking distance grows with the square of speed.` }
       if (stopped && c.t - c.memo.stoppedAt >= 0.5 && over >= -3) {
         if ((c.memo.top ?? 0) < 20) return { result: 'fail', text: `You stopped at the line, but never went faster than ${Math.round(c.memo.top ?? 0)} km/h. Build up to at least 20 km/h first.` }
         return { result: 'pass', text: `Stopped ${Math.abs(over).toFixed(1)} m before the line after reaching ${Math.round(c.memo.top)} km/h — pulling away, riding and stopping as one controlled sequence.` }
@@ -226,7 +229,7 @@ export const exercises: RideExercise[] = [
     title: 'Shortest stop',
     goal: `From 50 km/h, stop within ${STOP_DISTANCE_LIMIT} m of first touching a brake — without locking either wheel. No ABS.`,
     tips: [
-      'The front brake does most of the work, because braking moves the weight onto the front tyre.',
+      'The front brake does most of the work, because braking transfers load onto the front tyre.',
       'Squeeze it on progressively over about half a second — grabbing it locks the front before the weight arrives.',
       'Add a little rear brake — about 10–20 % of the pedal. It adds stopping power, but the unloaded rear tyre locks easily.',
     ],
@@ -273,7 +276,7 @@ export const topics: Topic[] = [
   { title: 'Traffic riding', text: 'Keep at least two seconds behind the vehicle ahead, more in the wet. Match its speed with the throttle and brake early and gently when it slows.', exercise: 'traffic' },
   { title: 'Releasing the throttle', text: 'Closing the throttle is the first, gentlest way to slow down. Roll it off early and smoothly when you see a reason to slow.', exercise: 'roll-off' },
   { title: 'Engine braking', text: 'With the throttle closed and the clutch out, the wheel has to turn the engine against its friction and intake vacuum. Lower gears turn it faster — stronger engine braking.', exercise: 'roll-off' },
-  { title: 'Front brake', text: 'Braking moves weight onto the front tyre, so the front brake can provide about 70 % of the stopping power. Squeeze it progressively: grabbed, it locks before the load arrives.', exercise: 'shortest-stop' },
+  { title: 'Front brake', text: 'Braking transfers load onto the front tyre, so the harder you brake, the more of the stopping the front can do — about two-thirds in moderate braking, well over 80 % in an emergency stop on a dry road. Squeeze it progressively: grabbed, it locks before the load arrives.', exercise: 'shortest-stop' },
   { title: 'Rear brake', text: 'The rear tyre loses load as you brake, so it locks easily under hard braking. It is most useful at low speed and for stability, and settles the motorcycle in a stop.', exercise: 'slow' },
   { title: 'Progressive braking', text: 'Apply the brakes in stages: a light squeeze first lets the weight transfer onto the front, then increase the pressure. That way the tyre’s grip has risen before you ask for it.', exercise: 'shortest-stop' },
   { title: 'Combined braking', text: 'Using both brakes stops shortest. Many small motorcycles have CBS, which makes the rear pedal apply part of the front brake too; ABS releases a brake just before its wheel locks.', exercise: 'smooth-stop' },
@@ -281,7 +284,7 @@ export const topics: Topic[] = [
 ]
 
 /** Plain-language account of what the motorcycle is doing and why. */
-export function explainRide(s: PowertrainState, input: PowertrainInputs): { title: string; text: string; tone: 'ok' | 'caution' | 'danger' | 'neutral' } {
+export function explainRide(s: PowertrainState, input: PowertrainInputs): { title: string; text: string; tone: Tone } {
   const { front, rear } = s.brakes
   const v = kmhOf(s)
   const share = frontShare(s.loadAccel)
@@ -293,7 +296,7 @@ export function explainRide(s: PowertrainState, input: PowertrainInputs): { titl
     return { title: 'Stalled', text: 'The engine was dragged below the speed it can run at. As you slow to a stop, pull the clutch in so the engine is no longer tied to the wheel. Restart in neutral or with the clutch in.', tone: 'danger' }
   }
   if (front.locked) return { title: 'Front wheel locked!', text: `The front brake asked for more than the tyre could grip (${pct(share)} of the weight on it). A sliding front tyre can’t steer or balance the motorcycle — in real riding this is how falls happen. Release the lever, then squeeze again progressively.`, tone: 'danger' }
-  if (rear.locked) return { title: 'Rear wheel skidding', text: `Braking has moved weight forward, leaving only ${pct(1 - share)} on the rear tyre, so it could not take that much pedal. Ease off the rear brake until the wheel turns again.${input.gear > 0 && clutch > 0 ? ' Pull the clutch in, or the locked wheel will stop the engine.' : ''}`, tone: 'caution' }
+  if (rear.locked) return { title: 'Rear wheel skidding', text: `Braking has transferred load to the front, leaving only ${pct(1 - share)} on the rear tyre, so it could not take that much pedal. Ease off the rear brake until the wheel turns again.${input.gear > 0 && clutch > 0 ? ' Pull the clutch in, or the locked wheel will stop the engine.' : ''}`, tone: 'caution' }
   const braking = (front.force > 1 || rear.force > 1) && v > 0.5
   if (braking && (front.abs || rear.abs)) return { title: 'ABS working', text: `ABS is holding the ${front.abs && rear.abs ? 'brakes' : front.abs ? 'front brake' : 'rear brake'} just below the point where the wheel would lock: ${decelG.toFixed(2)} g with steering intact.`, tone: 'ok' }
   if (braking) {
@@ -304,19 +307,19 @@ export function explainRide(s: PowertrainState, input: PowertrainInputs): { titl
     return {
       title: `Braking at ${decelG.toFixed(2)} g with ${which}`,
       text: `The motorcycle pitches forward: ${pct(share)} of the weight is now on the front tyre, which is doing ${pct(front.force / total)} of the braking.${cbs}${margin < 0.12 ? ' Close to the grip limit — any more and a wheel will lock.' : ''}`,
-      tone: margin < 0.12 ? 'caution' : 'neutral',
+      tone: margin < 0.12 ? 'caution' : 'info',
     }
   }
   if (v < 0.5) {
     if (input.gear === 0) return { title: 'Stopped in neutral', text: 'The engine idles with nothing to drive. Select first, with the clutch in, to move off.', tone: 'ok' }
     if (clutch === 0) return { title: 'Stopped in gear, clutch pulled in', text: 'The clutch separates the idling engine from the gearbox. Add a little throttle and ease the clutch out to pull away.', tone: 'ok' }
-    return { title: 'Pulling away', text: 'The clutch plates are starting to grip. Keep easing the lever out through the friction zone.', tone: 'neutral' }
+    return { title: 'Pulling away', text: 'The clutch plates are starting to grip. Keep easing the lever out through the friction zone.', tone: 'info' }
   }
-  if (input.gear > 0 && !s.locked && clutch > 0) return { title: 'Clutch slipping', text: `The clutch is in the friction zone: the engine (${Math.round(radToRpm(s.engine))} RPM) and the wheel side turn at different speeds, and the plates pass torque as they slip. This is how you pull away and ride at walking pace.`, tone: 'neutral' }
-  if (input.gear === 0 || clutch === 0) return { title: 'Coasting', text: `No drive and no engine braking — only air drag and rolling resistance slow you (${Math.max(0, decelG).toFixed(2)} g).`, tone: 'neutral' }
-  if (input.throttle < 0.02 && s.acceleration < -0.05) return { title: 'Engine braking', text: `The throttle is closed, so the rear wheel has to turn the engine against its friction and intake vacuum: ${(-s.acceleration).toFixed(1)} m/s² of deceleration. A lower gear would turn the engine faster and slow you harder.`, tone: 'neutral' }
-  if (s.acceleration > 0.15) return { title: `Accelerating at ${s.acceleration.toFixed(1)} m/s²`, text: `The drive force exceeds the resistance. Acceleration shifts weight backwards: ${pct(1 - share)} is on the rear tyre now.`, tone: 'neutral' }
-  if (s.acceleration < -0.15) return { title: 'Slowing', text: `The throttle isn’t holding this speed${input.grade > 0.005 ? ' on the climb — gravity is pulling you back' : ''}. Open it a little to maintain speed.`, tone: 'neutral' }
+  if (input.gear > 0 && !s.locked && clutch > 0) return { title: 'Clutch slipping', text: `The clutch is in the friction zone: the engine (${Math.round(radToRpm(s.engine))} RPM) and the wheel side turn at different speeds, and the plates pass torque as they slip. This is how you pull away and ride at walking pace.`, tone: 'info' }
+  if (input.gear === 0 || clutch === 0) return { title: 'Coasting', text: `No drive and no engine braking — only air drag and rolling resistance slow you (${Math.max(0, decelG).toFixed(2)} g).`, tone: 'info' }
+  if (input.throttle < 0.02 && s.acceleration < -0.05) return { title: 'Engine braking', text: `The throttle is closed, so the rear wheel has to turn the engine against its friction and intake vacuum: ${(-s.acceleration).toFixed(1)} m/s² of deceleration. A lower gear would turn the engine faster and slow you harder.`, tone: 'info' }
+  if (s.acceleration > 0.15) return { title: `Accelerating at ${s.acceleration.toFixed(1)} m/s²`, text: `The drive force exceeds the resistance. Acceleration transfers load to the rear: ${pct(1 - share)} is on the rear tyre now.`, tone: 'info' }
+  if (s.acceleration < -0.15) return { title: 'Slowing', text: `The throttle isn’t holding this speed${input.grade > 0.005 ? ' on the climb — gravity is pulling you back' : ''}. Open it a little to maintain speed.`, tone: 'info' }
   return { title: `Holding ${Math.round(v)} km/h`, text: `The drive force from the engine just balances air drag, rolling resistance${input.grade > 0.005 ? ` and the ${Math.round(input.grade * 100)} % climb` : ''}, so speed stays constant.`, tone: 'ok' }
 }
 
@@ -348,3 +351,10 @@ export function exerciseProgress(ex: RideExercise, p: { t: number; maxAccel: num
   }
   return null
 }
+
+/** What this simulator simplifies, shown in its "Model limits" panel. */
+export const assumptions: readonly Assumption[] = [
+  ...powertrainAssumptions,
+  { id: 'brakes', text: 'At full lever the front brake can ask for 1 g and the rear pedal 0.6 g; ABS holds each brake at 92 % of the tyre’s peak grip; with CBS the pedal also applies 35 % of the front brake.', effect: 'Real brake strength, ABS strategy and CBS split vary between motorcycles.' },
+  { id: 'straight', text: 'Riding is in a straight line only — no leaning or steering — and a locked front wheel is shown as a skid, not a fall.', effect: 'On a real motorcycle a locked front wheel usually ends in a fall within a second.' },
+]

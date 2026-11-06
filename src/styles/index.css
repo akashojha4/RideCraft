@@ -251,3 +251,16 @@
 .cockpit .cockpit-control.is-active :is(path, rect, circle, ellipse) {
   stroke: var(--color-ignition-400);
 }
+
+/* Cockpit gear lever: a brief nudge of the toe piece on each shift. */
+@keyframes gear-lift {
+  40% { transform: rotate(-9deg); }
+}
+@keyframes gear-press {
+  40% { transform: rotate(9deg); }
+}
+.gear-lift { animation: gear-lift 220ms ease-out; }
+.gear-press { animation: gear-press 220ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .gear-lift, .gear-press { animation: none; }
+}

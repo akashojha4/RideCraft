@@ -2,6 +2,8 @@ import { basicsLessons } from './modules/basics'
 import { handlingLessons } from './modules/handling'
 import { mechanicsLessons } from './modules/mechanics'
 import { preRideLessons } from './modules/preRide'
+import { ridingSituationLessons } from './modules/ridingSituations'
+import { getCockpitScenario } from './scenarios/cockpit'
 import type { LearningModule, Lesson } from './types'
 
 /**
@@ -37,6 +39,13 @@ export const modules: LearningModule[] = [
     phase: 11,
     lessons: mechanicsLessons,
   },
+  {
+    id: 'riding-situations',
+    title: 'Riding Situations',
+    description: 'Real riding situations, one control at a time: what to do, why, and what happens inside the motorcycle — then watch it done and practise it in the cockpit.',
+    phase: 13,
+    lessons: ridingSituationLessons,
+  },
 ]
 
 export const visibleModules = modules.filter((m) => !m.hidden)
@@ -63,6 +72,12 @@ export function lessonPath(moduleId: string, lessonId: string) {
   return `/learn/${moduleId}/${lessonId}`
 }
 
+/** The Riding Situations lesson that teaches a cockpit scenario (by its stable id), if there is one. */
+export function lessonForScenario(scenarioId: string) {
+  for (const m of visibleModules) for (const l of m.lessons) if (l.situation?.scenario === scenarioId) return { module: m, lesson: l, path: lessonPath(m.id, l.id) }
+  return undefined
+}
+
 /**
  * Development-time guard for the lesson contract: every lesson needs a concept,
  * an illustration, a real-world example and a knowledge check, and ids must be unique.
@@ -78,8 +93,21 @@ export function validateCurriculum(list: LearningModule[] = modules): string[] {
       const where = `${m.id}/${l.id}`
       if (lessonIds.has(l.id)) problems.push(`Duplicate lesson id "${where}"`)
       lessonIds.add(l.id)
-      for (const required of ['concept', 'illustration', 'example'] as const) {
-        if (!l.blocks.some((b) => b.type === required)) problems.push(`${where} has no "${required}" block`)
+      if (l.situation) {
+        // A situation lesson is built around its cockpit scenario, which must exist and have a demonstration.
+        const sc = getCockpitScenario(l.situation.scenario)
+        if (!sc) problems.push(`${where} refers to unknown scenario "${l.situation.scenario}"`)
+        else if (!sc.demo?.length) problems.push(`${where}: scenario "${sc.id}" has no demonstration`)
+        if (l.situation.controls.length < 3) problems.push(`${where} explains fewer than three controls`)
+        for (const c of l.situation.controls) {
+          for (const k of ['what', 'when', 'how', 'howMuch', 'why', 'mechanics', 'result'] as const) if (!c[k]) problems.push(`${where}: ${c.control} has no "${k}"`)
+        }
+        if (l.situation.mistakes.length < 3) problems.push(`${where} explains fewer than three mistakes`)
+        if (l.knowledgeCheck !== l.situation.questions) problems.push(`${where}: knowledge check must be the situation's questions`)
+      } else {
+        for (const required of ['concept', 'illustration', 'example'] as const) {
+          if (!l.blocks.some((b) => b.type === required)) problems.push(`${where} has no "${required}" block`)
+        }
       }
       if (l.knowledgeCheck.length === 0) problems.push(`${where} has no knowledge check`)
       for (const q of l.knowledgeCheck) {

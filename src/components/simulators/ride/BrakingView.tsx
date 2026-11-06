@@ -1,5 +1,6 @@
 import { useTransform, type MotionValue } from 'motion/react'
 import { MotorcycleSideView } from '@/components/motorcycle/MotorcycleSideView'
+import type { PartId } from '@/components/motorcycle/parts'
 import { G, frontShare } from '@/lib/mechanics/braking'
 import type { PowertrainState } from '@/lib/mechanics/powertrain'
 
@@ -51,8 +52,11 @@ export function BrakingView({
   frontWheel,
   rearWheel,
   road,
+  highlighted,
 }: {
   state: PowertrainState
+  /** Parts to highlight on the motorcycle (from the cause-and-effect strip). */
+  highlighted?: readonly PartId[]
   weight: number
   frontWheel: MotionValue<number>
   rearWheel: MotionValue<number>
@@ -71,7 +75,7 @@ export function BrakingView({
     <div className="relative">
       <div style={{ transform: `rotate(${pitch.toFixed(2)}deg)`, transformOrigin: `${((pivot - 60) / 690) * 100}% ${((GROUND_Y - 60) / 394) * 100}%` }}>
         <div style={{ transform: 'scaleX(-1)' }}>
-          <MotorcycleSideView mode="rider" wheelAngle={rear2} frontWheelAngle={front2} roadAngle={road2} title="Motorcycle with rider, facing the direction of travel" />
+          <MotorcycleSideView mode="rider" highlighted={highlighted} wheelAngle={rear2} frontWheelAngle={front2} roadAngle={road2} title="Motorcycle with rider, facing the direction of travel" />
         </div>
       </div>
       <svg viewBox={VIEWBOX} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>

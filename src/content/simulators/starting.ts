@@ -2,6 +2,7 @@ import type { ControlId } from '@/components/mechanics/controls'
 import { clampingForce } from '@/lib/mechanics/clutch'
 import { FINAL_RATIO, PRIMARY_RATIO, TYRE_CIRCUMFERENCE, gearRatio } from '@/lib/mechanics/gearbox'
 import { buildTimeline, type StepModel } from '@/lib/simulation/timeline'
+import type { Assumption } from '@/lib/simulation/model'
 
 /*
  * Starting a geared, fuel-injected single-cylinder motorcycle, from key off to riding
@@ -161,7 +162,8 @@ export const startingSteps: StartingStep[] = [
       duration: 5,
       tracks: {
         throttle: [[0, 0], [0.8, 0.12]],
-        clutch: [[0, 1], [0.4, 1], [2.5, 0.45]],
+        // Biting point: 30 % of lever travel leaves about 10 % of the clamp load (clutch.ts), so the plates slip.
+        clutch: [[0, 1], [0.4, 1], [2.5, 0.3]],
         rpm: [[0, IDLE_RPM], [0.8, 2100], [2.5, 1900], [5, 1950]],
         speed: [[0, 0], [2.2, 0], [5, 4]],
       },
@@ -180,7 +182,7 @@ export const startingSteps: StartingStep[] = [
     model: {
       duration: 5,
       tracks: {
-        clutch: [[0, 0.45], [1.2, 0.15], [1.6, 0]],
+        clutch: [[0, 0.3], [1.2, 0.14], [1.6, 0]],
         throttle: [[0, 0.12], [1.5, 0.2]],
         speed: [[0, 4], [1.2, 7.5], [5, 12]],
         rpm: [[0, 1950], [1.2, 2005], [5, 3208]],
@@ -262,3 +264,10 @@ export function diagnose(action: ActionId, v: StartingValues): string {
       return 'Not yet.'
   }
 }
+
+/** What this simulator simplifies, shown in its "Model limits" panel. */
+export const assumptions: readonly Assumption[] = [
+  { id: 'scripted', text: 'A scripted sequence: the correct procedure is played step by step, and each action you take is checked against it.' },
+  { id: 'vehicle', text: 'A typical fuel-injected 125 cc single with an electric starter. Battery voltage, starter current and cranking speed (about 280 RPM) are representative values.' },
+  { id: 'variants', text: 'Starting procedures and safety interlocks differ between motorcycles — some have a choke, a kick-starter or a side-stand switch.', effect: 'Always follow your own motorcycle’s owner’s manual.' },
+]

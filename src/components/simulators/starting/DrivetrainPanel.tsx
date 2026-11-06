@@ -10,6 +10,7 @@ import { cn } from '@/lib/cn'
  * turn in opposite directions; the chain keeps both sprockets turning the same way.
  */
 
+const ORDINAL: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd' }
 const FRONT = { x: 170, y: 168, r: 12 }
 const REAR = { x: 300, y: 168, r: 30 }
 const CHAIN = beltPath(FRONT, REAR)
@@ -30,9 +31,12 @@ export function DrivetrainPanel({
   clamp,
   gear,
   angles,
+  status,
 }: {
   /** Clutch clamping force, 0–1. */
   clamp: number
+  /** The clutch's actual state when the caller knows it (a partly clamped clutch can still be locked). */
+  status?: 'Engaged' | 'Slipping' | 'Disengaged'
   gear: number
   angles: { basket: MotionValue<number>; mainshaft: MotionValue<number>; countershaft: MotionValue<number>; wheel: MotionValue<number> }
 }) {
@@ -40,10 +44,10 @@ export function DrivetrainPanel({
   const basket = useTransform(angles.basket, (a) => -a)
   const mainshaft = useTransform(angles.mainshaft, (a) => -a)
   const chainOffset = useTransform(angles.countershaft, (a) => -((a * Math.PI) / 180) * FRONT.r)
-  const state = clamp >= 0.999 ? 'Engaged' : clamp <= 0.001 ? 'Disengaged' : 'Slipping'
+  const state = status ?? (clamp >= 0.999 ? 'Engaged' : clamp <= 0.001 ? 'Disengaged' : 'Slipping')
 
   return (
-    <svg viewBox="0 0 372 250" className="w-full" role="img" aria-label={`Clutch ${state.toLowerCase()}, ${gear ? 'first gear' : 'neutral'}`}>
+    <svg viewBox="0 0 372 250" className="w-full" role="img" aria-label={`Clutch ${state.toLowerCase()}, ${gear ? `gear ${gear}` : 'neutral'}`}>
       <g strokeLinejoin="round" strokeLinecap="round">
         {/* Clutch: basket (outer) and hub (inner) */}
         <motion.g style={{ x: 60, y: 90, rotate: basket }}>
@@ -52,7 +56,7 @@ export function DrivetrainPanel({
             <rect key={i} x={34} y={-4} width={8} height={8} transform={`rotate(${i * 45})`} className="fill-ink-subtle" />
           ))}
         </motion.g>
-        <circle cx={60} cy={90} r={27} strokeWidth={clamp > 0 ? 2.5 : 1} strokeDasharray={clamp > 0.001 ? undefined : '4 3'} className={cn('fill-bg', clamp >= 0.999 ? 'stroke-ok-400' : clamp > 0.001 ? 'stroke-caution-400' : 'stroke-line-strong')} />
+        <circle cx={60} cy={90} r={27} strokeWidth={state === 'Disengaged' ? 1 : 2.5} strokeDasharray={state === 'Disengaged' ? '4 3' : undefined} className={cn('fill-bg', state === 'Engaged' ? 'stroke-ok-400' : state === 'Slipping' ? 'stroke-caution-400' : 'stroke-line-strong')} />
         <motion.g style={{ x: 60, y: 90, rotate: mainshaft }}>
           <circle r={22} strokeWidth={2} className="fill-surface-overlay stroke-coolant-400" />
           <Spokes r={20} count={6} className="stroke-coolant-600" />
@@ -73,7 +77,7 @@ export function DrivetrainPanel({
         </motion.g>
         <line x1={170} y1={120} x2={FRONT.x} y2={FRONT.y} strokeWidth={4} className="stroke-coolant-600" />
         <text x={198} y={56} textAnchor="end" className={cn('font-mono text-[12px]', gear ? 'fill-coolant-300' : 'fill-ok-400')}>
-          {gear ? '1st' : 'N'}
+          {gear ? ORDINAL[gear] ?? `${gear}th` : 'N'}
         </text>
         <DiagramLabel x={165} y={30} anchor="middle">Gearbox</DiagramLabel>
 

@@ -7,11 +7,12 @@ import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Readout } from '@/components/simulation/Readouts'
 import { Slider } from '@/components/ui/Slider'
 import { WHEELBASE } from '@/lib/mechanics/braking'
-import { CLEARANCE_LEAN, STEERING_LOCK, deg, leanFor, ms, rad, radiusFor } from '@/lib/mechanics/cornering'
+import { CLEARANCE_LEAN, STEERING_LOCK, deg, leanFor, ms, radiusFor, turnRadius } from '@/lib/mechanics/cornering'
 
 /*
  * Handling lesson 5: the U-turn, from above. At walking pace the handlebar angle sets the
- * turn: radius ≈ wheelbase / tan(steer) — 1.7 m at this motorcycle's 38° lock. Riding
+ * turn: the front wheel follows a circle of wheelbase / sin(steer at the road) — about 2.3 m at
+ * this motorcycle's 38° lock (35° at the road, because the steering axis is raked back). Riding
  * faster at that radius needs more lean (tan = v²/gR); beyond the 40° clearance limit the
  * motorcycle can't lean further and the turn widens to R = v² / (g·tan 40°). The U-turn
  * fits if its diameter plus a margin fits between the kerbs.
@@ -28,7 +29,7 @@ export default function UTurn() {
   const [lockPct, setLockPct] = useState(100)
   const v = ms(kmh)
   const steer = (STEERING_LOCK * lockPct) / 100
-  const rSteer = WHEELBASE / Math.tan(rad(steer))
+  const rSteer = turnRadius(steer)
   const leanAtSteer = leanFor(v, rSteer)
   const tooFast = leanAtSteer > CLEARANCE_LEAN
   const r = tooFast ? radiusFor(v, CLEARANCE_LEAN) : rSteer
@@ -67,7 +68,7 @@ export default function UTurn() {
           <line x1={kerbX(0)} x2={kerbX(0)} y1={300 - top * K - 10} y2={320} strokeWidth={2} strokeDasharray="10 10" className="stroke-line-strong" />
           <path d={toPathD(samples, map)} fill="none" strokeWidth={2} strokeDasharray="5 4" className={fits ? 'stroke-coolant-400' : 'stroke-caution-400'} />
           {over.length > 0 && <path d={toPathD(over, map)} fill="none" strokeWidth={4} className="stroke-danger-400" />}
-          <TopBike x={map(now).x} y={map(now).y} scale={K} heading={now.heading} steer={now.curvature ? deg(Math.atan(WHEELBASE / r)) : 0} />
+          <TopBike x={map(now).x} y={map(now).y} scale={K} heading={now.heading} steer={now.curvature ? deg(Math.asin(Math.min(1, WHEELBASE / r))) : 0} />
           <DiagramLabel x={kerbX(-width / 2) + 4} y={312}>kerb</DiagramLabel>
           <DiagramLabel x={kerbX(width / 2) - 4} y={312} anchor="end">kerb</DiagramLabel>
         </svg>
@@ -76,7 +77,7 @@ export default function UTurn() {
         <>
           <div className="grid gap-5 sm:grid-cols-3">
             <Slider label="Road width" value={width} onChange={setWidth} min={4} max={10} valueText={`${width} m`} tone="coolant" />
-            <Slider label="Speed" value={kmh} onChange={setKmh} min={3} max={15} valueText={`${kmh} km/h`} tone="coolant" />
+            <Slider label="Speed" value={kmh} onChange={setKmh} min={3} max={20} valueText={`${kmh} km/h`} tone="coolant" />
             <Slider label="Handlebar turned" value={lockPct} onChange={setLockPct} min={40} max={100} valueText={lockPct === 100 ? 'full lock' : `${Math.round(steer)}°`} />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-4">

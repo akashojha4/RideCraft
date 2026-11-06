@@ -8,7 +8,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { lessonPath } from '@/content/curriculum'
 import { scenarios } from '@/content/scenarios'
 import { cn } from '@/lib/cn'
-import { PASS_MARK } from '@/lib/progress/assessment'
+import { PASS_MARK, buildAssessment } from '@/lib/progress/assessment'
 import { progress, useProgress, type PracticeEvent } from '@/lib/progress/store'
 import { LEVELS, SIMULATORS, summarize } from '@/lib/progress/summary'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -38,6 +38,11 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
     </div>
   )
 }
+
+/** How many questions the knowledge assessment asks, and from how many modules (it varies with the curriculum). */
+const ASSESSMENT = buildAssessment(1)
+const ASSESSMENT_SIZE = ASSESSMENT.length
+const ASSESSMENT_MODULES = new Set(ASSESSMENT.map((q) => q.moduleId)).size
 
 export default function ProgressPage() {
   usePageTitle('Your progress')
@@ -133,7 +138,7 @@ export default function ProgressPage() {
           <h2 id="assessment-heading" className="flex items-center gap-2 text-2xl font-semibold text-ink">
             <ClipboardCheck className="size-6 text-coolant-300" aria-hidden /> Knowledge assessment
           </h2>
-          <p className="text-ink-muted">Twenty questions drawn from all four modules, different each time. Pass mark {PASS_MARK * 100} %. See which areas to revise.</p>
+          <p className="text-ink-muted">{ASSESSMENT_SIZE} questions drawn from all {ASSESSMENT_MODULES} modules, different each time. Pass mark {PASS_MARK * 100} %. See which areas to revise.</p>
           <Link to="/progress/assessment" className="inline-flex h-10 items-center gap-2 rounded-xl bg-ignition-500 px-4 text-sm font-medium text-bg hover:bg-ignition-400">
             {p.assessments.length ? 'Take it again' : 'Start the assessment'} <ArrowRight className="size-4" aria-hidden />
           </Link>

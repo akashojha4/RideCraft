@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Cockpit } from '@/components/mechanics/Cockpit'
 import { MotorcycleSideView } from '@/components/motorcycle/MotorcycleSideView'
 import { ExerciseBar } from '@/components/simulation/ExerciseBar'
+import { CauseEffectChain } from '@/components/simulation/CauseEffectChain'
+import { ExplanationPanel } from '@/components/simulation/ExplanationPanel'
 import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Readout } from '@/components/simulation/Readouts'
 import { SimCard } from '@/components/simulation/SimCard'
@@ -11,15 +13,18 @@ import { TopicCards } from '@/components/simulation/TopicCards'
 import { DrivetrainPanel } from '@/components/simulators/starting/DrivetrainPanel'
 import { Button } from '@/components/ui/Button'
 import { Slider } from '@/components/ui/Slider'
-import { HILL_GRADE, exercises, explain, topics } from '@/content/simulators/clutchThrottle'
+import { assumptions, HILL_GRADE, exercises, explain, topics } from '@/content/simulators/clutchThrottle'
 import { useExercises } from '@/hooks/useExercises'
 import { usePowertrainSim, VISUAL_SLOWDOWN } from '@/hooks/usePowertrainSim'
 import { cn } from '@/lib/cn'
 import type { Exercise } from '@/lib/simulation/exercises'
 import { clampingForce } from '@/lib/mechanics/clutch'
-import { canRestart, clutchCapacity, drivelineSpeed, radToRpm, type PowertrainInputs } from '@/lib/mechanics/powertrain'
+import { canRestart, drivelineSpeed, radToRpm, type PowertrainInputs } from '@/lib/mechanics/powertrain'
 import { DualTach } from './DualTach'
 import { StripChart } from './StripChart'
+import { AssumptionsPanel } from '@/components/simulation/AssumptionsPanel'
+import type { Stage } from '@/lib/simulation/model'
+import { powertrainChain, sideViewParts, type PowertrainPart } from '@/lib/simulation/models/powertrain'
 
 const FREE_RIDE: PowertrainInputs = { gear: 0, clutch: 0, throttle: 0, brake: 0, grade: 0 }
 
@@ -59,6 +64,9 @@ export function ClutchThrottleSimulator() {
   const slipping = s.running && inputs.gear > 0 && !s.locked && clampingForce(inputs.clutch) > 0
   const heat = slipping ? Math.abs(s.clutchTorque * (s.engine - drivelineSpeed(s.speed, inputs.gear))) : 0
   const story = explain(s, inputs)
+  const [focus, setFocus] = useState<{ stage: Stage | null; parts: PowertrainPart[] }>({ stage: null, parts: [] })
+  const chain = powertrainChain(s, inputs, sim.snapshot.derived)
+  const focusParts = focus.parts.length ? sideViewParts(focus.parts) : null
   const wheelAngle = useTransform(sim.angles.wheel, (a) => -a)
   const pitch = -Math.atan(inputs.grade) * (180 / Math.PI)
 
@@ -71,7 +79,7 @@ export function ClutchThrottleSimulator() {
           <SimCard title={`The motorcycle · moving parts shown ${VISUAL_SLOWDOWN}× slower`}>
             <div className="bg-blueprint overflow-hidden rounded-xl">
               <div style={{ transform: `rotate(${pitch}deg)` }} className="origin-center transition-transform duration-500">
-                <MotorcycleSideView wheelAngle={wheelAngle} highlighted={slipping ? 'clutch' : null} title="Motorcycle" />
+                <MotorcycleSideView wheelAngle={wheelAngle} highlighted={focusParts ?? (slipping ? 'clutch' : null)} title="Motorcycle" />
               </div>
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -128,17 +136,16 @@ export function ClutchThrottleSimulator() {
       </div>
 
       {/* What is happening */}
-      <section aria-live="polite" aria-label="What is happening" className={cn('rounded-2xl border p-5', story.tone === 'danger' ? 'border-danger-500/40 bg-danger-950/40' : story.tone === 'caution' ? 'border-caution-500/40 bg-caution-950/30' : story.tone === 'ok' ? 'border-ok-500/30 bg-ok-950/30' : 'border-line bg-surface')}>
-        <h2 className={cn('text-lg font-semibold', story.tone === 'danger' ? 'text-danger-400' : story.tone === 'caution' ? 'text-caution-400' : story.tone === 'ok' ? 'text-ok-400' : 'text-ink')}>{story.title}</h2>
-        <p className="mt-1 leading-relaxed text-ink-muted">{story.text}</p>
+      <CauseEffectChain chain={chain} active={focus.stage} onActiveChange={(stage, parts) => setFocus({ stage, parts })} />
+      <ExplanationPanel tone={story.tone} title={story.title} text={story.text}>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <Readout label="Engine" value={`${Math.round(engineRpm).toLocaleString('en')} RPM`} tone="coolant" />
           <Readout label="Wheel side" value={`${Math.round(wheelRpm).toLocaleString('en')} RPM`} />
-          <Readout label="Clutch can pass" value={`${clutchCapacity(inputs.gear ? inputs.clutch : 0).toFixed(1)} N·m`} />
+          <Readout label="Clutch can pass" value={`${sim.snapshot.derived.capacity.toFixed(1)} N·m`} />
           <Readout label="Clutch passing" value={`${Math.abs(s.clutchTorque).toFixed(1)} N·m`} />
           <Readout label="Slip heat" value={`${Math.round(heat)} W`} tone={heat > 500 ? 'caution' : 'ink'} />
         </dl>
-      </section>
+      </ExplanationPanel>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <SimCard title="Rider’s view">
@@ -163,6 +170,8 @@ export function ClutchThrottleSimulator() {
       </div>
 
       <TopicCards topics={topics} exercises={exercises} onStart={startExercise} onFreeRide={freeRide} />
+
+      <AssumptionsPanel assumptions={assumptions} />
     </div>
   )
 }

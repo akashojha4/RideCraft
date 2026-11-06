@@ -1,4 +1,5 @@
 import { GEARS, REDLINE_RPM, gearRatio } from '@/lib/mechanics/gearbox'
+import type { Tone } from '@/lib/simulation/model'
 import {
   EFFICIENCY,
   LIMITER_RPM,
@@ -12,6 +13,8 @@ import {
   type PowertrainState,
 } from '@/lib/mechanics/powertrain'
 import type { Exercise, Topic } from '@/lib/simulation/exercises'
+import { powertrainAssumptions } from '@/lib/simulation/models/powertrain'
+import type { Assumption } from '@/lib/simulation/model'
 
 /** Content and scoring for the gear shifting simulator. */
 
@@ -87,7 +90,7 @@ export const exercises: Exercise[] = [
     ],
     setup: { inputs: riding(3, 0.4), state: atSpeed(68, 3) },
     evaluate: (c) => {
-      if (c.overRevved) return { result: 'fail', text: `Over-rev: the rear wheel forced the engine to about ${Math.round(c.maxRpm).toLocaleString('en')} RPM. The rev limiter can’t prevent this — it only cuts fuel. Slow below about ${Math.round(LIMITER_RPM / rpmPerKmh(2))} km/h before selecting second.` }
+      if (c.overRevved) return { result: 'fail', text: `Over-rev: the rear wheel forced the engine to about ${Math.round(c.maxRpm).toLocaleString('en')} RPM. The rev limiter can’t prevent this — it only cuts the engine’s fuel or spark. Slow below about ${Math.round(LIMITER_RPM / rpmPerKmh(2))} km/h before selecting second.` }
       if (c.inputs.gear === 2 && c.state.locked && c.t > 1) return { result: 'pass', text: `Second gear at ${Math.round(kmh(c.state))} km/h — about ${Math.round(radToRpm(c.state.engine)).toLocaleString('en')} RPM, safely below the limit.` }
       return null
     },
@@ -155,10 +158,10 @@ export interface ShiftRecord {
 }
 
 /** Plain-language account of the gearbox and engine right now. */
-export function explainGears(s: PowertrainState, input: PowertrainInputs, last: ShiftRecord | null): { title: string; text: string; tone: 'ok' | 'caution' | 'danger' | 'info' } {
+export function explainGears(s: PowertrainState, input: PowertrainInputs, last: ShiftRecord | null): { title: string; text: string; tone: Tone } {
   const rpm = radToRpm(s.engine)
   if (!s.running) return { title: 'Engine stalled', tone: 'danger', text: `The engine was dragged below ${STALL_RPM} RPM. Pull in the clutch or select neutral, then restart.` }
-  if (rpm > OVER_REV_RPM) return { title: 'Over-rev!', tone: 'danger', text: `The rear wheel is forcing the engine to ${Math.round(rpm).toLocaleString('en')} RPM — beyond its limit. The rev limiter only cuts fuel, it can’t stop the wheel turning the engine. Pull in the clutch now; next time slow down before changing down.` }
+  if (rpm > OVER_REV_RPM) return { title: 'Over-rev!', tone: 'danger', text: `The rear wheel is forcing the engine to ${Math.round(rpm).toLocaleString('en')} RPM — beyond its limit. The rev limiter only cuts fuel or spark; it can’t stop the wheel turning the engine. Pull in the clutch now; next time slow down before changing down.` }
   if (input.gear === 0) return { title: 'Neutral', tone: 'info', text: 'No gear pair is locked: the engine and the rear wheel are independent. The countershaft is not driven.' }
   if (!s.locked) {
     const capacity = clutchCapacity(input.clutch)
@@ -185,3 +188,10 @@ export function explainGears(s: PowertrainState, input: PowertrainInputs, last: 
     text: `Overall ratio ${overall.toFixed(1)} : 1 — the engine turns ${overall.toFixed(1)} times for each turn of the rear wheel, and its torque is multiplied about ${(overall * EFFICIENCY).toFixed(1)} times. ${Math.round(rpmPerKmh(input.gear))} RPM per km/h.${rpm > REDLINE_RPM ? ' Near the redline — change up.' : ''}`,
   }
 }
+
+/** What this simulator simplifies, shown in its "Model limits" panel. */
+export const assumptions: readonly Assumption[] = [
+  ...powertrainAssumptions.filter((a) => a.id !== 'load'),
+  { id: 'shift', text: 'With the clutch in, a gear change is instant and always engages.', effect: 'In a real gearbox the dogs can briefly fail to line up, and a change takes a fraction of a second.' },
+  { id: 'limiter', text: 'The rev limiter cuts the engine’s power at 9,500 RPM; it can’t stop the rear wheel forcing the engine faster after a downshift.' },
+]
