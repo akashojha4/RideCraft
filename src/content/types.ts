@@ -23,6 +23,8 @@ export type LessonBlock =
   | { type: 'explore'; part: PartId; text: string }
   /** Link card to another page of the app. */
   | { type: 'cta'; to: string; title: string; text: string }
+  /** Live cockpit demonstration of a guided scenario, then a link to practise it. */
+  | { type: 'cockpit'; scenario: string; caption?: string }
 
 export interface QuizOption {
   id: string
@@ -61,4 +63,6 @@ export interface LearningModule {
   lessons: Lesson[]
   /** Hidden modules are routable but not listed (used for internal fixtures). */
   hidden?: boolean
+  /** Extra depth beyond what a beginner needs to start riding; left out of the knowledge assessment. */
+  optional?: boolean
 }

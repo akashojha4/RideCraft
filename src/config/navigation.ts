@@ -10,5 +10,6 @@ export const primaryNav: NavItem[] = [
   { label: 'Learn', to: '/learn' },
   { label: 'Simulators', to: '/simulators' },
   { label: 'Scenarios', to: '/scenarios' },
+  { label: 'Checklist', to: '/checklist' },
   { label: 'Progress', to: '/progress' },
 ]

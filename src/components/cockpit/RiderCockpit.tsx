@@ -1,6 +1,7 @@
-import { ChevronDown, ChevronUp, Power, Square } from 'lucide-react'
-import type { FocusEvent, ReactNode } from 'react'
+import { ChevronDown, ChevronUp, Maximize2, Minimize2, Power, Smartphone, Square } from 'lucide-react'
+import { useEffect, useState, type FocusEvent, type ReactNode } from 'react'
 import type { CockpitControls } from '@/hooks/useCockpitControls'
+import type { RideNudge } from '@/lib/simulation/rideNudge'
 import { cn } from '@/lib/cn'
 import { GearLadder, GearSelector, RearBrakeControl } from './FootControls'
 import { ClutchControl, ThrottleBrakeControl } from './HandControls'
@@ -37,6 +38,7 @@ function Zone({
   value,
   align = 'left',
   lit,
+  nudge,
   className,
   children,
 }: {
@@ -46,6 +48,7 @@ function Zone({
   value: string
   align?: 'left' | 'right'
   lit?: boolean
+  nudge?: string
   className?: string
   children: ReactNode
 }) {
@@ -62,6 +65,11 @@ function Zone({
           {value}
         </p>
       </header>
+      {nudge && (
+        <p className="mb-1 rounded-md bg-ignition-500/15 px-1.5 py-0.5 text-[11px] font-medium text-ignition-300" data-zone-nudge>
+          {nudge}
+        </p>
+      )}
       {children}
     </section>
   )
@@ -91,6 +99,7 @@ export function RiderCockpit({
   road,
   engine,
   highlight = [],
+  nudge,
   className,
 }: {
   values: CockpitValues
@@ -99,6 +108,8 @@ export function RiderCockpit({
   engine?: CockpitEngine
   /** Control zones to highlight (from the cause-and-effect strip). */
   highlight?: readonly CockpitZone[]
+  /** A live "Now: …" line from a demonstration, shown on the control that is moving. */
+  nudge?: RideNudge
   className?: string
 }) {
   const v: CockpitValues = controls
@@ -114,6 +125,29 @@ export function RiderCockpit({
     : values
   const inZone = !!v.frictionZone && v.clutch >= v.frictionZone[0] && v.clutch <= v.frictionZone[1]
   const clutchText = `${pct(v.clutch)} pulled${inZone ? ' · friction zone' : ''}`
+  // A full-screen view: on a phone turned sideways the road fills the screen and the controls sit
+  // at its corners, so both hands can work while watching the road.
+  const [expanded, setExpanded] = useState(false)
+  const [portrait, setPortrait] = useState(false)
+  useEffect(() => {
+    if (!expanded) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpanded(false)
+    }
+    const onChange = () => setPortrait(window.innerHeight > window.innerWidth)
+    onChange()
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('resize', onChange)
+    window.addEventListener('orientationchange', onChange)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('resize', onChange)
+      window.removeEventListener('orientationchange', onChange)
+    }
+  }, [expanded])
 
   const blur = (e: FocusEvent<HTMLDivElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) controls?.keyHandlers.onBlur()
@@ -121,9 +155,10 @@ export function RiderCockpit({
 
   return (
     // Sized by the space it is given (a container query), so it also works in a narrow column.
-    <div className="@container">
+    <div className={cn('@container', expanded && 'fixed inset-0 z-50 bg-bg p-2 sm:p-4')}>
       <div
         data-cockpit
+        data-expanded={expanded || undefined}
         tabIndex={controls ? 0 : undefined}
         aria-label={
           controls ? 'Rider cockpit. Drag the controls, or use the keyboard: A and Z clutch, arrow up and down throttle, Space front brake, S rear brake, E and D gears, N neutral.' : undefined
@@ -131,22 +166,54 @@ export function RiderCockpit({
         onKeyDown={controls?.keyHandlers.onKeyDown}
         onKeyUp={controls?.keyHandlers.onKeyUp}
         onBlur={controls ? blur : undefined}
-        className={cn('overflow-hidden rounded-2xl border border-line bg-bg outline-none focus-visible:ring-2 focus-visible:ring-ignition-500 @2xl:relative @2xl:aspect-[16/9]', className)}
+        className={cn(
+          'relative overflow-hidden rounded-2xl border border-line bg-bg outline-none focus-visible:ring-2 focus-visible:ring-ignition-500 @2xl:aspect-[16/9]',
+          expanded && 'cockpit-expanded h-full overflow-y-auto',
+          className,
+        )}
       >
-        <div data-zone="road" className="aspect-[16/10] @2xl:absolute @2xl:inset-0 @2xl:aspect-auto">
+        {controls && (
+          <div className="absolute top-2 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setExpanded((on) => !on)}
+              aria-pressed={expanded}
+              data-expand-cockpit
+              className="flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-bg/85 px-3 text-xs font-medium text-ink backdrop-blur hover:border-line-strong"
+            >
+              {expanded ? <Minimize2 className="size-3.5" aria-hidden /> : <Maximize2 className="size-3.5" aria-hidden />}
+              {expanded ? 'Exit full screen' : 'Fill the screen'}
+            </button>
+            {expanded && portrait && (
+              <p className="flex items-center gap-1.5 rounded-full bg-bg/85 px-3 py-1 text-xs text-ink-muted backdrop-blur">
+                <Smartphone className="size-3.5" aria-hidden /> Turn your phone sideways — the road fills the screen and the controls move to the corners.
+              </p>
+            )}
+          </div>
+        )}
+        <div data-zone="road" className="relative aspect-[16/10] @2xl:absolute @2xl:inset-0 @2xl:aspect-auto">
           <RoadAhead motion={road?.motion} curvature={road?.curvature} lean={road?.lean} idling={road?.idling} scene={road?.scene} />
+          {nudge && (
+            <p
+              data-nudge
+              className="pointer-events-none absolute top-[30%] left-1/2 z-10 w-[min(90%,28rem)] -translate-x-1/2 rounded-full border border-ignition-500/40 bg-bg/80 px-4 py-2 text-center text-sm font-semibold text-ignition-300 shadow-lg backdrop-blur-sm sm:text-base"
+            >
+              {nudge.text}
+            </p>
+          )}
         </div>
 
         <MotorcycleDashboard values={v} className="m-2 @2xl:absolute @2xl:bottom-3 @2xl:left-1/2 @2xl:m-0 @2xl:w-[40%] @2xl:-translate-x-1/2" />
 
         {/* Narrow: the right hand (two controls in one drawing) and the gear lever take the full width, so every control is at least 44 px to touch. */}
-        <div className="grid grid-flow-row-dense grid-cols-2 gap-2 p-2 pt-0 @2xl:contents">
-          <Zone zone="clutch" lit={highlight.includes('clutch')} label="Left hand: clutch lever" title="CLUTCH" value={clutchText} className="@2xl:absolute @2xl:top-3 @2xl:left-3 @2xl:w-[32%] @5xl:w-[29%]">
+        <div className={cn('grid grid-flow-row-dense grid-cols-2 gap-2 p-2 pt-0 @2xl:contents', expanded && 'contents')}>
+          <Zone zone="clutch" lit={highlight.includes('clutch') || nudge?.zone === 'clutch'} nudge={nudge?.zone === 'clutch' ? nudge.text : undefined} label="Left hand: clutch lever" title="CLUTCH" value={clutchText} className="@2xl:absolute @2xl:top-3 @2xl:left-3 @2xl:w-[32%] @5xl:w-[29%]">
             <ClutchControl pull={v.clutch} valueText={clutchText} onChange={controls && ((x) => controls.set('clutch', x))} onRelease={controls && (() => controls.release('clutch'))} />
           </Zone>
           <Zone
             zone="throttle"
-            lit={highlight.includes('throttle')}
+            lit={highlight.includes('throttle') || nudge?.zone === 'throttle'}
+            nudge={nudge?.zone === 'throttle' ? nudge.text : undefined}
             label="Right hand: throttle and front brake"
             title="THROTTLE · FRONT BRAKE"
             value={`${pct(v.throttle)} · brake ${pct(v.frontBrake)}`}
@@ -181,7 +248,8 @@ export function RiderCockpit({
           </Zone>
           <Zone
             zone="gear"
-            lit={highlight.includes('gear')}
+            lit={highlight.includes('gear') || nudge?.zone === 'gear'}
+            nudge={nudge?.zone === 'gear' ? nudge.text : undefined}
             label="Left foot: gear lever"
             title="GEAR"
             value={v.gear === 0 ? 'Neutral' : `Gear ${v.gear}`}
@@ -215,7 +283,8 @@ export function RiderCockpit({
           </Zone>
           <Zone
             zone="rear-brake"
-            lit={highlight.includes('rear-brake')}
+            lit={highlight.includes('rear-brake') || nudge?.zone === 'rear-brake'}
+            nudge={nudge?.zone === 'rear-brake' ? nudge.text : undefined}
             label="Right foot: rear brake"
             title="REAR BRAKE"
             value={`${pct(v.rearBrake)} pressed`}

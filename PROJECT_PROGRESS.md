@@ -1798,3 +1798,35 @@ Tests:
   - P12 had one failure in the batch run and passes alone (27/27). The cause is pre-existing: Basics ("Engine basics") and Mechanics ("The four-stroke engine") ask an identically worded question ("How many crankshaft turns does one four-stroke cycle take?"). When the assessment draws both, two prompts read alike.
   - The test now allows for it. The lessons were left unchanged (outside this work's scope); flagged for the user.
 - Types, lint and build clean. **Riding Situations complete: 15 lessons.**
+
+## Narrated lessons — pilot (2026-11-07) · BUILT, awaiting review
+
+Request: narration plus visual demonstration for every lesson. Agreed approach: no recorded video files. Instead, a narrated walkthrough generated from each lesson's own text: the browser's built-in voice (Web Speech API), captions, and the lesson's visuals moving with the voice (section, control tab, timeline stage, mistake; Watch it done playing each step as it is described).
+- Frontend-only and free.
+- The script can't drift from the lesson, because it is built from the same data.
+- Pilot on the two Batch A lessons (Starting and moving off, Stopping without stalling), then stop for review.
+- Option 2 (pre-generated audio files) kept for later, where voice quality matters.
+
+### Pilot built
+
+| Piece | What it does |
+|---|---|
+| `components/situations/narration.ts` | `buildNarration(lesson, scenario)` turns a lesson into ~40 cues covering all seven sections: title and summary; the four situation parts; each control twice (what/when/how/how much, then why/mechanics/result with the panel open); each timeline stage; each demonstration step (played while spoken); each mistake with its fix; the check; practice. `speakable()` turns units and symbols into words (km/h → kilometres per hour, % → percent, RPM → R P M, v²/g·R…). |
+| `hooks/useNarration.ts` | Web Speech API player. Speaks a sentence or two at a time (some browsers cut long utterances), with play, pause and resume (resume restarts the current part — the only reliable behaviour across browsers), previous/next, go to part, speed 0.8/1/1.25×, and voice choice (default Indian English → British → any English; choice remembered on the device). Without a voice the captions advance at reading pace (about 2.6 words/s). A demonstration cue waits until both the speech and its step have finished. Speech is stopped on leaving the page. |
+| `components/situations/NarrationBar.tsx` | Sticky bar: section and part number, the **sentence being spoken** as the caption (original wording), controls, speed, voice picker, and a "captions only" notice. |
+| Lesson view | "Play the lesson — narrated" in the header (pilot lessons: `narrated: true`). While narrating, the page shows the section being talked about and scrolls to it. The control tab and its mechanics panel, the timeline stage and the open mistake follow the voice. Choosing a section moves the narration there; Stop stays on that section. |
+| Watch it done | Narrated playback: `playStep(k)` plays one step and **holds** at its end (`held` status, `onHeld`). The narration moves on only when the step has finished. The next step continues straight on (no jump); it pauses with the narration. |
+
+Tests:
+- Unit 163/163 (`narration.test.ts`: the pilot covers both lessons; all seven sections in order; every control (both parts), stage, demonstration step and mistake; unique ids; units in words).
+- New `rs4test` 27/27, with a stand-in speech engine that records each utterance (headless Chrome has no voices). It checks:
+  - only pilot lessons offer it; the title is spoken with the default voice;
+  - the page, control tab, mechanics panel, timeline stage and mistake follow the voice;
+  - all 5 demonstration steps play in step with their narration;
+  - pause, resume at 1.25×, the end with Play again, next/previous, section jump, Stop;
+  - voice choice; the caption is the spoken sentence; units in words;
+  - the captions-only fallback; phone fit and 44 px controls; no console errors.
+
+Limitation: real voices can't be heard in automated tests. Voice quality and timing on the user's devices still need checking by ear.
+
+- Regression with the pilot: rs4 27, rs3 11, rs2 14, rs1 46, ck13 19, ck1 20, ck2 34, ck4 19, ck5 16, ck6 14, ck7 22, ck8 25, ck9 22, ck9axe 17, ck10 32, ck11 29, ck12 15, P0 60, P5 32, P11 49, P12 27 — all 21 suites pass. (The run was split across a session restart; scratchpad scripts deleted by the system were restored from `tests/e2e/`.) **Pilot complete — awaiting the user's review.**

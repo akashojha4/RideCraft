@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, ChevronRight, Clock, Gauge } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronRight, Clock, Gauge, Headphones } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { KnowledgeCheck } from '@/components/lesson/KnowledgeCheck'
@@ -12,6 +12,10 @@ import { cn } from '@/lib/cn'
 import { progress, useProgress } from '@/lib/progress/store'
 import { ControlTimeline } from './ControlTimeline'
 import { ControlsSection, MistakesSection, SituationSection } from './SituationSections'
+import { useNarration } from '@/hooks/useNarration'
+import { NarrationBar } from './NarrationBar'
+import { buildNarration } from './narration'
+import { SECTIONS } from './sections'
 import { WatchItDone } from './WatchItDone'
 
 /*
@@ -22,30 +26,44 @@ import { WatchItDone } from './WatchItDone'
  * shared model; the practice link opens the same scenario, by its id, in the cockpit.
  */
 
-const SECTIONS = [
-  { id: 'situation', title: 'Understand the situation', short: 'Situation' },
-  { id: 'controls', title: 'Control by control', short: 'Controls' },
-  { id: 'timeline', title: 'Step-by-step timeline', short: 'Timeline' },
-  { id: 'watch', title: 'Watch it done', short: 'Watch' },
-  { id: 'mistakes', title: 'Common mistakes', short: 'Mistakes' },
-  { id: 'check', title: 'Quick knowledge check', short: 'Check' },
-  { id: 'practice', title: 'Now try it', short: 'Practise' },
-] as const
 
-export function SituationLessonView({ module, lesson, index, previous, next }: { module: LearningModule; lesson: Lesson; index: number; previous?: Lesson; next?: Lesson }) {
+export function SituationLessonView({ module, lesson, index, previous, next, nextModule }: { module: LearningModule; lesson: Lesson; index: number; previous?: Lesson; next?: Lesson; nextModule?: LearningModule }) {
   const teaching = lesson.situation!
   const scenario = getCockpitScenario(teaching.scenario)!
   const run = useMemo(() => runScenario(scenario, demoPlan(scenario)), [scenario])
   const [params, setParams] = useSearchParams()
-  const at = Math.max(0, SECTIONS.findIndex((s) => s.id === params.get('section')))
+  // The narrated walkthrough (pilot lessons): built from this lesson, it shows the section it is talking about.
+  const cues = useMemo(() => (teaching.narrated ? buildNarration(lesson, scenario) : []), [teaching, lesson, scenario])
+  const narration = useNarration(cues)
+  const narrating = narration.status !== 'idle' && narration.cue ? narration.cue : null
+  const at = narrating ? SECTIONS.findIndex((s) => s.id === narrating.section) : Math.max(0, SECTIONS.findIndex((s) => s.id === params.get('section')))
   const section = SECTIONS[at]
+  const live = narration.active ? narrating : null
   const record = useProgress().lessons[`${module.id}/${lesson.id}`]
   const path = lessonPath(module.id, lesson.id)
   const practice = `/simulators/cockpit?practice=${scenario.id}&from=${encodeURIComponent(`${path}?section=practice`)}`
   useEffect(() => progress.visitLesson(module.id, lesson.id), [module.id, lesson.id])
+  // Keep the section the narration is talking about in view.
+  const following = narration.active
+  useEffect(() => {
+    if (following) document.getElementById('section-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [at, following])
   const go = (k: number) => {
-    setParams(k === 0 ? {} : { section: SECTIONS[k].id })
+    // While narrated, moving to a section moves the narration there too.
+    if (narration.active) {
+      const first = cues.findIndex((c) => c.section === SECTIONS[k].id)
+      if (first >= 0) narration.goTo(first)
+    } else {
+      if (narrating) narration.stop()
+      setParams(k === 0 ? {} : { section: SECTIONS[k].id })
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  /** Stop the narration and stay on the section it had reached. */
+  const stopNarration = () => {
+    const id = narration.cue?.section
+    narration.stop()
+    if (id) setParams(id === 'situation' ? {} : { section: id })
   }
 
   return (
@@ -81,6 +99,11 @@ export function SituationLessonView({ module, lesson, index, previous, next }: {
             <span className="flex items-center gap-1.5">
               <Clock className="size-4" aria-hidden /> {lesson.durationMinutes} min
             </span>
+            {teaching.narrated && narration.status === 'idle' && (
+              <button type="button" onClick={narration.play} data-play-lesson className="flex min-h-11 items-center gap-2 rounded-xl bg-ignition-500 px-4 text-sm font-medium text-bg hover:bg-ignition-400">
+                <Headphones className="size-4" aria-hidden /> Play the lesson — narrated
+              </button>
+            )}
             {record?.quiz && (
               <span className="font-mono text-xs" data-lesson-quiz>
                 Quick check best {record.quiz.best}/{record.quiz.total}
@@ -116,21 +139,21 @@ export function SituationLessonView({ module, lesson, index, previous, next }: {
             {section.title}
           </h2>
 
-          {section.id === 'situation' && <SituationSection teaching={teaching} scenario={scenario} run={run} />}
-          {section.id === 'controls' && <ControlsSection teaching={teaching} scenario={scenario} run={run} />}
+          {section.id === 'situation' && <SituationSection teaching={teaching} scenario={scenario} run={run} from={`${path}?section=situation`} />}
+          {section.id === 'controls' && <ControlsSection teaching={teaching} scenario={scenario} run={run} focus={live?.control} focusDetail={live ? !!live.detail : undefined} />}
           {section.id === 'timeline' && (
             <>
               <p className="mb-4 text-ink-muted">Every control through the whole manoeuvre, stage by stage. Choose a stage to see what each control is doing and what the motorcycle does.</p>
-              <ControlTimeline scenario={scenario} run={run} controls={['clutch', 'throttle', 'front', 'rear', 'gear', ...(teaching.controls.some((c) => c.control === 'steer') ? (['steer'] as const) : [])]} />
+              <ControlTimeline scenario={scenario} run={run} controls={['clutch', 'throttle', 'front', 'rear', 'gear', ...(teaching.controls.some((c) => c.control === 'steer') ? (['steer'] as const) : [])]} focusStage={live?.stage} />
             </>
           )}
           {section.id === 'watch' && (
             <>
               <p className="mb-4 text-ink-muted">The cockpit rides it for you. Press Play and watch the levers, the road, the instruments and the machine — then step through it at your own pace.</p>
-              <WatchItDone scenario={scenario} run={run} />
+              <WatchItDone scenario={scenario} run={run} narrated={live && live.section === 'watch' ? { step: live.demoStep ?? null, paused: narration.status === 'paused', onHeld: narration.release } : undefined} />
             </>
           )}
-          {section.id === 'mistakes' && <MistakesSection teaching={teaching} scenario={scenario} />}
+          {section.id === 'mistakes' && <MistakesSection teaching={teaching} scenario={scenario} focus={live?.mistake} />}
           {section.id === 'check' && <KnowledgeCheck key={`${module.id}/${lesson.id}`} questions={lesson.knowledgeCheck} onComplete={(r) => progress.recordQuiz(module.id, lesson.id, r.correct, r.total)} />}
           {section.id === 'practice' && (
             <div className="space-y-5">
@@ -173,10 +196,12 @@ export function SituationLessonView({ module, lesson, index, previous, next }: {
           )}
         </div>
 
+        {narrating && <NarrationBar narration={{ ...narration, stop: stopNarration }} />}
+
         {at === SECTIONS.length - 1 && (
           <nav aria-label="Lesson navigation" className="mt-12 grid gap-3 sm:grid-cols-2">
             <PagerLink module={module} lesson={previous} direction="previous" />
-            <PagerLink module={module} lesson={next} direction="next" />
+            <PagerLink module={module} lesson={next} direction="next" nextModule={nextModule} />
           </nav>
         )}
       </Container>

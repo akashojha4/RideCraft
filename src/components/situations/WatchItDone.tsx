@@ -6,8 +6,10 @@ import { roadSceneFor } from '@/components/cockpit/roadScene'
 import { crossHighlight } from '@/components/cockpit/crossView'
 import type { RunResult } from '@/content/scenarios/cockpit/run'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
+import { useEffect, useRef } from 'react'
 import { useCockpitSim } from '@/hooks/useCockpitSim'
 import { useDemoPlayer } from '@/hooks/useDemoPlayer'
+import { useRideSounds } from '@/hooks/useRideSounds'
 import { cn } from '@/lib/cn'
 import { REDLINE_RPM } from '@/lib/mechanics/gearbox'
 import { simulationSpeeds } from '@/lib/motion'
@@ -20,16 +22,36 @@ import { simulationSpeeds } from '@/lib/motion'
 
 const FRICTION_ZONE: [number, number] = [0.12, 0.36]
 
-export function WatchItDone({ scenario, run }: { scenario: CockpitScenario; run: RunResult }) {
+/** Set while the lesson narration drives the demonstration: the step to play, whether it is paused, and who to tell when a step ends. */
+export interface NarratedDemo {
+  step: number | null
+  paused: boolean
+  onHeld: (step: number) => void
+}
+
+export function WatchItDone({ scenario, run, narrated, compact = false }: { scenario: CockpitScenario; run: RunResult; narrated?: NarratedDemo; compact?: boolean }) {
   // The playback controls start it, so a scenario that waits for the rider's first touch doesn't wait here.
   const cockpit = useCockpitSim({ ...scenario.setup, paused: false }, scenario.world)
   const { sim, road, lastDownshift, signal, worldSpec } = cockpit
-  const player = useDemoPlayer(cockpit, scenario, run)
+  const player = useDemoPlayer(cockpit, scenario, run, narrated?.onHeld)
+  useRideSounds(sim, { hush: player.status === 'done' })
+  // Follow the narration: play its step, or pause with it (on the next frame, after the cockpit has rendered).
+  const follow = useRef(player)
+  useEffect(() => {
+    follow.current = player
+  })
+  const step = narrated?.step ?? null
+  const narrationPaused = narrated?.paused ?? false
+  useEffect(() => {
+    if (step === null) return
+    const id = requestAnimationFrame(() => (narrationPaused ? follow.current.pause() : follow.current.playStep(step)))
+    return () => cancelAnimationFrame(id)
+  }, [step, narrationPaused])
   const { state: s, inputs: i, derived: d } = sim.snapshot
   const demo = scenario.demo ?? []
-  const step = scenario.steps[player.index]
+  const current = scenario.steps[player.index]
   const watch = demo[player.index]?.watch
-  const parts = step?.highlight ?? []
+  const parts = current?.highlight ?? []
   const hl = crossHighlight(parts)
   const downshiftAge = sim.clock.time.get() - lastDownshift.get()
   const playing = player.status === 'playing'
@@ -51,6 +73,7 @@ export function WatchItDone({ scenario, run }: { scenario: CockpitScenario; run:
         }}
         road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene: roadSceneFor(i, worldSpec, signal) }}
         highlight={hl.zones}
+        nudge={playing ? player.nudge : undefined}
       />
 
       {/* Playback */}
@@ -111,8 +134,8 @@ export function WatchItDone({ scenario, run }: { scenario: CockpitScenario; run:
           {player.status === 'ready' && ' · press Play to watch'}
           {player.status === 'done' && ' · demonstration complete'}
         </p>
-        <h4 className="mt-1 text-lg font-semibold text-ink">{step?.title}</h4>
-        <p className="mt-1 leading-relaxed text-ink-muted">{step?.instruction}</p>
+        <h4 className="mt-1 text-lg font-semibold text-ink">{current?.title}</h4>
+        <p className="mt-1 leading-relaxed text-ink-muted">{current?.instruction}</p>
         {watch && (
           <p className="mt-2 text-sm leading-relaxed text-ink">
             <span className="font-medium text-coolant-300">Watch: </span>
@@ -122,15 +145,17 @@ export function WatchItDone({ scenario, run }: { scenario: CockpitScenario; run:
         {player.done[player.index] && (
           <p className="mt-3 flex gap-2 rounded-xl border border-ok-500/30 bg-ok-950/30 p-3 text-sm leading-relaxed text-ink" data-step-explained>
             <CircleCheck className="mt-0.5 size-4 shrink-0 text-ok-400" aria-hidden />
-            <span>{step?.explanation}</span>
+            <span>{current?.explanation}</span>
           </p>
         )}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <MachineSummary sim={sim} highlight={hl.stages} />
-        <RoadPreview sim={sim} downshiftAge={downshiftAge} highlighted={hl.sideView} crossing={cockpit.crossing} />
-      </div>
+      {!compact && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <MachineSummary sim={sim} highlight={hl.stages} />
+          <RoadPreview sim={sim} downshiftAge={downshiftAge} highlighted={hl.sideView} crossing={cockpit.crossing} />
+        </div>
+      )}
       <p className="text-xs text-ink-subtle">The same simulation and scenario as the cockpit, ridden by a careful rider. It is a simplified model: a real motorcycle will feel different.</p>
     </div>
   )

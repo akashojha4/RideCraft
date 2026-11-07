@@ -186,6 +186,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'gearbox', caption: 'Select gears and see which pair carries the power.' },
+      { type: 'cockpit', scenario: 'gears-drill', caption: 'Watch each upshift drop the revs for the same road speed — that is the ratio changing.' },
       { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/mechanics/gear-ratios', title: 'Practise it in the cockpit', text: 'See each gear change the engine speed for the same road speed.' },
       { type: 'illustration', illustration: 'gear-speed-chart', caption: 'From the basics module: the speed range of each gear.' },
       {
@@ -220,6 +221,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'clutch-capacity', caption: 'Change the lever pull, the number of plates and their condition. When does the clutch slip?' },
+      { type: 'cockpit', scenario: 'clutch-drill', caption: 'Watch the plates separate, slip and lock — clamp load falling, then torque passing again.' },
       { type: 'cta', to: '/simulators/cockpit?practice=clutch-drill&from=/learn/mechanics/clutch-plates', title: 'Practise it in the cockpit', text: 'Watch the clamp load and the torque the plates pass as you work the lever.' },
       { type: 'illustration', illustration: 'clutch', caption: 'The clutch from the basics module: lever travel, friction zone and clamping force.' },
       {
@@ -634,6 +636,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'weight-transfer', caption: 'Braking from rolling to an emergency stop: how the load shifts.' },
+      { type: 'cockpit', scenario: 'brakes-drill', caption: 'Watch the fork compress as load piles onto the front tyre — that is the transfer, not the mass moving.' },
       { type: 'cta', to: '/simulators/cockpit?practice=brakes-drill&from=/learn/mechanics/weight-transfer', title: 'Practise it in the cockpit', text: 'Brake and watch the load move onto the front tyre and the fork compress.' },
       { type: 'illustration', illustration: 'corner-grip', caption: 'In a bend: how much of each tyre’s grip is used when braking or accelerating.' },
       {
@@ -668,6 +671,7 @@ export const mechanicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'engine-braking', caption: 'Deceleration from engine braking at different speeds in each gear, measured on the simulator’s powertrain.' },
+      { type: 'cockpit', scenario: 'gears-drill', caption: 'Watch the last step: clutch in, down to second, clutch out with the throttle shut — the revs rise and the motorcycle slows.' },
       { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/mechanics/engine-braking', title: 'Practise it in the cockpit', text: 'Change down with the throttle closed and watch the power flow run backwards.' },
       {
         type: 'keyPoints',

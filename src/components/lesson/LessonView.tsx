@@ -29,12 +29,14 @@ export function LessonView({
   index,
   previous,
   next,
+  nextModule,
 }: {
   module: LearningModule
   lesson: Lesson
   index: number
   previous?: Lesson
   next?: Lesson
+  nextModule?: LearningModule
 }) {
   const outline = lesson.blocks
     .map((block, i) => {
@@ -107,7 +109,7 @@ export function LessonView({
 
             <nav aria-label="Lesson navigation" className="mt-12 grid gap-3 sm:grid-cols-2">
               <PagerLink module={module} lesson={previous} direction="previous" />
-              <PagerLink module={module} lesson={next} direction="next" />
+              <PagerLink module={module} lesson={next} direction="next" nextModule={nextModule} />
             </nav>
           </div>
 
@@ -140,14 +142,18 @@ export function PagerLink({
   module,
   lesson,
   direction,
+  nextModule,
 }: {
   module: LearningModule
   lesson?: Lesson
   direction: 'previous' | 'next'
+  /** After a module's last lesson, the next link leads into this module. */
+  nextModule?: LearningModule
 }) {
   const isNext = direction === 'next'
-  const to = lesson ? lessonPath(module.id, lesson.id) : `/learn/${module.id}`
-  const label = lesson ? lesson.title : isNext ? 'Back to module overview' : 'Module overview'
+  const intoNext = isNext && !lesson && nextModule?.lessons[0]
+  const to = lesson ? lessonPath(module.id, lesson.id) : intoNext ? lessonPath(nextModule!.id, intoNext.id) : `/learn/${module.id}`
+  const label = lesson ? lesson.title : intoNext ? `${nextModule!.title}: ${intoNext.title}` : isNext ? 'Back to module overview' : 'Module overview'
 
   return (
     <Link
@@ -159,7 +165,7 @@ export function PagerLink({
     >
       <span className="flex items-center gap-1.5 text-xs text-ink-subtle">
         {!isNext && <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />}
-        {lesson ? (isNext ? 'Next lesson' : 'Previous lesson') : 'Module'}
+        {lesson ? (isNext ? 'Next lesson' : 'Previous lesson') : intoNext ? 'Module finished — next module' : 'Module'}
         {isNext && <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />}
       </span>
       <span className="font-medium text-ink">{label}</span>

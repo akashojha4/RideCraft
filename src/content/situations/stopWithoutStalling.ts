@@ -3,6 +3,7 @@ import type { SituationTeaching } from './types'
 /** Teaching for the cockpit scenario "Stopping without stalling". */
 export const stopWithoutStallingTeaching: SituationTeaching = {
   scenario: 'stop-without-stalling',
+  narrated: true,
   situation: {
     where: 'Riding along a quiet, straight, dry road in third gear at a moderate speed, with a place to stop ahead.',
     happening: 'The clutch is fully out, so the engine and the rear wheel are connected through third gear: every change in road speed changes the engine speed with it.',

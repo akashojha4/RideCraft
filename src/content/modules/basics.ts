@@ -212,6 +212,7 @@ export const basicsLessons: Lesson[] = [
         illustration: 'cockpit',
         caption: 'The rider’s view. Select any control to see what it does and how to use it.',
       },
+      { type: 'cockpit', scenario: 'start-and-move-off', caption: 'Watch a careful rider start the engine and move off — every control where it is on a real motorcycle.' },
       { type: 'cta', to: '/simulators/cockpit', title: 'Sit in the cockpit', text: 'Every control where it is on a real motorcycle: try them and see what each one does.' },
       {
         type: 'keyPoints',
@@ -587,6 +588,7 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'gearbox', caption: 'Shift through the gears with the lever buttons, just as your foot would. Notice how neutral is reached.' },
+      { type: 'cockpit', scenario: 'gears-drill', caption: 'Watch a clean change up and down: clutch, lever, clutch out — and the revs follow the gear.' },
       { type: 'cta', to: '/simulators/cockpit?practice=gears-drill&from=/learn/basics/understanding-gears', title: 'Practise it in the cockpit', text: 'Change up and down while riding and watch the gearbox and the engine speed change.' },
       {
         type: 'concept',
@@ -688,6 +690,7 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'clutch', caption: 'Pull the lever slowly. Notice the freeplay at the start, then the friction zone, then full disengagement.' },
+      { type: 'cockpit', scenario: 'clutch-drill', caption: 'Watch the lever pull in, first gear, then the plates slip and lock as the motorcycle creeps away.' },
       { type: 'cta', to: '/simulators/cockpit?practice=clutch-drill&from=/learn/basics/understanding-clutch', title: 'Practise it in the cockpit', text: 'Pull the lever and watch the plates separate, slip and grip — and what reaches the rear wheel.' },
       {
         type: 'terms',
@@ -794,6 +797,7 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'throttle', caption: 'Roll the grip open and watch the valve and airflow. Then press “Let go”.' },
+      { type: 'cockpit', scenario: 'start-and-move-off', caption: 'Watch the twist grip open a little as the clutch comes out — and close again if you let go.' },
       { type: 'cta', to: '/simulators/cockpit?practice=start-and-move-off&from=/learn/basics/understanding-throttle', title: 'Practise it in the cockpit', text: 'Start the engine and move off: balance a little throttle against a slow clutch release.' },
       {
         type: 'keyPoints',
@@ -875,6 +879,7 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'front-brake', caption: 'Squeeze the lever: the pads first close a small gap, then pressure builds.' },
+      { type: 'cockpit', scenario: 'brakes-drill', caption: 'Watch the front brake, then the rear, then both together to a stop — and how the fork dives.' },
       { type: 'cta', to: '/simulators/cockpit?practice=brakes-drill&from=/learn/basics/understanding-brakes', title: 'Practise it in the cockpit', text: 'Try the front brake, the rear brake and both together, and watch the load transfer.' },
       {
         type: 'concept',

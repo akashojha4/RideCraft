@@ -1,6 +1,7 @@
 import { basicsLessons } from './modules/basics'
 import { handlingLessons } from './modules/handling'
 import { mechanicsLessons } from './modules/mechanics'
+import { firstRideLessons } from './modules/firstRide'
 import { preRideLessons } from './modules/preRide'
 import { ridingSituationLessons } from './modules/ridingSituations'
 import { getCockpitScenario } from './scenarios/cockpit'
@@ -26,6 +27,20 @@ export const modules: LearningModule[] = [
     lessons: preRideLessons,
   },
   {
+    id: 'first-ride',
+    title: 'Your First Ride',
+    description: 'Getting on, walking the motorcycle, recovering from a stall, picking it up, and the rules and gear that come before your first road ride.',
+    phase: 4,
+    lessons: firstRideLessons,
+  },
+  {
+    id: 'riding-situations',
+    title: 'Riding Situations',
+    description: 'Moving off, stopping, changing gear, hills, traffic, hazards and U-turns, one control at a time — then watch it done and practise it in the cockpit.',
+    phase: 13,
+    lessons: ridingSituationLessons,
+  },
+  {
     id: 'handling',
     title: 'Turning & Handling',
     description: 'Leaning, countersteering, body position, slow-speed control and tyre grip.',
@@ -35,20 +50,28 @@ export const modules: LearningModule[] = [
   {
     id: 'mechanics',
     title: 'Advanced Mechanics',
-    description: 'Cutaway deep-dives into engines, transmissions, ABS, suspension and tyre dynamics.',
+    description: 'Optional deep-dives for the curious: combustion, fuel systems, cooling, ABS, traction control, suspension and tyres. Not needed to start riding.',
     phase: 11,
     lessons: mechanicsLessons,
-  },
-  {
-    id: 'riding-situations',
-    title: 'Riding Situations',
-    description: 'Real riding situations, one control at a time: what to do, why, and what happens inside the motorcycle — then watch it done and practise it in the cockpit.',
-    phase: 13,
-    lessons: ridingSituationLessons,
+    optional: true,
   },
 ]
 
 export const visibleModules = modules.filter((m) => !m.hidden)
+
+/** The modules a beginner works through to be ready for real practice (optional depth left out). */
+export const coreModules = visibleModules.filter((m) => !m.optional && m.lessons.length > 0)
+
+export const moduleMinutes = (m: LearningModule) => m.lessons.reduce((n, l) => n + l.durationMinutes, 0)
+
+/** The first lesson not yet completed, in curriculum order (core modules first), or undefined when all are done. */
+export function nextLesson(isCompleted: (moduleId: string, lessonId: string) => boolean) {
+  for (const m of [...coreModules, ...visibleModules.filter((x) => x.optional)]) {
+    const l = m.lessons.find((x) => !isCompleted(m.id, x.id))
+    if (l) return { module: m, lesson: l, path: lessonPath(m.id, l.id) }
+  }
+  return undefined
+}
 
 export function getModule(moduleId: string | undefined) {
   return modules.find((m) => m.id === moduleId)
@@ -59,12 +82,15 @@ export function getLesson(moduleId: string | undefined, lessonId: string | undef
   if (!module) return undefined
   const index = module.lessons.findIndex((l) => l.id === lessonId)
   if (index === -1) return undefined
+  const listed = visibleModules.filter((m) => m.lessons.length > 0)
   return {
     module,
     lesson: module.lessons[index],
     index,
     previous: module.lessons[index - 1] as Lesson | undefined,
     next: module.lessons[index + 1] as Lesson | undefined,
+    /** The module that follows in the curriculum, for the pager after a module's last lesson. */
+    nextModule: listed[listed.indexOf(module) + 1] as LearningModule | undefined,
   }
 }
 
@@ -107,6 +133,9 @@ export function validateCurriculum(list: LearningModule[] = modules): string[] {
       } else {
         for (const required of ['concept', 'illustration', 'example'] as const) {
           if (!l.blocks.some((b) => b.type === required)) problems.push(`${where} has no "${required}" block`)
+        }
+        for (const b of l.blocks) {
+          if (b.type === 'cockpit' && !getCockpitScenario(b.scenario)) problems.push(`${where} embeds unknown cockpit scenario "${b.scenario}"`)
         }
       }
       if (l.knowledgeCheck.length === 0) problems.push(`${where} has no knowledge check`)

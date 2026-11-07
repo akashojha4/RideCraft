@@ -10,6 +10,14 @@ const KEY = 'motolab:progress:v1'
 const LEGACY_SCENARIOS = 'motolab:scenarios-solved'
 const HISTORY_LIMIT = 200
 
+/** Share of a lesson's knowledge check to answer correctly for the lesson to count as completed. */
+export const QUIZ_PASS = 2 / 3
+
+/** Correct answers needed to pass a knowledge check of `total` questions (2 of 3, 3 of 4, 4 of 5…). */
+export const quizPassMark = (total: number) => Math.ceil(total * QUIZ_PASS - 1e-9)
+
+export const quizPassed = (correct: number, total: number) => correct >= quizPassMark(total)
+
 export interface QuizRecord {
   best: number
   last: number
@@ -68,6 +76,10 @@ function read(): Progress {
       localStorage.removeItem(LEGACY_SCENARIOS)
       localStorage.setItem(KEY, JSON.stringify(p))
     }
+    // Lessons once counted as completed on any finished quiz now need a passing score.
+    for (const [k, r] of Object.entries(p.lessons ?? {})) {
+      if (r?.completedAt && r.quiz && !quizPassed(r.quiz.best, r.quiz.total)) p.lessons[k] = { ...r, completedAt: undefined }
+    }
     return p
   } catch {
     return empty()
@@ -120,13 +132,14 @@ export const progress = {
     if (get().lessons[k]) return
     update((p) => ({ ...p, lessons: { ...p.lessons, [k]: { visitedAt: Date.now() } } }))
   },
-  /** A finished knowledge check: the lesson counts as completed. */
+  /** A finished knowledge check: with a passing score, the lesson counts as completed. */
   recordQuiz(moduleId: string, lessonId: string, correct: number, total: number) {
     const k = lessonKey(moduleId, lessonId)
     update((p) => {
       const prev = p.lessons[k]
       const quiz: QuizRecord = { best: Math.max(prev?.quiz?.best ?? 0, correct), last: correct, total, attempts: (prev?.quiz?.attempts ?? 0) + 1, at: Date.now() }
-      return { ...p, lessons: { ...p.lessons, [k]: { visitedAt: prev?.visitedAt ?? Date.now(), completedAt: prev?.completedAt ?? Date.now(), quiz } } }
+      const completedAt = prev?.completedAt ?? (quizPassed(correct, total) ? Date.now() : undefined)
+      return { ...p, lessons: { ...p.lessons, [k]: { visitedAt: prev?.visitedAt ?? Date.now(), completedAt, quiz } } }
     })
   },
   recordPractice(event: Omit<PracticeEvent, 'at'>) {

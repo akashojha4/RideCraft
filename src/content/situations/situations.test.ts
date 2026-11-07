@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { getModule, validateCurriculum } from '@/content/curriculum'
-import { getCockpitScenario } from '@/content/scenarios/cockpit'
+import { cockpitScenarios, getCockpitScenario } from '@/content/scenarios/cockpit'
 
 describe('Riding Situations module', () => {
   const m = getModule('riding-situations')!
 
-  it('is in the curriculum with all fifteen lessons, basics first', () => {
+  it('is in the curriculum with a lesson for every cockpit scenario, basics first', () => {
     expect(m).toBeDefined()
-    expect(m.lessons.map((l) => l.id)).toEqual(['starting-and-moving-off', 'stopping-without-stalling', 'using-the-clutch', 'changing-gear', 'using-the-brakes', 'hill-start', 'riding-downhill', 'wet-road', 'gravel', 'emergency-braking', 'traffic-signal', 'moving-in-traffic', 'slow-traffic', 'speed-breaker', 'u-turn'])
-    // Every cockpit scenario now has its lesson.
-    expect(new Set(m.lessons.map((l) => l.situation!.scenario)).size).toBe(15)
+    expect(m.lessons.map((l) => l.id)).toEqual(['starting-and-moving-off', 'stopping-without-stalling', 'using-the-clutch', 'changing-gear', 'using-the-brakes', 'hill-start', 'riding-downhill', 'wet-road', 'gravel', 'emergency-braking', 'traffic-signal', 'moving-in-traffic', 'slow-traffic', 'speed-breaker', 'pothole', 'sudden-obstacle', 'overtaking', 'highway', 'u-turn'])
+    expect(m.lessons.map((l) => l.situation!.scenario).sort()).toEqual(cockpitScenarios.map((s) => s.id).sort())
   })
 
   it('passes the curriculum validator (with every other module)', () => {

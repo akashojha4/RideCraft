@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { LeverHit } from './LeverHit'
 
@@ -9,6 +10,15 @@ import { LeverHit } from './LeverHit'
  */
 
 const pct = (x: number) => `${Math.round(x * 100)} %`
+
+/** Drawn roll of the twist grip — bigger than a real ~70° so shut vs open is obvious at a glance. */
+const TWIST_DEG = 140
+const RIBS = 6
+
+function polar(cx: number, cy: number, r: number, deg: number) {
+  const a = (deg * Math.PI) / 180
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }
+}
 
 /** Left handlebar: grip and clutch lever. `pull` 0 (released) – 1 (at the grip). */
 export function ClutchControl({ pull = 0, valueText, onChange, onRelease, className }: { pull?: number; valueText?: string; onChange?: (v: number) => void; onRelease?: () => void; className?: string }) {
@@ -58,21 +68,101 @@ export function ThrottleBrakeControl({
   onBrakeRelease?: () => void
   className?: string
 }) {
+  const clipId = `throttle-grip-${useId().replace(/:/g, '')}`
+  const prev = useRef(throttle)
+  const [kick, setKick] = useState<{ dir: 'open' | 'shut'; at: number } | null>(null)
+  useEffect(() => {
+    const d = throttle - prev.current
+    prev.current = throttle
+    if (Math.abs(d) < 0.08) return
+    setKick({ dir: d > 0 ? 'open' : 'shut', at: performance.now() })
+  }, [throttle])
   const angle = -14 * (1 - brake)
-  // Twisting the grip back rolls its index mark round; shown as the mark sliding along the grip.
-  const mark = 10 + throttle * 14
+  // Twist toward the rider (down the screen). Shut = 12 o'clock on the bar end; open rolls that way.
+  // A little throttle is drawn further along the roll than a real grip, so 20 % doesn't look shut.
+  const shown = throttle <= 0 ? 0 : Math.min(1, 0.16 + throttle * 0.84)
+  const twist = shown * TWIST_DEG
+  const twistR = (twist * Math.PI) / 180
+  const indexY = 108 - Math.cos(twistR) * 10
+  const cap = { cx: 254, cy: 108, r: 15 }
+  const pointer = polar(cap.cx, cap.cy, cap.r - 3, -90 + twist)
+  const shutTick = polar(cap.cx, cap.cy, cap.r + 1, -90)
+  const openTip = polar(cap.cx, cap.cy, cap.r + 6, -90 + TWIST_DEG)
+  const openA = polar(cap.cx, cap.cy, cap.r - 1, -90 + TWIST_DEG - 12)
+  const openB = polar(cap.cx, cap.cy, cap.r - 1, -90 + TWIST_DEG + 12)
+  const arcStart = polar(cap.cx, cap.cy, cap.r - 1, -90)
+  const open = throttle > 0.04
   return (
-    <svg viewBox="48 30 232 110" className={cn('w-full', className)} role={onThrottle || onBrake ? 'group' : 'img'} aria-label={`Right hand: throttle ${pct(throttle)} open, front brake ${pct(brake)}`}>
+    <svg viewBox="48 30 232 110" className={cn('w-full', className)} role={onThrottle || onBrake ? 'group' : 'img'} aria-label={`Right hand: throttle ${pct(throttle)} open, front brake ${pct(brake)}`} data-throttle={Math.round(throttle * 100)}>
       <g strokeLinecap="round" strokeLinejoin="round">
         <line x1={0} y1={92} x2={130} y2={104} strokeWidth={12} className="stroke-line-strong" />
-        {/* Throttle housing and the twist grip */}
+        {/* Throttle housing: a drum that turns with the grip, pulling the cable */}
         <rect x={66} y={82} width={34} height={36} rx={6} className="fill-surface-sunken stroke-line-strong" strokeWidth={1.5} />
-        <g transform="rotate(5 201 108)">
-          <rect x={142} y={95} width={118} height={26} rx={12} className="fill-surface-overlay stroke-ink-subtle" strokeWidth={1.5} />
-          {Array.from({ length: 9 }, (_, i) => (
-            <line key={i} x1={156 + i * 11} y1={99} x2={156 + i * 11} y2={117} strokeWidth={2} className="stroke-surface-raised" />
-          ))}
-          <line x1={146} y1={108 - mark} x2={146} y2={108} strokeWidth={4} className="stroke-ignition-400" />
+        <circle cx={83} cy={100} r={11} className="fill-surface-overlay stroke-ink-subtle" strokeWidth={1.5} />
+        <g transform={`rotate(${twist} 83 100)`}>
+          <path d="M83,100 L83,90" strokeWidth={3} className={open ? 'stroke-ignition-400' : 'stroke-ink-muted'} />
+          <path d="M83,100 L91,104" strokeWidth={2} className="stroke-ink-subtle" />
+        </g>
+        <path d="M72,92 C60,70 48,58 40,50" fill="none" strokeWidth={2.5} className={open ? 'stroke-ignition-400' : 'stroke-ink-subtle'} />
+        <g
+          key={kick?.at ?? 'idle'}
+          transform="rotate(5 201 108)"
+          className={kick ? (kick.dir === 'open' ? 'throttle-open' : 'throttle-shut') : undefined}
+        >
+          <defs>
+            <clipPath id={clipId}>
+              <rect x={142} y={95} width={100} height={26} rx={12} />
+            </clipPath>
+          </defs>
+          <rect
+            x={142}
+            y={95}
+            width={100}
+            height={26}
+            rx={12}
+            className={open ? 'fill-ignition-950 stroke-ignition-400' : 'fill-surface-overlay stroke-ink-subtle'}
+            strokeWidth={1.5}
+          />
+          <g clipPath={`url(#${clipId})`}>
+            {Array.from({ length: RIBS }, (_, i) => {
+              const a = twistR + (i / RIBS) * Math.PI * 2
+              const front = Math.cos(a)
+              if (front < -0.15) return null
+              const y = 108 + Math.sin(a) * 10
+              return (
+                <line
+                  key={i}
+                  x1={148}
+                  y1={y}
+                  x2={236}
+                  y2={y}
+                  strokeWidth={1.2 + 2.2 * Math.max(0, front)}
+                  opacity={0.25 + 0.55 * Math.max(0, front)}
+                  className="stroke-ink-subtle"
+                />
+              )
+            })}
+            {/* Fat index band: starts on top (shut) and rolls toward the rider as the grip opens. */}
+            <path
+              d={`M144,${indexY} L152,${indexY - 5} L236,${indexY - 5} L244,${indexY} L236,${indexY + 5} L152,${indexY + 5} Z`}
+              className={open ? 'fill-ignition-400' : 'fill-ink-muted'}
+            />
+          </g>
+          {/* Bar-end: a clock face so the twist reads even when the band is edge-on. */}
+          <circle cx={cap.cx} cy={cap.cy} r={cap.r} className={cn(open ? 'fill-ignition-950 stroke-ignition-400' : 'fill-surface-raised stroke-ink')} strokeWidth={1.8} />
+          <circle cx={cap.cx} cy={cap.cy} r={3} className={open ? 'fill-ignition-400' : 'fill-ink-muted'} />
+          <line x1={cap.cx} y1={cap.cy - cap.r} x2={shutTick.x} y2={shutTick.y} strokeWidth={2.5} className="stroke-ink-muted" />
+          <path d={`M ${openTip.x} ${openTip.y} L ${openA.x} ${openA.y} L ${openB.x} ${openB.y} Z`} className="fill-ignition-400" />
+          {open && (
+            <path
+              d={`M ${arcStart.x} ${arcStart.y} A ${cap.r - 1} ${cap.r - 1} 0 ${twist > 180 ? 1 : 0} 1 ${pointer.x} ${pointer.y}`}
+              fill="none"
+              strokeWidth={3}
+              className="stroke-ignition-400"
+              opacity={0.45}
+            />
+          )}
+          <line x1={cap.cx} y1={cap.cy} x2={pointer.x} y2={pointer.y} strokeWidth={4} className={open ? 'stroke-ignition-400' : 'stroke-ink-muted'} />
         </g>
         {/* Brake master cylinder with its fluid reservoir */}
         <rect x={104} y={84} width={32} height={30} rx={5} className="fill-surface-raised stroke-ink-subtle" strokeWidth={1.5} />

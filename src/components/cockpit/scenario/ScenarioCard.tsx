@@ -3,15 +3,15 @@ import type { ReactNode } from 'react'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
 
 /*
- * A cockpit scenario's briefing, in the brief's eight parts. The situation and objective are
+ * A cockpit scenario's briefing. The situation and objective are
  * always shown; the rest open on demand, so the cockpit stays the focus.
  */
 
-function Part({ label, title, children, open = false }: { label: string; title: string; children: ReactNode; open?: boolean }) {
+function Part({ title, children, open = false }: { title: string; children: ReactNode; open?: boolean }) {
   return (
     <details open={open} className="group border-t border-line py-2 first:border-t-0">
       <summary className="flex cursor-pointer list-none items-center gap-2 rounded text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-ignition-500 [&::-webkit-details-marker]:hidden">
-        <span className="font-mono text-xs text-ink-subtle">{label}</span> {title}
+        {title}
         <ChevronDown className="ml-auto size-4 text-ink-subtle transition-transform group-open:rotate-180" aria-hidden />
       </summary>
       <div className="mt-2 text-sm leading-relaxed text-ink-muted">{children}</div>
@@ -32,23 +32,23 @@ export function ScenarioCard({ scenario }: { scenario: CockpitScenario }) {
         {scenario.objective}
       </p>
       <div className="mt-3">
-        <Part label="C" title="What to do, in order">
+        <Part title="What to do, in order">
           <ol className="list-decimal space-y-1 pl-5">
             {scenario.actions.map((a) => (
               <li key={a}>{a}</li>
             ))}
           </ol>
         </Part>
-        <Part label="D" title="What happens inside the motorcycle">
+        <Part title="What happens inside the motorcycle">
           {scenario.mechanical}
         </Part>
-        <Part label="E" title="What happens on the road">
+        <Part title="What happens on the road">
           {scenario.road}
         </Part>
-        <Part label="F" title="Why this is right">
+        <Part title="Why this is right">
           {scenario.why}
         </Part>
-        <Part label="G" title="Common mistakes">
+        <Part title="Common mistakes">
           <ul className="space-y-2">
             {scenario.mistakes.map((m) => (
               <li key={m.id}>
@@ -57,7 +57,7 @@ export function ScenarioCard({ scenario }: { scenario: CockpitScenario }) {
             ))}
           </ul>
         </Part>
-        <Part label="H" title="Safety">
+        <Part title="Safety">
           <ul className="list-disc space-y-1 pl-5">
             {scenario.safety.map((s) => (
               <li key={s}>{s}</li>

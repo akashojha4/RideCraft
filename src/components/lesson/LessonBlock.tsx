@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, Bike, Check, ScanSearch } from 'lucide-react'
 import { Suspense } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { LessonCockpit } from '@/components/cockpit/LessonCockpit'
 import { parts } from '@/components/motorcycle/parts'
 import { Callout } from '@/components/ui/Callout'
 import { illustrations } from '@/content/illustrations/registry'
@@ -15,6 +16,7 @@ function H({ children, id }: { children: string; id?: string }) {
 }
 
 export function LessonBlock({ block, anchorId }: { block: Block; anchorId?: string }) {
+  const from = useLocation().pathname
   switch (block.type) {
     case 'concept':
       return (
@@ -145,6 +147,14 @@ export function LessonBlock({ block, anchorId }: { block: Block; anchorId?: stri
           </span>
           <ArrowRight className="size-5 shrink-0 text-ignition-400 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </Link>
+      )
+
+    case 'cockpit':
+      return (
+        <section className="space-y-3">
+          <H id={anchorId}>See it in the cockpit</H>
+          <LessonCockpit scenarioId={block.scenario} caption={block.caption} from={from} />
+        </section>
       )
 
     case 'terms':

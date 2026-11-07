@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkGuided, goToGuided, guidedComplete, startGuided } from './guided'
+import { checkGuided, followGuided, goToGuided, guidedComplete, startGuided } from './guided'
 import type { GuidedStep } from './model'
 
 type I = { lever: number }
@@ -30,6 +30,20 @@ describe('guided steps', () => {
     const p = startGuided(2)
     expect(goToGuided(p, -3).index).toBe(0)
     expect(goToGuided(p, 9).index).toBe(1)
+  })
+
+  it('follows a learner who is ahead of the guide', () => {
+    const three: GuidedStep<I, number, null>[] = [...steps, { id: 'pull-again', title: 'Pull again', instruction: 'Pull it again', done: (_s, i) => i.lever > 0.9, explanation: '' }]
+    const p = followGuided(three, startGuided(3), 0, { lever: 1 }, null)
+    expect(p).toEqual({ index: 0, done: [true, false, false] })
+    // Lever released while still on step 1's explanation: the guide catches up to step 2, not step 3.
+    expect(followGuided(three, p, 0, { lever: 0 }, null)).toEqual({ index: 1, done: [true, true, false] })
+  })
+
+  it('does not follow into a step with its own set-up', () => {
+    const withSetup: GuidedStep<I, number, null>[] = [steps[0], { ...steps[1], setup: { inputs: { lever: 0 } } }]
+    const p = followGuided(withSetup, startGuided(2), 0, { lever: 1 }, null)
+    expect(followGuided(withSetup, p, 0, { lever: 0 }, null)).toBe(p)
   })
 
   it('is complete when every step is done', () => {

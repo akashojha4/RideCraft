@@ -31,7 +31,9 @@ export const router = createBrowserRouter([
       { path: 'progress', lazy: page(() => import('@/pages/ProgressPage')) },
       { path: 'progress/assessment', lazy: page(() => import('@/pages/AssessmentPage')) },
       { path: 'checklist', lazy: page(() => import('@/pages/ChecklistPage')) },
-      { path: 'design-system', lazy: page(() => import('@/pages/DesignSystemPage')) },
+      { path: 'glossary', lazy: page(() => import('@/pages/GlossaryPage')) },
+      // An internal design reference: only served while developing.
+      ...(import.meta.env.DEV ? [{ path: 'design-system', lazy: page(() => import('@/pages/DesignSystemPage')) }] : []),
       { path: '*', lazy: page(() => import('@/pages/NotFoundPage')) },
     ],
   },

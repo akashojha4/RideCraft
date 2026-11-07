@@ -57,6 +57,12 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
     steering.current = steer
   }, [steer])
 
+  // While a demonstration rides, it sets the inputs itself and the controls only show them.
+  const driven = useRef(false)
+  const setDriven = useCallback((on: boolean) => {
+    driven.current = on
+  }, [])
+
   // A scenario that waits for the rider holds the clock until a control moves from where it was found.
   const waiting = useRef<{ clutch: number; throttle: number; front: number; rear: number; gear: number } | null>(null)
   const holdFor = useCallback(
@@ -77,6 +83,7 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
 
   // The rider's controls are the simulation's inputs.
   useEffect(() => {
+    if (driven.current) return
     sim.setInputs({ clutch: axes.clutch, throttle: axes.throttle, front: axes.front, rear: axes.rear, gear })
     const w = waiting.current
     if (w && (w.clutch !== axes.clutch || w.throttle !== axes.throttle || w.front !== axes.front || w.rear !== axes.rear || w.gear !== gear)) {
@@ -185,16 +192,18 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
       load(snap.inputs, snap.state)
       // A copy, so the run goes on from the snapshot without changing it (Replay starts clean).
       world.current = { ...snap.world, mem: { ...snap.world.mem } }
+      waiting.current = null
+      lastT.current = clock.time.get()
       gap.set(carGap(snap.world, snap.state.distance))
       pose.set(snap.world.pose)
       setSignal(snap.world.signal)
       distance.set(snap.state.distance)
       lastDistance.current = snap.state.distance
     },
-    [controls, load, gap, pose, distance],
+    [controls, load, gap, pose, distance, clock.time],
   )
 
-  return { sim, controls, road, notice, start, stop, reset, restore, setStage, lastDownshift, signal, getWorld, worldSpec: spec, crossing }
+  return { sim, controls, road, notice, start, stop, reset, restore, setStage, setDriven, lastDownshift, signal, getWorld, worldSpec: spec, crossing }
 }
 
 export type CockpitSim = ReturnType<typeof useCockpitSim>

@@ -6,6 +6,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import type { QuizQuestion } from '@/content/types'
 import { cn } from '@/lib/cn'
 import { fadeUp } from '@/lib/motion'
+import { quizPassMark, quizPassed } from '@/lib/progress/store'
 
 export interface KnowledgeCheckResult {
   correct: number
@@ -34,6 +35,7 @@ export function KnowledgeCheck({
   const question = questions[index]
   const isCorrect = checked && selected === question?.correctOptionId
   const isLast = index === questions.length - 1
+  const passed = quizPassed(correctCount, questions.length)
 
   function check() {
     if (!selected) return
@@ -87,16 +89,18 @@ export function KnowledgeCheck({
         {finished ? (
           <motion.div key="result" variants={fadeUp} initial="hidden" animate="visible" className="space-y-4 text-center">
             <Trophy
-              className={cn('mx-auto size-10', correctCount === questions.length ? 'text-ok-400' : 'text-caution-400')}
+              className={cn('mx-auto size-10', passed ? 'text-ok-400' : 'text-caution-400')}
               aria-hidden
             />
             <p className="font-display text-2xl font-semibold text-ink">
               {correctCount} of {questions.length} correct
             </p>
-            <p className="text-ink-muted">
+            <p className="text-ink-muted" data-quiz-verdict={passed ? 'pass' : 'fail'}>
               {correctCount === questions.length
-                ? 'Every answer correct — you have this concept.'
-                : 'Review the explanations above, then try again.'}
+                ? 'Every answer correct — lesson complete.'
+                : passed
+                  ? 'Lesson complete. Try again for full marks if you like.'
+                  : `To complete this lesson, get at least ${quizPassMark(questions.length)} of ${questions.length} right. Re-read the lesson above, then try again.`}
             </p>
             <Button variant="secondary" onClick={restart} leadingIcon={<RotateCcw className="size-4" />}>
               Try again

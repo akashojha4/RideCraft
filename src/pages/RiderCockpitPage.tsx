@@ -1,5 +1,5 @@
-import { ArrowLeft, ArrowRight, BookOpen, ChevronDown, CircleAlert, Compass, GraduationCap, Info, Keyboard, PartyPopper } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { ArrowLeft, ArrowRight, BookOpen, ChevronDown, CircleAlert, Compass, Eye, GraduationCap, Info, Keyboard, PartyPopper, Pause, Play, Volume2, VolumeX } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { NO_HIGHLIGHT, crossHighlight } from '@/components/cockpit/crossView'
 import { InsideTheMachine } from '@/components/cockpit/machine/InsideTheMachine'
@@ -11,8 +11,13 @@ import { RoadPreview } from '@/components/cockpit/road/RoadPreview'
 import { ScenarioCard } from '@/components/cockpit/scenario/ScenarioCard'
 import { TopDownMap } from '@/components/cockpit/road/TopDownMap'
 import { GuidedSteps } from '@/components/simulation/GuidedSteps'
+import { DemoDriver, type DemoHandle } from '@/components/cockpit/DemoDriver'
 import { lessonForScenario } from '@/content/curriculum'
 import { cockpitScenarioGroups, cockpitScenarios, getCockpitScenario, withWorld } from '@/content/scenarios/cockpit'
+import { demoPlan, runScenario } from '@/content/scenarios/cockpit/run'
+import type { DemoStatus } from '@/hooks/useDemoPlayer'
+import type { RideNudge } from '@/lib/simulation/rideNudge'
+import { useRideSounds } from '@/hooks/useRideSounds'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
 import { useGuidedMode } from '@/hooks/useGuidedMode'
 import { useRidingMistakes } from '@/hooks/useRidingMistakes'
@@ -37,19 +42,15 @@ import { explainPowertrain, powertrainAssumptions, powertrainChain, type Powertr
 
 const FRICTION_ZONE: [number, number] = [leverForClamp(0.999), leverForClamp(0.001)]
 
-const MODE_KEY = 'ridecraft:cockpit-mode'
-const MODE_IDS: readonly CockpitMode[] = ['rider', 'machine', 'road', 'split']
-
-/** The learner's last view mode, remembered on this device (if storage is available). */
-function savedMode(): CockpitMode {
-  try {
-    const m = localStorage.getItem(MODE_KEY) as CockpitMode | null
-    if (m && MODE_IDS.includes(m)) return m
-  } catch {
-    // Storage blocked: start in the rider view.
-  }
-  return 'rider'
+/** Watch starts every scenario from step 1; leftover index from a longer run must not leak. */
+const WATCH_IDLE = {
+  index: 0,
+  status: 'ready' as DemoStatus,
+  done: [] as boolean[],
+  nudge: { text: 'Now: watch the controls' } satisfies RideNudge,
 }
+
+const MODE_KEY = 'ridecraft:cockpit-mode'
 
 const ASSUMPTIONS = [
   ...powertrainAssumptions,
@@ -73,15 +74,40 @@ const PATTERNS = [
 
 const KEYS = [
   ['I', 'Start the engine'],
-  ['A / Z', 'Pull in / let out the clutch (hold)'],
-  ['↑ / ↓', 'Open / close the throttle (hold)'],
+  ['A / Z', 'Clutch: hold A to pull it in further, hold Z to let it out'],
+  ['↑ / ↓', 'Throttle: hold ↑ to open it further, hold ↓ to close it'],
   ['Space', 'Front brake (hold)'],
   ['S', 'Rear brake (hold)'],
   ['E / D', 'Gear lever: lift / press'],
   ['N', 'Half-shift to neutral'],
+  ['Shift', 'Hold with any control key to move it slowly — for the biting point'],
   ['← / →', 'Handlebar: full lock left · straight · full lock right (U-turn)'],
+  ['Enter', 'Next step of a guided scenario'],
   ['Tab', 'Move between controls; then arrows, Page Up/Down, Home/End'],
 ] as const
+
+/** The keys a beginner needs most, shown beside the cockpit. */
+const KEY_LEGEND = [
+  ['I', 'start'],
+  ['A/Z', 'clutch in/out'],
+  ['↑/↓', 'throttle'],
+  ['E/D', 'gear up/down'],
+  ['N', 'neutral'],
+  ['Space', 'front brake'],
+  ['S', 'rear brake'],
+  ['Shift', 'slower'],
+] as const
+
+const DETAIL_KEY = 'ridecraft:cockpit-detail'
+
+/** Whether the learner chose to see the machine readouts in the rider view (if storage is available). */
+function savedDetail() {
+  try {
+    return localStorage.getItem(DETAIL_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 const PICK = 'flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm'
 const PICKED = 'border-coolant-500/60 bg-coolant-950 text-coolant-200'
@@ -92,12 +118,17 @@ export default function RiderCockpitPage() {
   // A lesson can link straight to a scenario or drill: ?practice=<id>&from=<lesson path>.
   const [params] = useSearchParams()
   const linked = getCockpitScenario(params.get('practice'))
-  const fromLesson = params.get('from')?.startsWith('/learn/') ? params.get('from') : null
-  const { sim, controls, road, notice, start, stop, reset, setStage, lastDownshift, signal, getWorld, worldSpec, crossing } = useCockpitSim(linked?.setup, linked?.world)
+  const fromRaw = params.get('from')
+  const fromLesson = fromRaw && (fromRaw.startsWith('/learn/') || fromRaw.startsWith('/scenarios/')) ? fromRaw : null
+  const cockpitSim = useCockpitSim(linked?.setup, linked?.world)
+  const { sim, controls, road, notice, start, stop, reset, setStage, lastDownshift, signal, getWorld, worldSpec, crossing } = cockpitSim
+  const [watchingDemo, setWatchingDemo] = useState(false)
+  const [watchState, setWatchState] = useState<{ index: number; status: DemoStatus; done: readonly boolean[]; nudge: RideNudge }>(WATCH_IDLE)
+  const sound = useRideSounds(sim, { hush: watchingDemo && watchState.status === 'done' })
   const { state: s, inputs, derived: d } = sim.snapshot
   const patternId = controls.pattern === REVERSED_PATTERN ? 'reversed' : 'standard'
   const story = s.running || s.stallCause ? explainPowertrain(s, inputs, d) : { tone: 'info' as const, title: 'Engine off', text: 'Select neutral (or pull the clutch in) and press Start.', chain: [] }
-  const [mode, setModeState] = useState<CockpitMode>(() => linked?.view ?? savedMode())
+  const [mode, setModeState] = useState<CockpitMode>('rider')
   const setMode = (m: CockpitMode) => {
     setModeState(m)
     try {
@@ -112,24 +143,51 @@ export default function RiderCockpitPage() {
   // Guided scenarios and drills: the steps run on the same simulation; mistakes are explained, not failed.
   const [scenarioId, setScenarioId] = useState(() => linked?.id ?? cockpitScenarios[0].id)
   const scenario = getCockpitScenario(scenarioId) ?? cockpitScenarios[0]
-  const guide = useGuidedMode(sim, withWorld(scenario.steps, getWorld), { startActive: !!linked })
+  const guide = useGuidedMode(sim, withWorld(scenario.steps, getWorld), { startActive: !!linked, follow: true, autoAdvanceMs: 3500 })
+  const [detail, setDetailState] = useState(savedDetail)
+  const setDetail = (on: boolean) => {
+    setDetailState(on)
+    try {
+      localStorage.setItem(DETAIL_KEY, on ? '1' : '0')
+    } catch {
+      // Not remembered; the toggle still works.
+    }
+  }
+  const hintRef = useRef<HTMLDivElement>(null)
   // The running scenario's own mistakes (traffic, signals, bumps) are judged with the world in view.
   const watching = useRef<CockpitScenario | undefined>(linked)
   const worldWatch = useMemo(() => ({ watch: () => watching.current?.watch, world: getWorld }), [getWorld])
   const mistakes = useRidingMistakes(sim, worldWatch)
   const run = useRef(linked ? 1 : 0)
+  const demoRef = useRef<DemoHandle>(null)
+  const demoRun = useMemo(() => (scenario.demo?.length ? runScenario(scenario, demoPlan(scenario)) : null), [scenario])
+  const onWatchChange = useCallback((next: { index: number; status: DemoStatus; done: readonly boolean[]; nudge: RideNudge }) => setWatchState(next), [])
+  const demoDriving = useRef(false)
+  useEffect(() => {
+    demoDriving.current = watchingDemo
+  }, [watchingDemo])
+
   const startGuide = (sc: CockpitScenario) => {
+    setWatchingDemo(false)
+    setWatchState(WATCH_IDLE)
     run.current += 1
     watching.current = sc
     setScenarioId(sc.id)
     reset(sc.setup, sc.world)
     mistakes.clear()
     guide.start(withWorld(sc.steps, getWorld))
-    setMode(sc.view)
+    // Stay in the rider’s view; the learner can switch to machine or road themselves.
+    // Bring the instruction and the controls into view together.
+    requestAnimationFrame(() => hintRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
   // The road world sees which guided step the learner is on (a traffic light waits until they move on).
   const stageNow = guide.active ? guide.progress.index : undefined
-  useEffect(() => setStage(stageNow), [setStage, stageNow])
+  // While a demonstration is riding, it sets the stage itself; the guide takes it back afterwards.
+  const pauseGuide = guide.setPaused
+  useEffect(() => {
+    pauseGuide(watchingDemo)
+    if (!watchingDemo) setStage(stageNow)
+  }, [setStage, stageNow, watchingDemo, pauseGuide])
   const goTo = (n: number) => {
     mistakes.clear()
     guide.goTo(n)
@@ -143,7 +201,7 @@ export default function RiderCockpitPage() {
   // Record each completed run once in the learner's progress.
   const recorded = useRef(0)
   useEffect(() => {
-    if (!complete || recorded.current === run.current) return
+    if (!complete || recorded.current === run.current || demoDriving.current) return
     recorded.current = run.current
     progressStore.recordPractice({ kind: 'exercise', source: 'cockpit', item: scenario.id, title: scenario.title, result: 'pass' })
   }, [complete, scenario.id, scenario.title])
@@ -154,7 +212,13 @@ export default function RiderCockpitPage() {
   const n = guide.progress.index + 1
   // A scenario can say what to do right now (e.g. waiting for the light), in place of the step text.
   const scenarioHint = guide.active ? (scenario.hint?.(s, inputs, getWorld()) ?? null) : null
-  const message = !guide.active
+  const watchCaption = scenario.demo?.[watchState.index]
+  const watchTitle = guide.steps[watchState.index]?.title ?? scenario.steps[watchState.index]?.title
+  const message = watchingDemo
+    ? watchState.status === 'done'
+      ? 'That’s how a careful rider does it. Press “Try it myself” and do the same moves.'
+      : null
+    : !guide.active
     ? freeMessage
     : mistake && !guide.stepDone
       ? `${mistake.title}: ${mistake.text}`
@@ -163,10 +227,12 @@ export default function RiderCockpitPage() {
         : !sim.clock.playing && sim.snapshot.state.distance === 0
           ? `Paused — the scenario starts when you touch a control (or press Play). ${guide.step?.title}: ${guide.step?.instruction}`
           : guide.stepDone
-            ? `Step ${n} done — press “Next step” above when you’re ready.`
+            ? guide.autoNext
+              ? `Step ${n} done — the next step follows in a moment (or press Enter).`
+              : `Step ${n} done — press “Next step” or Enter when you’re ready.`
             : (scenarioHint ?? `Step ${n} of ${guide.steps.length} · ${guide.step?.title}: ${guide.step?.instruction}`)
 
-  const guideParts = guide.active ? (guide.step?.highlight ?? []) : []
+  const guideParts = watchingDemo ? (scenario.steps[watchState.index]?.highlight ?? []) : guide.active ? (guide.step?.highlight ?? []) : []
   const hl = focus.parts.length ? crossHighlight(focus.parts) : guideParts.length ? crossHighlight(guideParts) : NO_HIGHLIGHT
   const chain = powertrainChain(s, inputs, d)
   const downshiftAge = sim.snapshot.t - lastDownshift.get()
@@ -180,6 +246,11 @@ export default function RiderCockpitPage() {
         start()
         return
       }
+      if (e.key === 'Enter' && e.target === e.currentTarget && guide.active && guide.stepDone && !e.repeat) {
+        e.preventDefault()
+        if (guide.progress.index < guide.steps.length - 1) goTo(guide.progress.index + 1)
+        return
+      }
       controls.keyHandlers.onKeyDown(e)
     },
   }
@@ -188,22 +259,122 @@ export default function RiderCockpitPage() {
   const scene = roadSceneFor(inputs, worldSpec, signal)
   const cockpit = (
     <RiderCockpit
-      values={{ kmh: Math.max(0, d.kmh), rpm: d.engineRpm, redline: REDLINE_RPM, engineRunning: s.running, clutch: 0, throttle: 0, frontBrake: 0, rearBrake: 0, gear: 0, frictionZone: FRICTION_ZONE }}
-      controls={{ ...controls, keyHandlers }}
+      values={{
+        kmh: Math.max(0, d.kmh),
+        rpm: d.engineRpm,
+        redline: REDLINE_RPM,
+        engineRunning: s.running,
+        clutch: watchingDemo ? inputs.clutch : 0,
+        throttle: watchingDemo ? inputs.throttle : 0,
+        frontBrake: watchingDemo ? (inputs.front ?? 0) : 0,
+        rearBrake: watchingDemo ? (inputs.rear ?? 0) : 0,
+        gear: watchingDemo ? inputs.gear : 0,
+        frictionZone: FRICTION_ZONE,
+      }}
+      controls={watchingDemo ? undefined : { ...controls, keyHandlers }}
       road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene }}
-      engine={{ running: s.running, onStart: start, onStop: stop }}
+      engine={watchingDemo ? undefined : { running: s.running, onStart: start, onStop: stop }}
       highlight={hl.zones}
+      nudge={watchingDemo && watchState.status !== 'done' ? watchState.nudge : undefined}
     />
   )
+  // The instruction sits directly above the controls, so the learner reads it where they act.
+  const warning = !!notice || controls.shift?.moved === false || (guide.active && !!mistake && !guide.stepDone)
+  const hint = (
+    <div ref={hintRef} className="flex scroll-mt-20 flex-wrap items-center justify-between gap-3">
+      <div
+        aria-live="polite"
+        data-hint
+        data-watch-status={watchingDemo ? watchState.status : undefined}
+        data-watch-step={watchingDemo ? watchState.index : undefined}
+        data-watch-done={watchingDemo ? watchState.done.map((x) => (x ? 1 : 0)).join('') : undefined}
+        className={cn(
+          'min-h-5 flex-1 text-sm',
+          (guide.active || watchingDemo) && 'rounded-xl border px-4 py-3 text-base',
+          (guide.active || watchingDemo) && (watchingDemo ? 'border-coolant-500/40 bg-coolant-950/40 text-ink' : warning ? 'border-caution-500/40 bg-caution-950/30' : guide.stepDone ? 'border-ok-500/30 bg-ok-950/30 text-ink' : 'border-coolant-500/40 bg-coolant-950/40 text-ink'),
+          warning && !watchingDemo ? 'text-caution-400' : !guide.active && !watchingDemo && 'text-ink-muted',
+        )}
+      >
+        {watchingDemo && watchState.status !== 'done' ? (
+          <p className="text-sm text-ink-muted">
+            Step {watchState.index + 1} of {scenario.steps.length} · {watchTitle}
+            {watchCaption?.watch ? `. ${watchCaption.watch}` : ''}
+          </p>
+        ) : (
+          (message ?? 'Ride as you like — or point at a stage below to see where it happens.')
+        )}
+      </div>
+      {guide.active && !!scenario.demo?.length &&
+        (watchingDemo ? (
+          <>
+            <button
+              type="button"
+              onClick={() => (watchState.status === 'playing' ? demoRef.current?.pause() : watchState.status === 'done' ? demoRef.current?.replay() : demoRef.current?.play())}
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-sm text-ink"
+            >
+              {watchState.status === 'playing' ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
+              {watchState.status === 'playing' ? 'Pause' : watchState.status === 'done' ? 'Watch again' : 'Resume'}
+            </button>
+            <button
+              type="button"
+              onClick={() => startGuide(scenario)}
+              data-try-scenario
+              className="flex min-h-11 items-center gap-1.5 rounded-xl bg-ignition-500 px-3 text-sm font-medium text-bg hover:bg-ignition-400"
+            >
+              Try it myself
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setWatchState(WATCH_IDLE)
+              setWatchingDemo(true)
+            }}
+            data-watch-demo
+            className="flex min-h-11 items-center gap-1.5 rounded-xl border border-coolant-500/50 bg-coolant-950 px-3 text-sm font-medium text-coolant-200 hover:border-coolant-400"
+          >
+            <Eye className="size-4" aria-hidden /> Watch how it’s done
+          </button>
+        ))}
+      <button
+        type="button"
+        aria-pressed={!sound.muted}
+        data-audio={sound.muted ? 'muted' : sound.audible ? 'on' : 'off'}
+        onClick={() => sound.setMuted(!sound.muted)}
+        title={sound.muted ? 'Sound is off' : 'Sound is on'}
+        className="flex min-h-11 items-center gap-1.5 rounded-xl border border-line px-3 text-sm text-ink-muted hover:text-ink"
+      >
+        {sound.muted ? <VolumeX className="size-4" aria-hidden /> : <Volume2 className="size-4" aria-hidden />}
+        {sound.muted ? 'Sound off' : 'Sound on'}
+      </button>
+      <PlaybackControls
+        showPlay={!watchingDemo}
+        clock={sim.clock}
+        onReset={() => {
+          setWatchingDemo(false)
+          setWatchState(WATCH_IDLE)
+          if (guide.active) reset(scenario.setup, scenario.world)
+          else reset()
+        }}
+      />
+    </div>
+  )
+  const legend = (
+    <p className="hidden flex-wrap gap-x-4 gap-y-1 text-xs text-ink-subtle pointer-fine:flex" data-key-legend>
+      <span className="text-ink-muted">Both hands (click the cockpit first):</span>
+      {KEY_LEGEND.map(([k, what]) => (
+        <span key={k}>
+          <kbd className="rounded border border-line bg-surface px-1 font-mono text-ink">{k}</kbd> {what}
+        </span>
+      ))}
+    </p>
+  )
+  const map = worldSpec?.pose && road.pose ? <TopDownMap pose={road.pose} steer={controls.steer} onSteer={controls.setSteer} /> : null
   const status = (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p aria-live="polite" data-hint className={cn('min-h-5 text-sm', notice || controls.shift?.moved === false ? 'text-caution-400' : 'text-ink-muted')}>
-          {message ?? 'Ride as you like — or point at a stage below to see where it happens.'}
-        </p>
-        <PlaybackControls clock={sim.clock} onReset={() => (guide.active ? reset(scenario.setup, scenario.world) : reset())} />
-      </div>
-      {worldSpec?.pose && road.pose && <TopDownMap pose={road.pose} steer={controls.steer} onSteer={controls.setSteer} />}
+      {legend}
+      {map}
     </>
   )
   const chainStrip = <CauseEffectChain chain={chain} active={focus.stage} onActiveChange={(stage, parts) => setFocus({ stage, parts })} />
@@ -223,14 +394,17 @@ export default function RiderCockpitPage() {
       />
       {fromLesson && (
         <Link to={fromLesson} className="inline-flex items-center gap-1.5 text-sm text-ignition-400 hover:text-ignition-300">
-          <ArrowLeft className="size-4" aria-hidden /> Back to the lesson
+          <ArrowLeft className="size-4" aria-hidden /> {fromLesson.startsWith('/scenarios/') ? 'Back to the scenario' : 'Back to the lesson'}
         </Link>
       )}
       <p role="note" className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
         <Info className="mt-0.5 size-5 shrink-0 text-coolant-400" aria-hidden />
         <span>
-          Your controls drive the motorcycle, and three perspectives follow them live: the rider’s view, Inside the Machine and Road Response. Explore freely, or choose a guided scenario. Switch views at any time — the ride
-          carries on. A simplified model for learning: practise real riding only with qualified instruction.
+          <span className="font-medium text-ink">New here? </span>
+          Choose <span className="text-ink">Starting and moving off</span> below: the guide tells you what to do one step at a time and moves on as you do it.{' '}
+          <span className="font-medium text-ink">On a computer, use the keyboard</span> — it is how you work more than one control at once. Your left hand holds the clutch (A, Z) and changes gear (E, D); your right hand opens the
+          throttle (↑) and brakes (Space, S). A control stays where you leave it, so set the clutch, then use the throttle; hold Shift to move a control slowly. Not sure of the order? Choose a scenario and press “Watch how it’s done” — the cockpit rides it for you, with the sound of the starter, the engine, the brakes and the gear lever. On a phone, tap “Fill the screen” and turn it sideways. A simplified
+          model for learning — practise real riding only with qualified instruction.
         </span>
       </p>
 
@@ -256,6 +430,8 @@ export default function RiderCockpitPage() {
               // Leave a scenario's hill, surface and traffic behind as well as its steps.
               const sc = watching.current
               watching.current = undefined
+              setWatchingDemo(false)
+              setWatchState(WATCH_IDLE)
               guide.exit()
               setPickerOpen(false)
               if (sc && (sc.world || sc.setup.grade || (sc.setup.surface && sc.setup.surface !== 'dry'))) reset()
@@ -281,6 +457,9 @@ export default function RiderCockpitPage() {
                     className={cn(PICK, guide.active && scenario.id === sc.id ? PICKED : UNPICKED)}
                   >
                     <GraduationCap className="size-4" aria-hidden /> {sc.title}
+                    {sc.id === cockpitScenarios[0].id && !(guide.active && scenario.id === sc.id) && (
+                      <span className="rounded-md bg-ignition-500 px-1.5 py-0.5 text-[11px] font-medium text-bg">Start here</span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -291,7 +470,17 @@ export default function RiderCockpitPage() {
 
       {guide.active && guide.step && (
         <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
-          <GuidedSteps steps={guide.steps} progress={guide.progress} onGoTo={goTo} onExit={guide.exit}>
+          <GuidedSteps
+            steps={guide.steps}
+            progress={
+              watchingDemo
+                ? { index: watchState.index, done: scenario.steps.map((_, i) => watchState.done[i] ?? false) }
+                : guide.progress
+            }
+            watching={watchingDemo}
+            onGoTo={goTo}
+            onExit={guide.exit}
+          >
             {mistake && !guide.stepDone && (
               <div role="status" data-mistake={mistake.id} className="mt-3 flex gap-2 rounded-xl border border-caution-500/40 bg-caution-950/30 p-3 text-sm leading-relaxed">
                 <CircleAlert className="mt-0.5 size-4 shrink-0 text-caution-400" aria-hidden />
@@ -327,20 +516,42 @@ export default function RiderCockpitPage() {
         </div>
       )}
 
+      {watchingDemo && demoRun && (
+        <DemoDriver cockpit={cockpitSim} scenario={scenario} run={demoRun} handle={demoRef} onChange={onWatchChange} />
+      )}
+
       <ModeSwitcher mode={mode} onChange={setMode} />
 
       {/* One simulation, four layouts: switching only rearranges these pieces. */}
       <div data-mode={mode} className="space-y-6">
         {mode === 'rider' && (
           <>
-            {cockpit}
-            {status}
-            {chainStrip}
-            {explanation}
-            <div className="grid gap-4 lg:grid-cols-2">
-              {machineSmall}
-              {roadSmall}
+            {/* Sized so the instruction and the whole cockpit fit on one laptop screen. */}
+            <div className="mx-auto max-w-[max(42rem,calc((100svh-13rem)*16/9))] space-y-3">
+              {hint}
+              {cockpit}
+              {status}
             </div>
+            {explanation}
+            {detail ? (
+              <>
+                {chainStrip}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {machineSmall}
+                  {roadSmall}
+                </div>
+              </>
+            ) : null}
+            <button
+              type="button"
+              aria-expanded={detail}
+              onClick={() => setDetail(!detail)}
+              data-detail-toggle
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-line text-sm text-ink-muted hover:text-ink"
+            >
+              <ChevronDown className={cn('size-4 transition-transform', detail && 'rotate-180')} aria-hidden />
+              {detail ? 'Hide the machine readouts' : 'Show what happens inside the machine (engine, clutch, gearbox, chain)'}
+            </button>
           </>
         )}
         {(mode === 'machine' || mode === 'road') && (
@@ -348,6 +559,7 @@ export default function RiderCockpitPage() {
             <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:items-start">
               {/* The controls come first (narrow screens: above the full view); on wide screens they sit in the right-hand column. */}
               <aside aria-label="Your controls" className="min-w-0 space-y-3 lg:col-start-2 lg:row-start-1">
+                {hint}
                 {cockpit}
                 {status}
                 {mode === 'machine' ? roadSmall : machineSmall}
@@ -362,6 +574,7 @@ export default function RiderCockpitPage() {
           <>
             <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
               <div className="min-w-0 space-y-3">
+                {hint}
                 {cockpit}
                 {status}
               </div>
@@ -383,7 +596,9 @@ export default function RiderCockpitPage() {
             <input type="checkbox" role="switch" checked={controls.springBack} onChange={(e) => controls.setSpringBack(e.target.checked)} className="mt-1 size-4 accent-[var(--color-ignition-500)]" />
             <span>
               <span className="block text-ink">Levers spring back when released</span>
-              <span className="block text-sm text-ink-muted">As on a real motorcycle. Best with the keyboard or several fingers on a touch screen; with a mouse, leave it off so each control stays where you leave it.</span>
+              <span className="block text-sm text-ink-muted">
+                As on a real motorcycle: let go and the throttle closes, the clutch and brakes release. Best on a touch screen with several fingers. With a mouse or the keyboard, leave it off: each control stays where you leave it, so you can hold the clutch while you work the throttle.
+              </span>
             </span>
           </label>
           <fieldset>

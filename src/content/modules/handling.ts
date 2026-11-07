@@ -209,6 +209,8 @@ export const handlingLessons: Lesson[] = [
         ],
       },
       { type: 'callout', tone: 'safety', body: 'Using the front brake at full lock with the motorcycle leaned is the classic way to drop it. Speed control in slow turns comes from the clutch and the rear brake.' },
+      { type: 'cockpit', scenario: 'u-turn', caption: 'Watch a walking-pace U-turn: clutch in the friction zone, full lock, rear brake — never the front.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=u-turn&from=/learn/handling/u-turns', title: 'Practise the U-turn in the cockpit', text: 'Turn round at walking pace with the clutch and the rear brake, and feel why the front brake is the wrong tool.' },
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'What sets how tight a walking-pace U-turn can be?', options: [{ id: 'a', label: 'How hard you lean your body' }, { id: 'b', label: 'How far the handlebar can turn — the steering lock' }, { id: 'c', label: 'The engine’s power' }], correctOptionId: 'b', explanation: 'At walking pace the handlebar angle sets the turning radius; full lock gives the tightest turn.' },
@@ -334,6 +336,8 @@ export const handlingLessons: Lesson[] = [
           'Filtering through slow traffic at 5 km/h, a rider keeps lurching as they snap the throttle on and off. With a steady trickle of throttle, the clutch slipping in the friction zone and a light foot on the rear brake, the motorcycle moves smoothly at walking pace and the wobbles disappear.',
         ],
       },
+      { type: 'cockpit', scenario: 'slow-traffic', caption: 'Watch walking-pace control: a little throttle, clutch in the friction zone, rear brake to steady the motorcycle.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=slow-traffic&from=/learn/handling/slow-speed', title: 'Practise slow riding in the cockpit', text: 'Creep, stop and go at walking pace — the clutch is the speed control.' },
       { type: 'cta', to: '/simulators/ride-and-stop', title: 'Try the slow race', text: 'Ride 15 m as slowly as you can in the riding-and-stopping simulator, using the clutch and rear brake.' },
     ],
     knowledgeCheck: [
@@ -377,6 +381,7 @@ export const handlingLessons: Lesson[] = [
         ],
       },
       { type: 'explore', part: 'wheels', text: 'See the wheels and tyres, and how their condition affects grip.' },
+      { type: 'cockpit', scenario: 'wet-road', caption: 'Watch a wet-road stop: earlier, gentler, and a longer gap — the friction circle has shrunk.' },
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'What does the friction circle show?', options: [{ id: 'a', label: 'That braking and turning share the same limited grip' }, { id: 'b', label: 'The shape of the contact patch' }, { id: 'c', label: 'How fast the wheel turns' }], correctOptionId: 'a', explanation: 'The total force — braking and turning combined — can’t exceed the tyre’s grip, drawn as a circle.' },
@@ -419,6 +424,8 @@ export const handlingLessons: Lesson[] = [
           'Mid-bend, a nervous rider snaps the throttle shut. The motorcycle pitches forward, the front digs in, the line tightens and the lightened rear twitches. Holding a steady throttle instead, the motorcycle stays settled and the bend feels calm.',
         ],
       },
+      { type: 'cockpit', scenario: 'brakes-drill', caption: 'Watch load move onto the front tyre as the brakes come on — the fork dives, the rear lightens.' },
+      { type: 'cta', to: '/simulators/cockpit?practice=brakes-drill&from=/learn/handling/weight-transfer', title: 'Practise it in the cockpit', text: 'Brake and watch the load transfer on the road view.' },
       { type: 'cta', to: '/simulators/ride-and-stop', title: 'Feel the load move', text: 'Brake in the riding-and-stopping simulator and watch the load shift onto the front tyre.' },
     ],
     knowledgeCheck: [

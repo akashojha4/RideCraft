@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { cockpitScenarios } from './index'
+import { cockpitForDecision } from '../cockpitLink'
 import { demoPlan, runScenario } from './run'
 
 /*
@@ -12,6 +13,13 @@ describe('scenario demonstrations', () => {
 
   it('every cockpit scenario has one', () => {
     expect(withDemo.map((sc) => sc.id).sort()).toEqual(cockpitScenarios.map((sc) => sc.id).sort())
+  })
+
+  it('every decision-scenario link points at a real cockpit demonstration', () => {
+    const ids = new Set(cockpitScenarios.map((s) => s.id))
+    for (const [from, to] of Object.entries(cockpitForDecision)) {
+      expect(ids.has(to), `${from} → ${to}`).toBe(true)
+    }
   })
 
   for (const sc of withDemo) {
@@ -49,6 +57,15 @@ describe('scenario demonstrations', () => {
     expect(end.kmh).toBe(0)
     expect(end.gear).toBe(1)
     expect(end.engineRpm).toBeGreaterThan(1000)
+  })
+
+  it('at a coarser time step, like a live animation frame, each demo still completes', () => {
+    for (const sc of withDemo) {
+      const r = runScenario(sc, demoPlan(sc), { sampleEvery: 0.2 })
+      expect(r.complete, sc.id).toBe(true)
+      expect(r.stepDone, sc.id).toEqual(sc.steps.map(() => true))
+      expect(r.mistakes, sc.id).toEqual([])
+    }
   })
 
   it('step snapshots keep the world as it was then (a light that turns amber later is still green in the first snapshot)', () => {

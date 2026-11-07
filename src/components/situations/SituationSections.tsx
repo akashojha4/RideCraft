@@ -4,6 +4,7 @@ import { RoadAhead } from '@/components/cockpit/RoadAhead'
 import { roadSceneFor } from '@/components/cockpit/roadScene'
 import { ClutchControl, ThrottleBrakeControl } from '@/components/cockpit/HandControls'
 import { GearLadder, GearSelector, RearBrakeControl } from '@/components/cockpit/FootControls'
+import { LessonCockpit } from '@/components/cockpit/LessonCockpit'
 import { LessonBlock } from '@/components/lesson/LessonBlock'
 import type { RunResult } from '@/content/scenarios/cockpit/run'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
@@ -20,7 +21,7 @@ import { CONTROLS, gearLabel, pct, type ControlId } from './controls'
 
 // ---- Section 1 ----
 
-export function SituationSection({ teaching, scenario, run }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult }) {
+export function SituationSection({ teaching, scenario, run, from }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult; from?: string }) {
   const t = teaching.situation
   const first = run.stepStarts[0]
   const cards = [
@@ -39,6 +40,12 @@ export function SituationSection({ teaching, scenario, run }: { teaching: Situat
           The road ahead from the rider’s seat, as the cockpit scenario begins: {scenario.situation}
         </figcaption>
       </figure>
+      <LessonCockpit
+        scenarioId={scenario.id}
+        compact
+        caption="The same motorcycle, ridden for you. Press Play to watch the controls, then practise it yourself in the cockpit."
+        from={from}
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         {cards.map((c) => (
           <div key={c.title} className="rounded-2xl border border-line bg-surface p-4">
@@ -98,9 +105,12 @@ function stagesUsing(run: RunResult, control: ControlId) {
   return [...used].sort((a, b) => a - b)
 }
 
-export function ControlsSection({ teaching, scenario, run }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult }) {
-  const [active, setActive] = useState<ControlId>(teaching.controls[0].control)
-  const [open, setOpen] = useState(false)
+/** `focus` / `focusDetail`: set while the narration points at a control (and at its mechanics). */
+export function ControlsSection({ teaching, scenario, run, focus, focusDetail }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult; focus?: ControlId; focusDetail?: boolean }) {
+  const [chosen, setActive] = useState<ControlId>(teaching.controls[0].control)
+  const [openChosen, setOpen] = useState(false)
+  const active = focus ?? chosen
+  const open = focusDetail ?? openChosen
   const g = teaching.controls.find((c) => c.control === active) ?? teaching.controls[0]
   const style = CONTROLS[g.control]
   const stages = stagesUsing(run, g.control)
@@ -196,8 +206,10 @@ export function ControlsSection({ teaching, scenario, run }: { teaching: Situati
 
 // ---- Section 5 ----
 
-export function MistakesSection({ teaching, scenario }: { teaching: SituationTeaching; scenario: CockpitScenario }) {
-  const [open, setOpen] = useState<number | null>(0)
+/** `focus`: the mistake the narration is describing. */
+export function MistakesSection({ teaching, scenario, focus }: { teaching: SituationTeaching; scenario: CockpitScenario; focus?: number }) {
+  const [openChosen, setOpen] = useState<number | null>(0)
+  const open = focus ?? openChosen
   const spotted = new Set(scenario.mistakes.map((m) => m.id))
   return (
     <ol className="space-y-3">

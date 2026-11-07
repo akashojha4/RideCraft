@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { lessonPath } from '@/content/curriculum'
+import { lessonPath, nextLesson } from '@/content/curriculum'
 import { scenarios } from '@/content/scenarios'
 import { cn } from '@/lib/cn'
 import { PASS_MARK, buildAssessment } from '@/lib/progress/assessment'
@@ -51,7 +51,7 @@ export default function ProgressPage() {
   const [confirmReset, setConfirmReset] = useState(false)
   const scenarioTitle = (id: string) => scenarios.find((x) => x.id === id)?.title ?? id
   const simTitle = (id: string) => SIMULATORS.find((x) => x.id === id)?.title ?? id
-  const nextLesson = s.modules.flatMap((m) => m.lessons.filter((x) => !x.record?.completedAt).map((x) => ({ m: m.module, l: x.lesson })))[0]
+  const upNext = nextLesson((m, l) => !!p.lessons[`${m}/${l}`]?.completedAt)
   const started = s.points > 0
 
   return (
@@ -71,18 +71,19 @@ export default function ProgressPage() {
             </div>
           </div>
           <p className="text-ink-muted">{s.level.text}</p>
+          <p className="text-xs text-ink-subtle">Levels measure what you know, not how well you ride. Learn to ride on a real motorcycle only with a qualified instructor.</p>
           <ProgressBar value={s.points} max={s.max} label="Progress through all of RideCraft" />
           <p className="tabular font-mono text-sm text-ink-muted" data-points>
             {s.points} of {s.max} points · {Math.round(s.share * 100)} %{s.next ? ` · ${s.toNext} to ${s.next.name}` : ''}
           </p>
-          {nextLesson && (
-            <Link to={lessonPath(nextLesson.m.id, nextLesson.l.id)} className="inline-flex items-center gap-1.5 text-sm font-medium text-ignition-400 hover:text-ignition-300">
-              {started ? 'Continue' : 'Start'}: {nextLesson.l.title} <ArrowRight className="size-4" aria-hidden />
+          {upNext && (
+            <Link to={upNext.path} className="inline-flex items-center gap-1.5 text-sm font-medium text-ignition-400 hover:text-ignition-300">
+              {started ? 'Continue' : 'Start'}: {upNext.lesson.title} <ArrowRight className="size-4" aria-hidden />
             </Link>
           )}
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <Stat label="Lessons completed" value={`${s.lessonsCompleted} / ${s.lessonsTotal}`} sub="Finish a lesson’s knowledge check" />
+          <Stat label="Lessons completed" value={`${s.lessonsCompleted} / ${s.lessonsTotal}`} sub="Pass a lesson’s knowledge check (2 of 3)" />
           <Stat label="Quiz score" value={s.quizAverage === null ? '—' : `${Math.round(s.quizAverage * 100)} %`} sub={`${s.bestCorrect} of ${s.questions} questions answered correctly`} />
           <Stat label="Exercises passed" value={`${s.exercisesPassed} / ${s.exercisesTotal}`} sub="Simulator exercises" />
           <Stat label="Scenarios solved" value={`${s.scenariosSolved} / ${s.scenariosTotal}`} sub="Found the safe decision" />
@@ -101,7 +102,10 @@ export default function ProgressPage() {
             <details key={m.module.id} className="group rounded-2xl border border-line bg-surface p-5" data-module={m.module.id}>
               <summary className="cursor-pointer list-none space-y-2">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-semibold text-ink">{m.module.title}</h3>
+                  <h3 className="font-semibold text-ink">
+                    {m.module.title}
+                    {m.module.optional && <span className="ml-2 text-xs font-normal text-ink-subtle">optional</span>}
+                  </h3>
                   <span className="tabular font-mono text-sm text-ink-muted">
                     {m.completed} / {m.total}
                   </span>
@@ -138,7 +142,7 @@ export default function ProgressPage() {
           <h2 id="assessment-heading" className="flex items-center gap-2 text-2xl font-semibold text-ink">
             <ClipboardCheck className="size-6 text-coolant-300" aria-hidden /> Knowledge assessment
           </h2>
-          <p className="text-ink-muted">{ASSESSMENT_SIZE} questions drawn from all {ASSESSMENT_MODULES} modules, different each time. Pass mark {PASS_MARK * 100} %. See which areas to revise.</p>
+          <p className="text-ink-muted">{ASSESSMENT_SIZE} questions drawn from the {ASSESSMENT_MODULES} core modules (not the optional Advanced Mechanics), different each time. Pass mark {PASS_MARK * 100} %. See which areas to revise.</p>
           <Link to="/progress/assessment" className="inline-flex h-10 items-center gap-2 rounded-xl bg-ignition-500 px-4 text-sm font-medium text-bg hover:bg-ignition-400">
             {p.assessments.length ? 'Take it again' : 'Start the assessment'} <ArrowRight className="size-4" aria-hidden />
           </Link>

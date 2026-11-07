@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { withWorld, type RunResult } from '@/content/scenarios/cockpit/run'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
 import type { SimulationSpeed } from '@/lib/motion'
+import { inputsForNudge, rideNudge, type NudgeInputs, type RideNudge } from '@/lib/simulation/rideNudge'
 import type { useCockpitSim } from './useCockpitSim'
 
 /*
@@ -12,32 +13,99 @@ import type { useCockpitSim } from './useCockpitSim'
  * seconds later). Jumping to a step restores the state a run of the same plan had there.
  */
 
-export type DemoStatus = 'ready' | 'playing' | 'paused' | 'done'
+/** `held`: a narrated step has finished and waits for the narration to move on. */
+export type DemoStatus = 'ready' | 'playing' | 'paused' | 'held' | 'done'
 
 /** Extra time a step may take in live playback to meet its check before moving on, s. */
 const GRACE = 3
 
-export function useDemoPlayer(cockpit: ReturnType<typeof useCockpitSim>, scenario: CockpitScenario, run: RunResult) {
-  const { sim, restore, start, getWorld, controls, setStage } = cockpit
-  const { onStep, inputs, model, clock } = sim
+export function useDemoPlayer(
+  cockpit: ReturnType<typeof useCockpitSim>,
+  scenario: CockpitScenario,
+  run: RunResult,
+  onHeld?: (step: number) => void,
+  { autoPlay = false }: { autoPlay?: boolean } = {},
+) {
+  const { sim, restore, start, getWorld, controls, setStage, setDriven } = cockpit
+  const { onStep, onBeforeStep, inputs, model, clock } = sim
   const { play: clockPlay, pause: clockPause, setSpeed } = clock
   const demo = useMemo(() => scenario.demo ?? [], [scenario])
   const [index, setIndex] = useState(0)
   const [status, setStatus] = useState<DemoStatus>('ready')
   const [done, setDone] = useState<boolean[]>(() => demo.map(() => false))
   // Read by the per-step callback; written only by events and that callback.
-  const live = useRef({ index: 0, from: 0, active: false, done: demo.map(() => false), steer: 0 })
+  const live = useRef({
+    index: 0,
+    from: 0,
+    active: false,
+    done: demo.map(() => false),
+    steer: 0,
+    hold: false,
+    prev: null as NudgeInputs | null,
+    nudgeText: '',
+    nudgeHold: 0,
+  })
+  const [nudge, setNudge] = useState<RideNudge>({ text: 'Now: watch the controls' })
+  const held = useRef(onHeld)
+  useEffect(() => {
+    held.current = onHeld
+  }, [onHeld])
   const now = useRef(0)
   const checks = useRef(withWorld(scenario.steps, getWorld))
+  useEffect(() => {
+    checks.current = withWorld(scenario.steps, getWorld)
+  }, [scenario, getWorld])
   const startEngine = useRef(start)
   const setSteer = useRef(controls.setSteer)
+  const restoreStep = useRef(restore)
+  const runRef = useRef(run)
   useEffect(() => {
     startEngine.current = start
     setSteer.current = controls.setSteer
-  }, [start, controls.setSteer])
+    restoreStep.current = restore
+    runRef.current = run
+  }, [start, controls.setSteer, restore, run])
 
-  // Hold still until the learner presses Play.
-  useEffect(() => clockPause(), [clockPause])
+  // Hold still until the learner presses Play, unless this player starts by itself.
+  useEffect(() => {
+    if (!autoPlay) clockPause()
+  }, [clockPause, autoPlay])
+  useEffect(() => {
+    setDriven(true)
+    return () => setDriven(false)
+  }, [setDriven])
+
+  // Apply this step's controls before the physics, the same order the recorded run uses.
+  useEffect(
+    () =>
+      onBeforeStep((s, t) => {
+        const L = live.current
+        if (!L.active) return
+        const step = demo[L.index]
+        if (!step) return
+        const { steer, start: press, ...change } = step.act(Math.max(0, t - L.from), s, getWorld())
+        inputs.current = { ...inputs.current, ...change }
+        const starting = !!(press && !s.running)
+        if (starting) startEngine.current()
+        const turning = steer !== undefined && steer !== L.steer
+        if (turning) {
+          L.steer = steer
+          setSteer.current(steer > 0 ? 1 : steer < 0 ? -1 : 0)
+        }
+        const next = inputsForNudge(inputs.current)
+        const n = rideNudge(L.prev, next, { started: starting, steer: turning })
+        L.prev = next
+        const holding = /holding|watching|clutch held/.test(n.text)
+        if (n.text !== L.nudgeText) {
+          // A gear change or the starter lasts one frame; keep that line up so it can be read.
+          if (holding && t < L.nudgeHold) return
+          L.nudgeText = n.text
+          L.nudgeHold = holding ? 0 : t + 0.9
+          setNudge(n)
+        }
+      }),
+    [onBeforeStep, inputs, demo, getWorld],
+  )
 
   useEffect(
     () =>
@@ -48,33 +116,42 @@ export function useDemoPlayer(cockpit: ReturnType<typeof useCockpitSim>, scenari
         const step = demo[L.index]
         if (!step) return
         const local = t - L.from
-        const { steer, start: press, ...change } = step.act(local, s, getWorld())
-        inputs.current = { ...inputs.current, ...change }
-        if (press && !s.running) startEngine.current()
-        if (steer !== undefined && steer !== L.steer) {
-          L.steer = steer
-          setSteer.current(steer > 0 ? 1 : steer < 0 ? -1 : 0)
-        }
         const met = checks.current[L.index]?.done(s, inputs.current, model.derive(s, inputs.current)) ?? false
         if (met && !L.done[L.index]) {
           L.done = L.done.map((v, k) => (k === L.index ? true : v))
           setDone(L.done)
         }
-        // Like the guided runner, a step counts as done once its check has been met.
-        if (local >= step.seconds && (L.done[L.index] || local >= step.seconds + GRACE)) {
+        // A step moves on once its time is up and its check has been met (or a few seconds later).
+        // On the cockpit Watch, linger so the step list and the explanation can be read.
+        const linger = autoPlay && L.done[L.index] && L.index + 1 < demo.length ? 1.4 : 0
+        if (local >= step.seconds + linger && (L.done[L.index] || local >= step.seconds + GRACE)) {
+          if (L.hold) {
+            L.active = false
+            setStatus('held')
+            clockPause()
+            held.current?.(L.index)
+            return
+          }
           if (L.index + 1 >= demo.length) {
             L.active = false
             setStatus('done')
             clockPause()
             return
           }
-          L.index += 1
-          L.from = t
-          setStage(L.index)
-          setIndex(L.index)
+          const next = L.index + 1
+          const snap = runRef.current.stepStarts[next]
+          if (snap) restoreStep.current(snap)
+          L.index = next
+          L.from = clock.time.get()
+          L.steer = snap?.steer ?? L.steer
+          L.prev = snap ? inputsForNudge(snap.inputs) : L.prev
+          L.nudgeText = ''
+          L.nudgeHold = 0
+          setStage(next)
+          setIndex(next)
         }
       }),
-    [onStep, inputs, model, demo, clockPause, setStage, getWorld],
+    [onStep, inputs, model, demo, clockPause, setStage, clock.time, autoPlay],
   )
 
   /** Put the simulation where the run had it at the start of step k (and keep the done marks before it). */
@@ -87,8 +164,12 @@ export function useDemoPlayer(cockpit: ReturnType<typeof useCockpitSim>, scenari
       const L = live.current
       L.index = target
       setStage(target)
-      L.from = now.current
+      // The clock's own time: a cockpit that has been open a while is far past zero.
+      L.from = clock.time.get()
       L.steer = snap.steer
+      L.prev = inputsForNudge(snap.inputs)
+      L.nudgeText = ''
+      L.nudgeHold = 0
       L.done = demo.map((_, j) => j < target)
       setDone(L.done)
       setIndex(target)
@@ -100,7 +181,7 @@ export function useDemoPlayer(cockpit: ReturnType<typeof useCockpitSim>, scenari
         setStatus('paused')
       }
     },
-    [demo, run, restore, clockPlay, setStage],
+    [demo, run, restore, clockPlay, setStage, clock.time],
   )
 
   const play = useCallback(() => {
@@ -117,9 +198,42 @@ export function useDemoPlayer(cockpit: ReturnType<typeof useCockpitSim>, scenari
     clockPause()
   }, [clockPause])
 
+  /**
+   * Narrated playback: play step k and hold at its end. Straight on from the step before if it
+   * was just held there; otherwise jump to where the run had step k begin. Calling it again for
+   * the step already playing (or held) does nothing, and after a pause it resumes.
+   */
+  const playStep = useCallback(
+    (k: number) => {
+      const L = live.current
+      L.hold = true
+      if (L.index === k && (status === 'playing' || status === 'held')) return
+      if (L.index === k && status === 'paused') {
+        L.active = true
+        setStatus('playing')
+        clockPlay()
+        return
+      }
+      if (status === 'held' && k === L.index + 1) {
+        L.index = k
+        L.from = clock.time.get()
+        setStage(k)
+        setIndex(k)
+        L.active = true
+        setStatus('playing')
+        clockPlay()
+        return
+      }
+      goTo(k, 'play')
+    },
+    [status, goTo, clockPlay, setStage, clock.time],
+  )
+
   return {
     index,
     status,
+    nudge,
+    playStep,
     done,
     speed: clock.speed,
     play,

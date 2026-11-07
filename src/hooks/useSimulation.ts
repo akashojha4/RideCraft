@@ -57,6 +57,7 @@ export function useSimulation<I, S, D, C extends string = string, H extends { t:
   const lastSample = useRef(-Infinity)
   const lastUi = useRef(-Infinity)
   const listeners = useRef(new Set<(s: S, t: number) => void>())
+  const drivers = useRef(new Set<(s: S, t: number) => void>())
   const sequence = useRef<{ start: number; base: I; fn: InputSequence<I, S> } | null>(null)
   const [angles] = useState(() => Object.fromEntries(parts.map((p) => [p, motionValue(0)])) as Record<C, MotionValue<number>>)
   const [snapshot, setSnapshot] = useState<SimulationSnapshot<I, S, D, H>>(() => {
@@ -90,6 +91,7 @@ export function useSimulation<I, S, D, C extends string = string, H extends { t:
         publish(t)
       }
     }
+    for (const fn of drivers.current) fn(state.current, t)
     const before = state.current
     const s = model.step(before, inputs.current, Math.min(dt, MAX_STEP))
     state.current = s
@@ -165,7 +167,15 @@ export function useSimulation<I, S, D, C extends string = string, H extends { t:
     }
   }, [])
 
-  return { model, clock, snapshot, angles, inputs, state, setInputs, load, replaceState, runSequence, cancelSequence, onStep }
+  /** Run before the model steps, so a demonstration can set the inputs the physics will use. */
+  const onBeforeStep = useCallback((fn: (s: S, t: number) => void) => {
+    drivers.current.add(fn)
+    return () => {
+      drivers.current.delete(fn)
+    }
+  }, [])
+
+  return { model, clock, snapshot, angles, inputs, state, setInputs, load, replaceState, runSequence, cancelSequence, onStep, onBeforeStep }
 }
 
 export type Simulation<I, S, D, C extends string = string, H extends { t: number } = { t: number }> = ReturnType<typeof useSimulation<I, S, D, C, H>>

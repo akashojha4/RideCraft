@@ -3,6 +3,7 @@ import type { SituationTeaching } from './types'
 /** Teaching for the cockpit scenario "Starting and moving off". */
 export const startAndMoveOffTeaching: SituationTeaching = {
   scenario: 'start-and-move-off',
+  narrated: true,
   situation: {
     where: 'Sitting on a stationary motorcycle on a level, quiet road, engine switched off, the road ahead clear.',
     happening: 'Nothing yet: the engine is off and the gear lever could be in any gear. Before you can ride, the engine has to be running and its turning has to be fed, gently, to a rear wheel that is standing still.',

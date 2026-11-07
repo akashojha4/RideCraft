@@ -17,6 +17,7 @@ export function GuidedSteps({
   progress,
   onGoTo,
   onExit,
+  watching = false,
   children,
   className,
 }: {
@@ -24,23 +25,28 @@ export function GuidedSteps({
   progress: GuidedProgress
   onGoTo: (index: number) => void
   onExit: () => void
+  /** The cockpit is riding this sequence; the list follows it and the rider buttons wait. */
+  watching?: boolean
   /** Extra feedback under the instruction (e.g. a mistake explained). */
   children?: ReactNode
   className?: string
 }) {
-  const i = progress.index
+  const i = steps.length === 0 ? 0 : Math.min(Math.max(progress.index, 0), steps.length - 1)
   const step = steps[i]
   const done = progress.done[i]
   const last = i === steps.length - 1
+  if (!step) return null
   return (
     <section aria-label="Guided steps" className={cn('rounded-2xl border border-coolant-500/30 bg-surface p-5', className)}>
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm text-ink-muted">
           Step {i + 1} of {steps.length}
         </p>
-        <Button size="sm" variant="ghost" className="h-11" onClick={onExit} leadingIcon={<X className="size-4" />}>
-          Exit guide
-        </Button>
+        {!watching && (
+          <Button size="sm" variant="ghost" className="h-11" onClick={onExit} leadingIcon={<X className="size-4" />}>
+            Exit guide
+          </Button>
+        )}
       </div>
       <ol className="mt-3 flex flex-wrap gap-2" aria-label="Steps">
         {steps.map((s, n) => (
@@ -48,6 +54,7 @@ export function GuidedSteps({
             <button
               type="button"
               onClick={() => onGoTo(n)}
+              disabled={watching}
               aria-current={n === i ? 'step' : undefined}
               aria-label={`Step ${n + 1}: ${s.title}${progress.done[n] ? ' (done)' : ''}`}
               className={cn(
@@ -71,10 +78,11 @@ export function GuidedSteps({
           </p>
         ) : (
           <p className="flex items-center gap-2 text-sm text-ink-subtle">
-            <CircleDashed className="size-4" aria-hidden /> Waiting for you to do this step…
+            <CircleDashed className="size-4" aria-hidden /> {watching ? 'Watch: the motorcycle is doing this step now.' : 'Waiting for you to do this step…'}
           </p>
         )}
       </div>
+      {!watching && (
       <div className="mt-4 flex flex-wrap gap-2">
         <Button size="sm" variant="ghost" className="h-11" onClick={() => onGoTo(i - 1)} disabled={i === 0} leadingIcon={<ArrowLeft className="size-4" />}>
           Back
@@ -83,6 +91,7 @@ export function GuidedSteps({
           {last ? 'Finish' : done ? 'Next step' : 'Skip'}
         </Button>
       </div>
+      )}
     </section>
   )
 }

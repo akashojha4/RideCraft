@@ -261,6 +261,50 @@
 }
 .gear-lift { animation: gear-lift 220ms ease-out; }
 .gear-press { animation: gear-press 220ms ease-out; }
+
+/* Twist grip: a flash when the throttle opens or shuts, on top of the rolling index. */
+@keyframes throttle-open {
+  40% { filter: drop-shadow(0 0 10px rgb(255 106 26 / 0.95)); }
+}
+@keyframes throttle-shut {
+  40% { filter: drop-shadow(0 0 8px rgb(238 241 245 / 0.7)); }
+}
+.throttle-open { animation: throttle-open 320ms ease-out; }
+.throttle-shut { animation: throttle-shut 320ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
-  .gear-lift, .gear-press { animation: none; }
+  .gear-lift, .gear-press, .throttle-open, .throttle-shut { animation: none; }
+}
+
+/*
+ * Full-screen cockpit: two columns of controls flanking the road, so the panels can never
+ * overlap on a short phone screen the way the corner layout does.
+ */
+.cockpit-expanded {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(0, 1.6fr) minmax(150px, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  aspect-ratio: auto;
+}
+.cockpit-expanded [data-zone='road'] {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.cockpit-expanded [data-zone='clutch'] { grid-area: 1 / 1; }
+.cockpit-expanded [data-zone='gear'] { grid-area: 2 / 1; }
+.cockpit-expanded [data-zone='throttle'] { grid-area: 1 / 3; }
+.cockpit-expanded [data-zone='rear-brake'] { grid-area: 2 / 3; }
+.cockpit-expanded [data-zone='clutch'],
+.cockpit-expanded [data-zone='gear'],
+.cockpit-expanded [data-zone='throttle'],
+.cockpit-expanded [data-zone='rear-brake'] {
+  position: relative;
+  width: auto;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }

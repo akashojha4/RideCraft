@@ -1,4 +1,5 @@
-import { ArrowUpRight, BookOpen, ClipboardCheck, Cog, Gauge, Route, TrafficCone, type LucideIcon } from 'lucide-react'
+import { ArrowUpRight, BookOpen, ClipboardCheck, Cog, Flag, Gauge, Motorbike, Route, TrafficCone, type LucideIcon } from 'lucide-react'
+import { catalog } from '@/config/catalog'
 import { Link } from 'react-router-dom'
 import { Stagger, StaggerItem } from '@/components/motion/Reveal'
 import { AvailabilityBadge } from '@/components/roadmap/AvailabilityBadge'
@@ -23,7 +24,7 @@ const categories: Category[] = [
     title: 'Simulators',
     description:
       'Start the engine, find the clutch biting point, shift through the gears, then ride and stop — watching the engine, clutch, gearbox and wheel respond to every input.',
-    meta: '4 simulators',
+    meta: `${catalog.simulators} simulators`,
     icon: Gauge,
     to: '/simulators',
     phase: 5,
@@ -32,7 +33,7 @@ const categories: Category[] = [
   {
     title: 'Motorcycle Basics',
     description: 'Controls, engine basics, RPM, torque, gears, clutch, throttle, brakes and the drivetrain.',
-    meta: '11 lessons',
+    meta: `${catalog.lessons.basics} lessons`,
     icon: BookOpen,
     to: '/learn/basics',
     phase: 3,
@@ -40,15 +41,31 @@ const categories: Category[] = [
   {
     title: 'Pre-Ride Preparation',
     description: 'Riding posture, protective gear and the inspections to make before every ride.',
-    meta: '12 lessons · checklist',
+    meta: `${catalog.lessons['pre-ride']} lessons · checklist`,
     icon: ClipboardCheck,
     to: '/learn/pre-ride',
     phase: 4,
   },
   {
+    title: 'Your First Ride',
+    description: 'Getting on and off, walking the motorcycle, recovering from a stall, and what the law expects before your first road ride.',
+    meta: `${catalog.lessons['first-ride']} lessons`,
+    icon: Flag,
+    to: '/learn/first-ride',
+    phase: 4,
+  },
+  {
+    title: 'Riding Situations',
+    description: 'Moving off, stopping, hills, traffic, hazards and U-turns: each control explained, watched, then practised in the cockpit.',
+    meta: `${catalog.lessons['riding-situations']} lessons`,
+    icon: Motorbike,
+    to: '/learn/riding-situations',
+    phase: 13,
+  },
+  {
     title: 'Turning & Handling',
     description: 'Leaning, countersteering, body position, U-turns and slow-speed control.',
-    meta: '10 lessons',
+    meta: `${catalog.lessons.handling} lessons`,
     icon: Route,
     to: '/learn/handling',
     phase: 9,
@@ -56,19 +73,18 @@ const categories: Category[] = [
   {
     title: 'Real-World Scenarios',
     description: 'Traffic, hills, wet roads, gravel, emergency braking, overtaking, night riding and pillions.',
-    meta: '14 scenarios',
+    meta: `${catalog.scenarios} scenarios`,
     icon: TrafficCone,
     to: '/scenarios',
     phase: 10,
   },
   {
-    title: 'Advanced Mechanics',
-    description: 'Combustion, compression ratio, fuel systems, cooling, ABS, traction control and tyre dynamics.',
-    meta: '17 deep-dives',
+    title: 'Advanced Mechanics · optional',
+    description: 'For the curious, once you can ride: combustion, compression ratio, fuel systems, cooling, ABS, traction control and tyre dynamics.',
+    meta: `${catalog.lessons.mechanics} deep-dives`,
     icon: Cog,
     to: '/learn/mechanics',
     phase: 11,
-    span: 'sm:col-span-2 lg:col-span-1',
   },
 ]
 
@@ -111,7 +127,7 @@ export function CategoriesSection() {
         <SectionHeading
           eyebrow="What you’ll learn"
           title="From first principles to real roads"
-          description="Six areas take you from knowing nothing about a motorcycle to understanding it well enough to ride it with confidence."
+          description="From knowing nothing about a motorcycle to understanding it well enough to start real practice with confidence."
         />
         <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((c) => (

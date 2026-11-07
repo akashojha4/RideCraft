@@ -10,15 +10,17 @@ import { STANDARD_PATTERN, shiftInPattern, type GearPattern, type LeverAction } 
  *
  * Keyboard (while the cockpit has focus): hold A / Z to pull / let out the clutch, ↑ / ↓ to
  * open / close the throttle, Space for the front brake, S for the rear brake; E / D shift up
- * / down (lift / press), N finds neutral.
+ * / down (lift / press), N finds neutral. Several keys work at once — one per hand — and
+ * holding Shift moves a control slowly, for finding the biting point.
  */
 
 export type Axis = 'clutch' | 'throttle' | 'front' | 'rear'
 export type Axes = Record<Axis, number>
 
 const REST: Axes = { clutch: 0, throttle: 0, front: 0, rear: 0 }
-/** Full travel per second while a key is held. */
+/** Full travel per second while a key is held, and while Shift is held for fine control. */
 const RATE: Axes = { clutch: 1.6, throttle: 1, front: 1.2, rear: 1.2 }
+const FINE_RATE = 0.3
 const SPRING_MS = 120
 
 /** Held keys: which axis they move and in which direction. */
@@ -57,6 +59,7 @@ export function useCockpitControls({
   // Was the gear lever the rider's most recent action? (Its message stays until they do something else.)
   const [shiftIsLatest, setShiftIsLatest] = useState(false)
   const held = useRef(new Set<string>())
+  const fine = useRef(false)
   const springing = useRef<Partial<Record<Axis, number>>>({})
   const frame = useRef(0)
 
@@ -118,7 +121,7 @@ export function useCockpitControls({
         const next = { ...a }
         for (const k of held.current) {
           const m = KEYS[k]
-          if (m) next[m.axis] = Math.min(1, Math.max(0, next[m.axis] + m.dir * RATE[m.axis] * dt))
+          if (m) next[m.axis] = Math.min(1, Math.max(0, next[m.axis] + m.dir * RATE[m.axis] * (fine.current ? FINE_RATE : 1) * dt))
         }
         return next
       })
@@ -130,6 +133,10 @@ export function useCockpitControls({
 
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        fine.current = true
+        return
+      }
       if (e.ctrlKey || e.metaKey || e.altKey) return
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
       if (SHIFT_KEYS[k]) {
@@ -156,6 +163,10 @@ export function useCockpitControls({
 
   const onKeyUp = useCallback(
     (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        fine.current = false
+        return
+      }
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
       if (!held.current.delete(k)) return
       const m = KEYS[k]
@@ -169,6 +180,7 @@ export function useCockpitControls({
   const onBlur = useCallback(() => {
     for (const k of held.current) if (KEYS[k].dir > 0) release(KEYS[k].axis)
     held.current.clear()
+    fine.current = false
   }, [release])
 
   useEffect(

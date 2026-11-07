@@ -1,10 +1,10 @@
-import { visibleModules } from '@/content/curriculum'
+import { coreModules } from '@/content/curriculum'
 import type { QuizQuestion } from '@/content/types'
 
 /*
- * The knowledge assessment: questions drawn from every module's lesson quizzes — five per
+ * The knowledge assessment: questions drawn from every core module's lesson quizzes — five per
  * module, chosen afresh for each attempt (a seeded shuffle, so an attempt can be rebuilt
- * from its seed). Pass mark 80 %.
+ * from its seed). Optional modules are left out. Pass mark 80 %.
  */
 
 export const PER_MODULE = 5
@@ -32,7 +32,7 @@ function rng(seed: number) {
 export function buildAssessment(seed: number): AssessmentQuestion[] {
   const random = rng(seed)
   const out: AssessmentQuestion[] = []
-  for (const m of visibleModules.filter((x) => x.lessons.length > 0)) {
+  for (const m of coreModules) {
     const pool: AssessmentQuestion[] = m.lessons.flatMap((l) => l.knowledgeCheck.map((q) => ({ ...q, key: `${m.id}/${l.id}/${q.id}`, moduleId: m.id, moduleTitle: m.title, lessonTitle: l.title })))
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1))

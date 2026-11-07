@@ -9,10 +9,10 @@ import { cn } from '@/lib/cn'
 import { PASS_MARK, PER_MODULE, buildAssessment } from '@/lib/progress/assessment'
 import { progress } from '@/lib/progress/store'
 import { usePageTitle } from '@/hooks/usePageTitle'
-import { visibleModules } from '@/content/curriculum'
+import { coreModules } from '@/content/curriculum'
 
-/** The modules the assessment draws from (those with lessons). */
-const listed = visibleModules.filter((m) => m.lessons.length > 0)
+/** The modules the assessment draws from (core modules; optional depth is left out). */
+const listed = coreModules
 
 /** The knowledge assessment: answer every question, then see the score, the breakdown and a review. */
 export default function AssessmentPage() {
@@ -52,7 +52,7 @@ export default function AssessmentPage() {
         <SectionHeading as="h1" eyebrow="Knowledge assessment" title="How much do you know?" description={`Up to ${PER_MODULE} questions from each of the ${listed.length} modules — ${listed.map((m) => m.title.toLowerCase()).join(', ')} — chosen afresh each time. Answer them all, then see your score, the areas to revise and an explanation for every question.`} />
         <ul className="grid gap-3 sm:grid-cols-3">
           <li className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
-            <span className="block font-display text-2xl text-ink">{PER_MODULE * 4}</span> questions
+            <span className="block font-display text-2xl text-ink">{PER_MODULE * listed.length}</span> questions
           </li>
           <li className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
             <span className="block font-display text-2xl text-ink">{PASS_MARK * 100} %</span> to pass

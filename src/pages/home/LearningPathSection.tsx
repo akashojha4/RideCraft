@@ -8,18 +8,18 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { cn } from '@/lib/cn'
 
 /** The learner's journey, in the order the skills build on each other. */
-const stages = [
-  { title: 'Understand the machine', body: 'Every major component, what it does and how it connects to the others.', to: '/anatomy', phase: 2 },
-  { title: 'Learn the fundamentals', body: 'Controls, RPM, torque, gears, clutch, throttle, brakes and the drivetrain.', to: '/learn/basics', phase: 3 },
+const stages: { title: string; body: string; to: string; phase: number; optional?: boolean }[] = [
+  { title: 'Learn the fundamentals', body: 'What a motorcycle is, its controls, and how the engine, clutch, gears, throttle and brakes work.', to: '/learn/basics', phase: 3 },
   { title: 'Prepare to ride', body: 'Posture, protective gear and the checks that come before every ride.', to: '/learn/pre-ride', phase: 4 },
-  { title: 'Start the engine', body: 'Ignition to idle, with the starter, crankshaft and four-stroke cycle in view.', to: '/simulators/starting', phase: 5 },
+  { title: 'Your first ride', body: 'Getting on, walking the motorcycle, recovering from a stall, and the licence and gear rules before any public road.', to: '/learn/first-ride', phase: 4 },
+  { title: 'Start the engine', body: 'Neutral, ignition and starter, with the crankshaft and four-stroke cycle in view.', to: '/simulators/starting', phase: 5 },
   { title: 'Master clutch & throttle', body: 'Find the biting point and pull away smoothly without stalling.', to: '/simulators/clutch-throttle', phase: 6 },
-  { title: 'Shift gears', body: 'Upshift, downshift and see how each ratio changes RPM, speed and torque.', to: '/simulators/gears', phase: 7 },
-  { title: 'Ride and stop', body: 'Accelerate, hold a speed, use engine braking and brake progressively.', to: '/simulators/ride-and-stop', phase: 8 },
+  { title: 'Change gear, ride and stop', body: 'Change up and down, hold a speed and brake progressively to a smooth stop.', to: '/simulators/gears', phase: 7 },
+  { title: 'Ride real situations', body: 'Moving off, stopping, hills, traffic signals and U-turns: learn each one, watch it done, then ride it in the cockpit.', to: '/learn/riding-situations', phase: 13 },
   { title: 'Turn and handle', body: 'Lean, countersteer and control the motorcycle at walking pace.', to: '/learn/handling', phase: 9 },
-  { title: 'Ride real roads', body: 'Decide what to do in traffic, rain, on gravel, at night and in emergencies.', to: '/scenarios', phase: 10 },
-  { title: 'Go deeper into the machine', body: 'Combustion, fuel systems, cooling, lubrication, ABS, traction control, suspension and tyres.', to: '/learn/mechanics', phase: 11 },
-  { title: 'Check what you know', body: 'Track your progress and take the knowledge assessment across every module.', to: '/progress', phase: 12 },
+  { title: 'Make safe decisions', body: 'Decide what to do in traffic, rain, on gravel, at night and in emergencies — and see what happens.', to: '/scenarios', phase: 10 },
+  { title: 'Check what you know', body: 'Take the knowledge assessment, then take what you learned to a qualified instructor and a real motorcycle.', to: '/progress', phase: 12 },
+  { title: 'Go deeper into the machine', body: 'Optional: combustion, fuel systems, cooling, ABS, traction control, suspension and tyres.', to: '/learn/mechanics', phase: 11, optional: true },
 ]
 
 export function LearningPathSection() {
@@ -32,7 +32,7 @@ export function LearningPathSection() {
       <Container>
         <SectionHeading
           eyebrow="Your learning path"
-          title="Eleven stages, in the order skills build"
+          title={`${stages.filter((s) => !s.optional).length} stages, in the order skills build`}
           description="Each stage relies on the one before it. Understand what the machine is doing first, and the riding skills make sense."
           align="center"
           className="mx-auto"
@@ -55,7 +55,7 @@ export function LearningPathSection() {
                   aria-hidden
                   className="tabular absolute top-0 left-0 flex size-10 items-center justify-center rounded-full border border-line-strong bg-bg font-mono text-sm text-ink md:left-1/2 md:-translate-x-1/2"
                 >
-                  {String(i + 1).padStart(2, '0')}
+                  {stage.optional ? '+' : String(i + 1).padStart(2, '0')}
                 </span>
                 <Reveal className={cn(right ? 'md:col-start-2' : 'md:col-start-1 md:text-right')}>
                   <Link

@@ -22,13 +22,14 @@ export const SIMULATORS = [
   { id: 'cockpit', title: 'Rider cockpit', path: '/simulators/cockpit', exercises: cockpitScenarios },
 ] as const
 
+/** Levels describe knowledge gained here, never riding ability: that only comes from practice with an instructor. */
 export const LEVELS = [
   { name: 'Newcomer', from: 0, text: 'Just getting started. Begin with Motorcycle Basics.' },
   { name: 'Learner', from: 0.1, text: 'You know the machine’s parts and controls.' },
-  { name: 'Novice rider', from: 0.3, text: 'You understand the controls and have practised the basics.' },
-  { name: 'Road-ready', from: 0.55, text: 'You can explain riding technique and have made safe decisions in real scenarios.' },
-  { name: 'Skilled rider', from: 0.8, text: 'Strong knowledge across riding, handling and mechanics.' },
-  { name: 'Expert', from: 0.95, text: 'You have completed almost everything RideCraft has to teach.' },
+  { name: 'Practising the basics', from: 0.3, text: 'You understand the controls and have practised them in the simulators.' },
+  { name: 'Theory ready', from: 0.55, text: 'You can explain riding technique and choose safe decisions in scenarios — ready to start real practice with an instructor.' },
+  { name: 'Strong knowledge', from: 0.8, text: 'Strong knowledge across riding, handling and mechanics.' },
+  { name: 'RideCraft graduate', from: 0.95, text: 'You have completed almost everything RideCraft has to teach.' },
 ] as const
 
 export function summarize(p: Progress) {
