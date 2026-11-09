@@ -56,7 +56,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q1',
         prompt: 'Where should most of your weight be supported?',
         options: [
-          { id: 'a', label: 'On the handlebar' },
+          { id: 'a', label: 'On the handlebar, so your arms can feel what the front tyre is doing at all times' },
           { id: 'b', label: 'On the seat and footpegs, with the knees gripping the tank' },
           { id: 'c', label: 'On your arms, locked straight' },
         ],
@@ -69,7 +69,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'It looks more confident' },
           { id: 'b', label: 'You see hazards earlier, and the motorcycle tends to go where you look' },
-          { id: 'c', label: 'The front wheel can’t be seen anyway' },
+          { id: 'c', label: 'Looking down at the front wheel is fine at low speed, but it makes your neck ache on long rides' },
         ],
         correctOptionId: 'b',
         explanation: 'Looking ahead gives you time to react, and riders naturally steer towards where they are looking.',
@@ -80,7 +80,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Toes on the pegs, heels hanging down' },
           { id: 'b', label: 'Balls of the feet on the pegs, toes pointing forward' },
-          { id: 'c', label: 'Insteps on the pegs, toes hanging down' },
+          { id: 'c', label: 'Insteps on the pegs with the toes hanging down, ready to reach the pedals quickly' },
         ],
         correctOptionId: 'b',
         explanation: 'This keeps your toes close to the gear lever and brake pedal without catching them or the road.',
@@ -148,7 +148,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'They are too warm' },
           { id: 'b', label: 'Denim wears through very quickly when sliding on tarmac' },
-          { id: 'c', label: 'They are fine for short trips' },
+          { id: 'c', label: 'They are fine for short trips in town, where speeds are too low to cause a slide' },
         ],
         correctOptionId: 'b',
         explanation: 'Normal denim has little abrasion resistance and no armour, so it offers almost no protection in a slide.',
@@ -228,7 +228,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Keep using it — the shell is fine' },
           { id: 'b', label: 'Replace it — the EPS may be crushed and won’t protect you again' },
-          { id: 'c', label: 'Replace only the visor' },
+          { id: 'c', label: 'Replace only the visor and padding, since the hard shell has taken the impact and is unmarked' },
         ],
         correctOptionId: 'b',
         explanation: 'EPS foam doesn’t spring back. Damage can be hidden under an intact shell.',
@@ -297,7 +297,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'So they mostly show your shoulders' },
           { id: 'b', label: 'To show the road behind, with just a sliver of your arm or shoulder' },
-          { id: 'c', label: 'Pointing at the road surface just behind you' },
+          { id: 'c', label: 'Pointing down at the road just behind your rear wheel, so you can see anything close to you' },
         ],
         correctOptionId: 'b',
         explanation: 'A small reference of your own arm helps orientation; the rest of the mirror should show road.',
@@ -308,7 +308,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Directly ahead' },
           { id: 'b', label: 'Just behind you in the next lane' },
-          { id: 'c', label: 'Directly behind, far away' },
+          { id: 'c', label: 'Directly behind you, far away down the road, where the mirrors run out of view' },
         ],
         correctOptionId: 'b',
         explanation: 'A vehicle just behind and beside you is too far forward for the mirror and too far back for your side vision.',
@@ -319,7 +319,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Never — it is dangerous to look away' },
           { id: 'b', label: 'Before changing lanes or turning, after checking the mirrors' },
-          { id: 'c', label: 'Only on motorways' },
+          { id: 'c', label: 'Only on motorways and dual carriageways, where traffic in the next lane moves fast' },
         ],
         correctOptionId: 'b',
         explanation: 'A quick shoulder check covers the blind spot that mirrors can’t show.',
@@ -376,7 +376,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q1',
         prompt: 'When should you check tyre pressure?',
         options: [
-          { id: 'a', label: 'Right after a long ride' },
+          { id: 'a', label: 'Right after a long ride, when the tyres are warm and give their true working pressure' },
           { id: 'b', label: 'When the tyres are cold, before riding' },
           { id: 'c', label: 'Only when a tyre looks flat' },
         ],
@@ -387,7 +387,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'What happens when a tyre is under-inflated?',
         options: [
-          { id: 'a', label: 'It grips better in every situation' },
+          { id: 'a', label: 'It grips better in every situation, because a bigger contact patch puts more rubber on the road' },
           { id: 'b', label: 'It flexes, overheats and makes the steering heavy' },
           { id: 'c', label: 'Nothing noticeable' },
         ],
@@ -467,7 +467,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'The brake fluid is below the MIN mark. What should you do?',
         options: [
-          { id: 'a', label: 'Ride and check again later' },
+          { id: 'a', label: 'Top it up to MAX and ride — the level always drops a little in normal use' },
           { id: 'b', label: 'Don’t ride — have the pads and system checked for wear or leaks' },
           { id: 'c', label: 'Fill it with engine oil' },
         ],
@@ -479,7 +479,7 @@ export const preRideLessons: Lesson[] = [
         prompt: 'How can you tell a brake pad is near the end of its life?',
         options: [
           { id: 'a', label: 'Its wear groove has disappeared or the material is very thin' },
-          { id: 'b', label: 'The disc looks shiny' },
+          { id: 'b', label: 'The disc looks shiny and smooth, which shows the pads have polished it with use' },
           { id: 'c', label: 'The lever feels firm' },
         ],
         correctOptionId: 'a',
@@ -547,7 +547,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'Why is a chain that is too tight dangerous?',
         options: [
-          { id: 'a', label: 'It makes the motorcycle slower' },
+          { id: 'a', label: 'It makes the motorcycle slower and wastes fuel, but it is not a safety problem' },
           { id: 'b', label: 'It strains the bearings and can snap when the suspension compresses' },
           { id: 'c', label: 'It isn’t dangerous' },
         ],
@@ -560,7 +560,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'That the engine is running in first gear' },
           { id: 'b', label: 'That the engine is off and the motorcycle is in neutral on its stand' },
-          { id: 'c', label: 'That the chain is hot' },
+          { id: 'c', label: 'That the chain is warm from riding, because a cold chain always reads too tight' },
         ],
         correctOptionId: 'b',
         explanation: 'Never put your hands near the chain with the engine running.',
@@ -618,7 +618,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The fuel level has fallen below the main standpipe' },
           { id: 'b', label: 'The tyres need air' },
-          { id: 'c', label: 'The gearbox is in neutral' },
+          { id: 'c', label: 'The air filter is blocked, so the engine is getting too little air for the fuel it is given' },
         ],
         correctOptionId: 'a',
         explanation: 'Below the standpipe no fuel can flow on ON. Switching to RES draws the reserve from a lower outlet.',
@@ -627,7 +627,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'What should you do after switching to reserve?',
         options: [
-          { id: 'a', label: 'Keep riding as normal' },
+          { id: 'a', label: 'Keep riding as normal — reserve holds enough fuel for a full day’s riding' },
           { id: 'b', label: 'Refuel as soon as possible, then switch back to ON' },
           { id: 'c', label: 'Switch to OFF' },
         ],
@@ -638,7 +638,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q3',
         prompt: 'How do most fuel-injected motorcycles show low fuel?',
         options: [
-          { id: 'a', label: 'With a fuel tap' },
+          { id: 'a', label: 'With a fuel tap that you turn to RESERVE when the engine starts to splutter' },
           { id: 'b', label: 'With a fuel gauge and a low-fuel warning light' },
           { id: 'c', label: 'They don’t' },
         ],
@@ -711,7 +711,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Ride faster to get home' },
           { id: 'b', label: 'Stop safely and switch off the engine' },
-          { id: 'c', label: 'Ignore it if the engine sounds fine' },
+          { id: 'c', label: 'Carry on gently if the engine sounds fine, and check the oil when you get home' },
         ],
         correctOptionId: 'b',
         explanation: 'Without oil pressure the engine can be destroyed within minutes. Stop and investigate.',
@@ -720,7 +720,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q3',
         prompt: 'On a motorcycle with ABS, when should the ABS light normally go out?',
         options: [
-          { id: 'a', label: 'As soon as the ignition is on' },
+          { id: 'a', label: 'As soon as the ignition is turned on, before the engine is started' },
           { id: 'b', label: 'Once the motorcycle has moved off and reached a few km/h' },
           { id: 'c', label: 'It stays on all the time' },
         ],
@@ -789,7 +789,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'How do you select neutral from first gear?',
         options: [
-          { id: 'a', label: 'A firm full lift of the lever' },
+          { id: 'a', label: 'A firm full lift of the lever, which always stops in neutral on the way to second' },
           { id: 'b', label: 'A gentle half-lift of the lever' },
           { id: 'c', label: 'Press the lever down' },
         ],
@@ -802,7 +802,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The green N light, and the motorcycle rolling freely with the clutch out' },
           { id: 'b', label: 'The high-beam light' },
-          { id: 'c', label: 'The engine is running' },
+          { id: 'c', label: 'The engine keeps running when you let the clutch out — that alone proves it is in neutral' },
         ],
         correctOptionId: 'a',
         explanation: 'Confirm neutral both ways — the light, and the motorcycle rolling freely — before starting.',
@@ -869,7 +869,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'With the engine running and the stand down, you select first gear. On a typical motorcycle, what happens?',
         options: [
-          { id: 'a', label: 'Nothing — you can ride off' },
+          { id: 'a', label: 'Nothing — the switch only stops you starting the engine, not riding off' },
           { id: 'b', label: 'The side-stand switch stops the engine' },
           { id: 'c', label: 'The stand raises itself' },
         ],
@@ -880,7 +880,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q3',
         prompt: 'How should you park on a slope?',
         options: [
-          { id: 'a', label: 'Facing downhill, in neutral' },
+          { id: 'a', label: 'Facing downhill in neutral, so it is easy to roll away when you come back' },
           { id: 'b', label: 'Facing uphill, left in first gear' },
           { id: 'c', label: 'Across the slope, in neutral' },
         ],
@@ -947,7 +947,7 @@ export const preRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'It looks professional' },
           { id: 'b', label: 'A fixed routine makes it much harder to forget an item' },
-          { id: 'c', label: 'The order changes the results' },
+          { id: 'c', label: 'Because doing them in a different order can change the results you get' },
         ],
         correctOptionId: 'b',
         explanation: 'A routine turns the check into a habit, so nothing gets skipped.',
@@ -957,7 +957,7 @@ export const preRideLessons: Lesson[] = [
         prompt: 'Which of these belongs in the final checks from the seat?',
         options: [
           { id: 'a', label: 'Mirrors adjusted, neutral light on, kill switch at RUN, side stand up' },
-          { id: 'b', label: 'Measuring the chain slack' },
+          { id: 'b', label: 'Measuring the chain slack while seated, with your weight compressing the rear suspension' },
           { id: 'c', label: 'Checking the tyre tread' },
         ],
         correctOptionId: 'a',
@@ -967,7 +967,7 @@ export const preRideLessons: Lesson[] = [
         id: 'q4',
         prompt: 'The checklist shows one “fix soon” item and everything else OK. What does that mean?',
         options: [
-          { id: 'a', label: 'You must not ride' },
+          { id: 'a', label: 'You must not ride until every single item on the checklist is OK' },
           { id: 'b', label: 'You can ride with care, but should fix it promptly' },
           { id: 'c', label: 'The checklist is wrong' },
         ],

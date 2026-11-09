@@ -9,12 +9,10 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { academyPhases, phasePath } from '@/content/academy'
 import { coreModules, getLesson, lessonPath, moduleMinutes, nextLesson, visibleModules } from '@/content/curriculum'
 import { useProgress } from '@/lib/progress/store'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 const hours = (minutes: number) => (minutes < 60 ? `${minutes} min` : `about ${Math.round(minutes / 60)} h`)
 
 export default function LearnPage() {
-  usePageTitle('Learn')
   const { lessons } = useProgress()
   const isDone = (m: string, l: string) => !!lessons[`${m}/${l}`]?.completedAt
   const upNext = nextLesson(isDone)

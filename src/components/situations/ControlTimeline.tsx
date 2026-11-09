@@ -45,12 +45,10 @@ export function ControlTrace({ run, control, className }: { run: RunResult; cont
   )
 }
 
-/** `focusStage`: the stage the narration is describing (chosen stages are ignored meanwhile). */
-export function ControlTimeline({ scenario, run, controls = ['clutch', 'throttle', 'front', 'rear', 'gear'], focusStage }: { scenario: CockpitScenario; run: RunResult; controls?: ControlId[]; focusStage?: number }) {
+export function ControlTimeline({ scenario, run, controls = ['clutch', 'throttle', 'front', 'rear', 'gear'] }: { scenario: CockpitScenario; run: RunResult; controls?: ControlId[] }) {
   const samples = run.samples
   const T = samples.at(-1)?.t || 1
-  const [chosenStage, setStage] = useState(0)
-  const stage = focusStage ?? chosenStage
+  const [stage, setStage] = useState(0)
   const [hover, setHover] = useState<RunSample | null>(null)
   const [table, setTable] = useState(false)
   const steps = scenario.steps

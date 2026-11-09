@@ -6,9 +6,9 @@ import { Container } from '@/components/ui/Container'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { cn } from '@/lib/cn'
+import { seededOrder } from '@/lib/shuffle'
 import { PASS_MARK, PER_MODULE, buildAssessment } from '@/lib/progress/assessment'
 import { progress } from '@/lib/progress/store'
-import { usePageTitle } from '@/hooks/usePageTitle'
 import { coreModules } from '@/content/curriculum'
 
 /** The modules the assessment draws from (core modules; optional depth is left out). */
@@ -16,7 +16,6 @@ const listed = coreModules
 
 /** The knowledge assessment: answer every question, then see the score, the breakdown and a review. */
 export default function AssessmentPage() {
-  usePageTitle('Knowledge assessment')
   const [seed, setSeed] = useState<number | null>(null)
   const questions = useMemo(() => (seed === null ? [] : buildAssessment(seed)), [seed])
   const [index, setIndex] = useState(0)
@@ -149,7 +148,7 @@ export default function AssessmentPage() {
       <ProgressBar value={index + (chosen ? 1 : 0)} max={questions.length} label="Assessment progress" />
       <fieldset className="space-y-3 rounded-2xl border border-line bg-surface p-5 sm:p-7">
         <legend className="mb-2 text-lg font-medium text-ink">{q.prompt}</legend>
-        {q.options.map((o) => (
+        {seededOrder(q.options, q.key).map((o) => (
           <label key={o.id} className={cn('flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm', chosen === o.id ? 'border-ignition-500/60 bg-ignition-950 text-ink' : 'border-line text-ink-muted hover:border-line-strong')}>
             <input type="radio" name={q.key} value={o.id} checked={chosen === o.id} onChange={() => setAnswers((a) => ({ ...a, [q.key]: o.id }))} className="mt-0.5 accent-ignition-500" />
             {o.label}

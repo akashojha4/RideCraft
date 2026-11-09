@@ -10,7 +10,6 @@ import { exercises as clutchExercises } from '@/content/simulators/clutchThrottl
 import { exercises as gearExercises } from '@/content/simulators/gears'
 import { exercises as rideExercises } from '@/content/simulators/rideStop'
 import { useProgress } from '@/lib/progress/store'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 /** The simulators in the order a new rider learns the skills; `progress` is the id their exercises are saved under. */
 const simulators = [
@@ -52,7 +51,6 @@ const simulators = [
 ]
 
 export default function SimulatorsPage() {
-  usePageTitle('Simulators')
   const { exercisesPassed } = useProgress()
   const passed = (id: string) => Object.keys(exercisesPassed).filter((k) => k.startsWith(`${id}/`)).length
   return (

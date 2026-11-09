@@ -84,7 +84,7 @@ export const basicsLessons: Lesson[] = [
           { id: 'a', label: 'A front brake' },
           { id: 'b', label: 'A throttle' },
           { id: 'c', label: 'A clutch lever and a gear lever' },
-          { id: 'd', label: 'Suspension' },
+          { id: 'd', label: 'Suspension at both ends, which most scooters do without' },
         ],
         correctOptionId: 'c',
         explanation: 'Most scooters use an automatic CVT, so there is no clutch lever or gear lever. Both have brakes, a throttle and suspension.',
@@ -179,7 +179,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'They have no brakes to learn' },
           { id: 'b', label: 'Their automatic transmission needs no clutch or gear changes' },
-          { id: 'c', label: 'They are always more powerful' },
+          { id: 'c', label: 'They are more powerful, so they pull away without any skill from the rider' },
         ],
         correctOptionId: 'b',
         explanation: 'A CVT does the work of the clutch and gearbox automatically — “twist and go”. That convenience is why learning the clutch is the big extra step on a geared motorcycle.',
@@ -270,7 +270,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Turning on the headlight' },
           { id: 'b', label: 'Stopping the engine quickly without reaching for the key' },
-          { id: 'c', label: 'Selecting neutral' },
+          { id: 'c', label: 'Selecting neutral electrically, so the motorcycle can be started without using the gear lever' },
         ],
         correctOptionId: 'b',
         explanation: 'The kill switch, under the right thumb, stops the engine instantly — useful in an emergency or after a fall.',
@@ -280,7 +280,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'Which statement is true?',
         options: [
           { id: 'a', label: 'The right side controls go and stop; the left side controls clutch and gears' },
-          { id: 'b', label: 'Both brakes are operated by the left side' },
+          { id: 'b', label: 'Both brakes are on the left side, so the right hand is free to work the throttle at all times' },
           { id: 'c', label: 'The throttle is on the left grip' },
         ],
         correctOptionId: 'a',
@@ -381,7 +381,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q4',
         prompt: 'What does “125 cc” describe?',
         options: [
-          { id: 'a', label: 'The fuel tank capacity' },
+          { id: 'a', label: 'How much fuel the tank holds, measured in cubic centimetres' },
           { id: 'b', label: 'The volume swept by the piston' },
           { id: 'c', label: 'The top speed' },
         ],
@@ -443,7 +443,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The motorcycle is travelling at 30 km/h' },
           { id: 'b', label: 'The crankshaft turns 3,000 times a minute' },
-          { id: 'c', label: 'The engine produces 3,000 watts' },
+          { id: 'c', label: 'The engine is producing 3,000 watts of power at the rear wheel' },
         ],
         correctOptionId: 'b',
         explanation: 'RPM counts crankshaft revolutions per minute — 3,000 RPM is 50 turns every second.',
@@ -452,7 +452,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q2',
         prompt: 'What does the red zone on the rev counter mark?',
         options: [
-          { id: 'a', label: 'The most economical engine speed' },
+          { id: 'a', label: 'The most economical engine speed, where it uses the least fuel for its power' },
           { id: 'b', label: 'The idle speed' },
           { id: 'c', label: 'Engine speeds above the safe maximum' },
         ],
@@ -464,7 +464,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'The engine is at 6,000 RPM. What does that tell you about road speed?',
         options: [
           { id: 'a', label: 'Nothing on its own — it depends on the gear' },
-          { id: 'b', label: 'The motorcycle is travelling fast' },
+          { id: 'b', label: 'The motorcycle is travelling fast — 6,000 RPM is always above 60 km/h' },
           { id: 'c', label: 'The motorcycle is stationary' },
         ],
         correctOptionId: 'a',
@@ -559,7 +559,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'First gear uses less fuel' },
           { id: 'b', label: 'First gear multiplies the engine’s torque the most' },
-          { id: 'c', label: 'The clutch only works in first gear' },
+          { id: 'c', label: 'The clutch can only slip in first gear, which is what stops you rolling back' },
         ],
         correctOptionId: 'b',
         explanation: 'The steepest gearing turns the engine’s modest torque into the strongest push at the tyre, enough to pull away uphill.',
@@ -628,7 +628,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'To make the engine louder' },
           { id: 'b', label: 'To keep the engine in its useful RPM range across a wide range of road speeds' },
-          { id: 'c', label: 'Because the brakes need them' },
+          { id: 'c', label: 'Because the brakes need a lower gear to work, and the gearbox chooses one for each speed' },
         ],
         correctOptionId: 'b',
         explanation: 'The engine works well only between labouring and the redline; different gears let it stay in that range from walking pace to top speed.',
@@ -638,7 +638,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'On the usual pattern, how do you select first gear from neutral?',
         options: [
           { id: 'a', label: 'Press the gear lever down' },
-          { id: 'b', label: 'Lift the gear lever' },
+          { id: 'b', label: 'Lift the gear lever, as you do for every gear on the usual pattern' },
           { id: 'c', label: 'Press the rear brake' },
         ],
         correctOptionId: 'a',
@@ -735,7 +735,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Connected to the gearbox' },
           { id: 'b', label: 'Disconnected from the gearbox' },
-          { id: 'c', label: 'Switched off' },
+          { id: 'c', label: 'Switched off until the lever is released again' },
         ],
         correctOptionId: 'b',
         explanation: 'Pulling the lever releases the spring pressure, so the plates slip and the engine no longer drives the gearbox.',
@@ -744,7 +744,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q2',
         prompt: 'What is the friction zone?',
         options: [
-          { id: 'a', label: 'Where the brake pads touch the disc' },
+          { id: 'a', label: 'The part of the brake disc where the pads touch it and turn the motorcycle’s motion into heat' },
           { id: 'b', label: 'The range of lever travel where the clutch partly passes on the engine’s torque' },
           { id: 'c', label: 'The red zone on the rev counter' },
         ],
@@ -757,7 +757,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The clutch overheats instantly' },
           { id: 'b', label: 'The engine is suddenly asked to turn the rear wheel before it can produce enough torque, and slows to a stop' },
-          { id: 'c', label: 'The fuel supply is cut off' },
+          { id: 'c', label: 'The fuel supply is cut off automatically when the clutch snaps out, to protect the gearbox from a sudden load on the chain' },
         ],
         correctOptionId: 'b',
         explanation: 'A sudden full engagement loads the engine heavily at low RPM; without enough throttle it can’t keep turning, and it stalls.',
@@ -767,7 +767,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'Why is there a little freeplay at the start of the lever’s travel?',
         options: [
           { id: 'a', label: 'So the clutch always fully engages when you release the lever' },
-          { id: 'b', label: 'So the lever is easier to pull' },
+          { id: 'b', label: 'So the lever is easier to pull and your hand doesn’t tire on a long ride' },
           { id: 'c', label: 'It is a fault that should be removed' },
         ],
         correctOptionId: 'a',
@@ -797,7 +797,6 @@ export const basicsLessons: Lesson[] = [
         ],
       },
       { type: 'illustration', illustration: 'throttle', caption: 'Roll the grip open and watch the valve and airflow. Then press “Let go”.' },
-      { type: 'cockpit', scenario: 'start-and-move-off', caption: 'Watch the twist grip open a little as the clutch comes out — and close again if you let go.' },
       { type: 'cta', to: '/simulators/cockpit?practice=start-and-move-off&from=/learn/basics/understanding-throttle', title: 'Practise it in the cockpit', text: 'Start the engine and move off: balance a little throttle against a slow clutch release.' },
       {
         type: 'keyPoints',
@@ -827,7 +826,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'What does opening the throttle actually do?',
         options: [
           { id: 'a', label: 'Lets more air (and so more fuel) into the engine' },
-          { id: 'b', label: 'Changes gear' },
+          { id: 'b', label: 'Pumps extra fuel straight into the engine, without changing how much air goes in' },
           { id: 'c', label: 'Applies the rear brake' },
         ],
         correctOptionId: 'a',
@@ -837,7 +836,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q2',
         prompt: 'What happens when you release the throttle grip?',
         options: [
-          { id: 'a', label: 'It stays where you left it' },
+          { id: 'a', label: 'It stays where you left it, like a cruise control, until you roll it closed' },
           { id: 'b', label: 'Springs close it and the engine returns towards idle' },
           { id: 'c', label: 'The engine stops' },
         ],
@@ -848,7 +847,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q3',
         prompt: 'Why should the throttle be used smoothly in a bend?',
         options: [
-          { id: 'a', label: 'To save fuel' },
+          { id: 'a', label: 'To save fuel, because sudden openings waste petrol mid-corner without making you any faster' },
           { id: 'b', label: 'Sudden changes transfer load between the tyres and can upset grip and the line' },
           { id: 'c', label: 'The throttle can’t move quickly' },
         ],
@@ -912,7 +911,7 @@ export const basicsLessons: Lesson[] = [
       {
         type: 'example',
         body: [
-          'A car pulls out ahead at 50 km/h. A trained rider closes the throttle, squeezes the front brake progressively harder while pressing the rear pedal, and stops in a straight line. Braking at around 0.6 g, that takes about 16 metres — plus the distance covered while reacting.',
+          'A car pulls out ahead at 50 km/h. A trained rider closes the throttle, squeezes the front brake progressively harder while pressing the rear pedal, and stops in a straight line. Braking at around 0.6 g (slowing at six-tenths of the pull of gravity — a hard stop), that takes about 16 metres — plus the distance covered while reacting.',
         ],
       },
       {
@@ -940,7 +939,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The rear brake is stronger' },
           { id: 'b', label: 'Load transfers off the rear tyre, reducing its grip' },
-          { id: 'c', label: 'The rear tyre is narrower' },
+          { id: 'c', label: 'The rear tyre is narrower than the front, so it has less rubber on the road' },
         ],
         correctOptionId: 'b',
         explanation: 'With load transferred forward, the rear tyre has less grip, so a smaller brake force is enough to lock it.',
@@ -950,7 +949,7 @@ export const basicsLessons: Lesson[] = [
         prompt: 'In a hydraulic brake, why are the caliper pistons larger than the master cylinder piston?',
         options: [
           { id: 'a', label: 'To multiply the force pressing the pads on the disc' },
-          { id: 'b', label: 'To make the lever travel shorter' },
+          { id: 'b', label: 'To make the lever travel shorter so the brake feels sharper' },
           { id: 'c', label: 'To cool the fluid' },
         ],
         correctOptionId: 'a',
@@ -962,7 +961,7 @@ export const basicsLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Applying the brakes as hard as possible immediately' },
           { id: 'b', label: 'Applying gently first, then increasing pressure as the load transfers' },
-          { id: 'c', label: 'Using only the rear brake' },
+          { id: 'c', label: 'Using the rear brake first, then adding the front once you have slowed' },
         ],
         correctOptionId: 'b',
         explanation: 'A gentle initial squeeze lets the front tyre take the load before you ask it for maximum braking.',
@@ -1037,7 +1036,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q2',
         prompt: 'At each reduction stage, speed goes down. What happens to torque?',
         options: [
-          { id: 'a', label: 'It goes down too' },
+          { id: 'a', label: 'It goes down too, in the same proportion as the speed' },
           { id: 'b', label: 'It goes up by the same ratio' },
           { id: 'c', label: 'It is unaffected' },
         ],
@@ -1059,7 +1058,7 @@ export const basicsLessons: Lesson[] = [
         id: 'q4',
         prompt: 'Is power increased by the gearing?',
         options: [
-          { id: 'a', label: 'Yes — low gears add power' },
+          { id: 'a', label: 'Yes — low gears add power, which is why first gear pulls hardest of all' },
           { id: 'b', label: 'No — gearing trades speed for torque; a little power is lost to friction' },
         ],
         correctOptionId: 'b',

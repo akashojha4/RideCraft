@@ -6,6 +6,7 @@ import { Readout } from '@/components/simulation/Readouts'
 import { Button } from '@/components/ui/Button'
 import { useSimulationClock } from '@/hooks/useSimulationClock'
 import { cn } from '@/lib/cn'
+import { seededOrder } from '@/lib/shuffle'
 import { progress } from '@/lib/progress/store'
 import type { Frame, Outcome, Scenario, Verdict } from '@/lib/scenarios/types'
 import { SideSceneView } from './SideSceneView'
@@ -31,7 +32,7 @@ function frameAt(frames: Frame[], t: number) {
 }
 
 /** Plays one scenario: the situation, the decision, and the computed outcome of the choice. */
-export function ScenarioPlayer({ scenario }: { scenario: Scenario }) {
+export function ScenarioPlayer({ scenario, onChoose }: { scenario: Scenario; onChoose?: (choiceId: string) => void }) {
   const clock = useSimulationClock({ autoPlay: true })
   const [time, setTime] = useState(0)
   useMotionValueEvent(clock.time, 'change', setTime)
@@ -52,6 +53,7 @@ export function ScenarioPlayer({ scenario }: { scenario: Scenario }) {
   const finished = outcome !== null && time >= duration
 
   const choose = (id: string) => {
+    onChoose?.(id)
     setChoice(id)
     clock.reset()
     clock.play()
@@ -96,12 +98,14 @@ export function ScenarioPlayer({ scenario }: { scenario: Scenario }) {
           <p className="leading-relaxed text-ink">{scenario.situation}</p>
           <p className="font-medium text-ink">{scenario.question}</p>
           <div role="group" aria-label="Your decision" className="mt-3 flex flex-col gap-2">
-            {scenario.choices.map((c) => {
+            {/* A stable mixed order, so the safe choice isn't always first. */}
+            {seededOrder(scenario.choices, scenario.id).map((c) => {
               const result = tried[c.id]
               return (
                 <button
                   key={c.id}
                   type="button"
+                  data-choice-index={scenario.choices.indexOf(c)}
                   aria-pressed={choice === c.id}
                   onClick={() => choose(c.id)}
                   className={cn(

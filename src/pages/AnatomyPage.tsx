@@ -1,6 +1,6 @@
 import { MousePointerClick, ScanLine } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PartDetail } from '@/components/anatomy/PartDetail'
 import { PartList } from '@/components/anatomy/PartList'
@@ -10,6 +10,8 @@ import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { cn } from '@/lib/cn'
 import { transition } from '@/lib/motion'
+import { RelatedLessons } from '@/components/lesson/RelatedLessons'
+import { relatedLessonsForPage } from '@/content/related'
 
 const isPartId = (v: string | null): v is PartId => partIds.includes(v as PartId)
 
@@ -22,13 +24,6 @@ export default function AnatomyPage() {
   const panelRef = useRef<HTMLDivElement>(null)
   const pointerOnDrawing = useRef(false)
   const reduceMotion = useReducedMotion()
-
-  useEffect(() => {
-    document.title = `${parts[selected].name} · Anatomy Explorer · RideCraft`
-    return () => {
-      document.title = 'RideCraft — Interactive Motorcycle Academy'
-    }
-  }, [selected])
 
   /** Select a part; when chosen by pointer, bring its explanation into view if it isn't. */
   function select(id: PartId, { scroll }: { scroll: boolean }) {
@@ -110,6 +105,7 @@ export default function AnatomyPage() {
           </AnimatePresence>
         </div>
       </div>
+      <RelatedLessons lessons={relatedLessonsForPage('/anatomy')} />
     </Container>
   )
 }

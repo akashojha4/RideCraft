@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/Card'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { practicalChallenges, type ChallengeMode } from '@/content/academy'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 const MODE: Record<ChallengeMode, { label: string; hint: string }> = {
   sim: { label: 'Simulator', hint: 'Rehearse in the cockpit or a decision scenario.' },
@@ -14,7 +13,6 @@ const MODE: Record<ChallengeMode, { label: string; hint: string }> = {
 }
 
 export default function ChallengesPage() {
-  usePageTitle('Practical challenges')
   return (
     <Container className="py-14 sm:py-20">
       <SectionHeading

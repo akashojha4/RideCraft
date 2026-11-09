@@ -57,7 +57,7 @@ export const startAndMoveOff: CockpitScenario = {
     {
       id: 'start',
       title: 'Start the engine',
-      instruction: 'Press Start (or I).',
+      instruction: 'On a real motorcycle: ignition on and the kill switch at RUN. Then, in neutral, press Start (or I). Holding the clutch in as well is a good habit — a backup if a gear is still selected.',
       highlight: ['crank'],
       done: (s) => s.running,
       explanation: 'The starter motor spun the crankshaft until the engine fired. It now idles at about 1,400 RPM; in neutral the clutch basket and hub turn with it, but nothing beyond the gearbox does.',

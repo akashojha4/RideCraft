@@ -29,7 +29,6 @@ import { PlaybackControls } from '@/components/simulation/PlaybackControls'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useCockpitSim } from '@/hooks/useCockpitSim'
-import { usePageTitle } from '@/hooks/usePageTitle'
 import { cn } from '@/lib/cn'
 import { leverForClamp } from '@/lib/mechanics/clutch'
 import { REDLINE_RPM, REVERSED_PATTERN, STANDARD_PATTERN } from '@/lib/mechanics/gearbox'
@@ -40,6 +39,8 @@ import { guidedComplete } from '@/lib/simulation/guided'
 import type { MistakeId } from '@/lib/simulation/ridingMistakes'
 import type { Stage } from '@/lib/simulation/model'
 import { explainPowertrain, powertrainAssumptions, powertrainChain, type PowertrainPart } from '@/lib/simulation/models/powertrain'
+import { RelatedLessons } from '@/components/lesson/RelatedLessons'
+import { relatedLessonsForPage } from '@/content/related'
 
 const FRICTION_ZONE: [number, number] = [leverForClamp(0.999), leverForClamp(0.001)]
 
@@ -114,8 +115,13 @@ const PICK = 'flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm'
 const PICKED = 'border-coolant-500/60 bg-coolant-950 text-coolant-200'
 const UNPICKED = 'border-line text-ink-muted hover:text-ink'
 
+/** Scroll the step instruction and the cockpit into view, and give the cockpit the keyboard. */
+function focusCockpit() {
+  document.querySelector('[data-hint]')?.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  document.querySelector<HTMLElement>('[data-cockpit][tabindex]')?.focus({ preventScroll: true })
+}
+
 export default function RiderCockpitPage() {
-  usePageTitle('Rider cockpit')
   // A lesson can link straight to a scenario or drill: ?practice=<id>&from=<lesson path>.
   const [params] = useSearchParams()
   const linked = getCockpitScenario(params.get('practice'))
@@ -178,9 +184,16 @@ export default function RiderCockpitPage() {
     mistakes.clear()
     guide.start(withWorld(sc.steps, getWorld))
     // Stay in the rider’s view; the learner can switch to machine or road themselves.
-    // Bring the instruction and the controls into view together.
-    requestAnimationFrame(() => hintRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+    // Bring the instruction and the controls into view together, ready for the keyboard.
+    requestAnimationFrame(focusCockpit)
   }
+  // Arriving from a lesson (?practice=…): go straight to the instruction and the controls.
+  const arrivedLinked = !!linked
+  useEffect(() => {
+    if (!arrivedLinked) return
+    const id = requestAnimationFrame(focusCockpit)
+    return () => cancelAnimationFrame(id)
+  }, [arrivedLinked])
   // The road world sees which guided step the learner is on (a traffic light waits until they move on).
   const stageNow = guide.active ? guide.progress.index : undefined
   // While a demonstration is riding, it sets the stage itself; the guide takes it back afterwards.
@@ -398,16 +411,27 @@ export default function RiderCockpitPage() {
           <ArrowLeft className="size-4" aria-hidden /> {fromLesson.startsWith('/scenarios/') ? 'Back to the scenario' : 'Back to the lesson'}
         </Link>
       )}
-      <p role="note" className="flex items-start gap-3 rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
-        <Info className="mt-0.5 size-5 shrink-0 text-coolant-400" aria-hidden />
-        <span>
-          <span className="font-medium text-ink">New here? </span>
-          Choose <span className="text-ink">Starting and moving off</span> below: the guide tells you what to do one step at a time and moves on as you do it.{' '}
-          <span className="font-medium text-ink">On a computer, use the keyboard</span> — it is how you work more than one control at once. Your left hand holds the clutch (A, Z) and changes gear (E, D); your right hand opens the
-          throttle (↑) and brakes (Space, S). A control stays where you leave it, so set the clutch, then use the throttle; hold Shift to move a control slowly. Not sure of the order? Choose a scenario and press “Watch how it’s done” — the cockpit rides it for you, with the sound of the starter, the engine, the brakes and the gear lever. On a phone, tap “Fill the screen” and turn it sideways. A simplified
-          model for learning — practise real riding only with qualified instruction.
-        </span>
-      </p>
+      <details open={!linked} data-cockpit-help className="group rounded-2xl border border-line bg-surface text-sm text-ink-muted">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-4 py-2 text-ink [&::-webkit-details-marker]:hidden">
+          <Info className="size-5 shrink-0 text-coolant-400" aria-hidden />
+          <span className="flex-1 font-medium">New here? How to use the cockpit</span>
+          <ChevronDown className="size-4 shrink-0 text-ink-subtle transition-transform group-open:rotate-180" aria-hidden />
+        </summary>
+        <div className="space-y-2 px-4 pb-4 pl-12">
+          <p>
+            Choose <span className="text-ink">Starting and moving off</span>: the guide tells you what to do one step at a time and moves on as you do it. Not sure of the order? Press “Watch how it’s done” and the cockpit rides it for you.
+          </p>
+          <p className="hidden pointer-fine:block">
+            <span className="font-medium text-ink">On a computer, use the keyboard</span> — click the cockpit first. Press <span className="text-ink">I</span> to start the engine. <span className="text-ink">Hold A</span> to pull the clutch in and{' '}
+            <span className="text-ink">hold Z</span> to let it out; <span className="text-ink">E / D</span> change gear up / down and <span className="text-ink">N</span> finds neutral. <span className="text-ink">Hold ↑</span> to open the throttle, <span className="text-ink">Space</span> for the front brake and{' '}
+            <span className="text-ink">S</span> for the rear. A tap moves a control a little; holding moves it further. A control stays where you leave it, and Shift moves it slowly.
+          </p>
+          <p className="pointer-fine:hidden">
+            <span className="font-medium text-ink">On a phone or tablet</span>, drag each lever with a finger — you can use two fingers at once. Tap “Fill the screen” and turn the phone sideways for the biggest controls.
+          </p>
+          <p>A simplified model for learning — practise real riding only with qualified instruction.</p>
+        </div>
+      </details>
 
       <div className="space-y-3">
         {/* On a phone the list folds away behind one button, so the cockpit isn't far down the page. */}
@@ -416,14 +440,14 @@ export default function RiderCockpitPage() {
           aria-expanded={pickerOpen}
           aria-controls="scenario-picker"
           onClick={() => setPickerOpen((o) => !o)}
-          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line px-4 text-left text-sm text-ink sm:hidden"
+          className={cn('flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-line px-4 text-left text-sm text-ink', !linked && 'sm:hidden')}
         >
           <span className="min-w-0 truncate">{guide.active ? scenario.title : 'Explore freely'}</span>
           <span className="flex shrink-0 items-center gap-1 text-ink-muted">
             Scenarios ({cockpitScenarios.length}) <ChevronDown className={cn('size-4 transition-transform', pickerOpen && 'rotate-180')} aria-hidden />
           </span>
         </button>
-        <div id="scenario-picker" role="group" aria-label="How to learn" className={cn('space-y-3', pickerOpen ? 'block' : 'hidden sm:block')}>
+        <div id="scenario-picker" role="group" aria-label="How to learn" className={cn('space-y-3', pickerOpen ? 'block' : linked ? 'hidden' : 'hidden sm:block')}>
           <button
             type="button"
             aria-pressed={!guide.active}
@@ -659,6 +683,7 @@ export default function RiderCockpitPage() {
       </section>
 
       <AssumptionsPanel assumptions={ASSUMPTIONS} />
+      <RelatedLessons lessons={relatedLessonsForPage('/simulators/cockpit')} />
     </Container>
   )
 }

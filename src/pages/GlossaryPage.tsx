@@ -3,11 +3,9 @@ import { Link } from 'react-router-dom'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { glossary } from '@/content/glossary'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 /** Plain-language definitions, filterable, each linking to the lesson that teaches the term. */
 export default function GlossaryPage() {
-  usePageTitle('Glossary')
   const [query, setQuery] = useState('')
   const needle = query.trim().toLowerCase()
   const groups = useMemo(
@@ -56,7 +54,7 @@ export default function GlossaryPage() {
                     <dd className="mt-1 text-sm leading-relaxed text-ink-muted">
                       {e.definition}{' '}
                       {e.to && (
-                        <Link to={e.to} className="whitespace-nowrap text-ignition-400 hover:text-ignition-300">
+                        <Link to={e.to} className="whitespace-nowrap text-ignition-400 hover:text-ignition-300 underline underline-offset-2">
                           Learn more
                         </Link>
                       )}

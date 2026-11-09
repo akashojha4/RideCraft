@@ -6,7 +6,6 @@ import { roadSceneFor } from '@/components/cockpit/roadScene'
 import { crossHighlight } from '@/components/cockpit/crossView'
 import type { RunResult } from '@/content/scenarios/cockpit/run'
 import type { CockpitScenario } from '@/content/scenarios/cockpit/types'
-import { useEffect, useRef } from 'react'
 import { useCockpitSim } from '@/hooks/useCockpitSim'
 import { useDemoPlayer } from '@/hooks/useDemoPlayer'
 import { useRideSounds } from '@/hooks/useRideSounds'
@@ -23,31 +22,12 @@ import { leanForCurvature } from '@/lib/simulation/cockpitWorld'
 
 const FRICTION_ZONE: [number, number] = [0.12, 0.36]
 
-/** Set while the lesson narration drives the demonstration: the step to play, whether it is paused, and who to tell when a step ends. */
-export interface NarratedDemo {
-  step: number | null
-  paused: boolean
-  onHeld: (step: number) => void
-}
-
-export function WatchItDone({ scenario, run, narrated, compact = false }: { scenario: CockpitScenario; run: RunResult; narrated?: NarratedDemo; compact?: boolean }) {
+export function WatchItDone({ scenario, run, compact = false }: { scenario: CockpitScenario; run: RunResult; compact?: boolean }) {
   // The playback controls start it, so a scenario that waits for the rider's first touch doesn't wait here.
   const cockpit = useCockpitSim({ ...scenario.setup, paused: false }, scenario.world)
   const { sim, road, lastDownshift, signal, worldSpec } = cockpit
-  const player = useDemoPlayer(cockpit, scenario, run, narrated?.onHeld)
+  const player = useDemoPlayer(cockpit, scenario, run)
   useRideSounds(sim, { hush: player.status === 'done' })
-  // Follow the narration: play its step, or pause with it (on the next frame, after the cockpit has rendered).
-  const follow = useRef(player)
-  useEffect(() => {
-    follow.current = player
-  })
-  const step = narrated?.step ?? null
-  const narrationPaused = narrated?.paused ?? false
-  useEffect(() => {
-    if (step === null) return
-    const id = requestAnimationFrame(() => (narrationPaused ? follow.current.pause() : follow.current.playStep(step)))
-    return () => cancelAnimationFrame(id)
-  }, [step, narrationPaused])
   const { state: s, inputs: i, derived: d } = sim.snapshot
   const demo = scenario.demo ?? []
   const current = scenario.steps[player.index]
@@ -135,7 +115,7 @@ export function WatchItDone({ scenario, run, narrated, compact = false }: { scen
           {player.status === 'ready' && ' · press Play to watch'}
           {player.status === 'done' && ' · demonstration complete'}
         </p>
-        <h4 className="mt-1 text-lg font-semibold text-ink">{current?.title}</h4>
+        <h3 className="mt-1 text-lg font-semibold text-ink">{current?.title}</h3>
         <p className="mt-1 leading-relaxed text-ink-muted">{current?.instruction}</p>
         {watch && (
           <p className="mt-2 text-sm leading-relaxed text-ink">

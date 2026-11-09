@@ -1,10 +1,10 @@
 import { ClutchThrottleSimulator } from '@/components/simulators/clutch/ClutchThrottleSimulator'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { usePageTitle } from '@/hooks/usePageTitle'
+import { RelatedLessons } from '@/components/lesson/RelatedLessons'
+import { relatedLessonsForPage } from '@/content/related'
 
 export default function ClutchThrottleSimulatorPage() {
-  usePageTitle('Clutch and throttle simulator')
   return (
     <Container className="space-y-8 py-10 sm:py-14">
       <SectionHeading
@@ -14,6 +14,7 @@ export default function ClutchThrottleSimulatorPage() {
         description="Work the clutch lever and throttle yourself and watch the engine, the clutch and the rear wheel respond in real time. Find the biting point, pull away, and learn exactly why engines stall."
       />
       <ClutchThrottleSimulator />
+      <RelatedLessons lessons={relatedLessonsForPage('/simulators/clutch-throttle')} />
     </Container>
   )
 }

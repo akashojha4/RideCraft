@@ -7,14 +7,12 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { academyPhases, getAcademyPhase } from '@/content/academy'
 import { getLesson, lessonPath } from '@/content/curriculum'
 import { useProgress } from '@/lib/progress/store'
-import { usePageTitle } from '@/hooks/usePageTitle'
 import NotFoundPage from './NotFoundPage'
 
 export default function PhasePage() {
   const { phaseId } = useParams()
   const phase = getAcademyPhase(phaseId)
   const index = academyPhases.findIndex((p) => p.id === phaseId)
-  usePageTitle(phase ? `${phase.title} · Learn` : 'Page not found')
   const { lessons: records } = useProgress()
   if (!phase || index < 0) return <NotFoundPage />
 

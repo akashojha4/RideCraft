@@ -113,7 +113,7 @@ export const trafficSignalTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Close the throttle and brake progressively to stop at the line' },
         { id: 'b', label: 'Speed up to get through' },
-        { id: 'c', label: 'Brake as hard as possible' },
+        { id: 'c', label: 'Brake as hard as possible, so you stop well before the line with room to spare' },
       ],
       correctOptionId: 'a',
       explanation: 'Amber means stop if you safely can. Well back from the line, there is room for a calm, progressive stop.',
@@ -123,7 +123,7 @@ export const trafficSignalTeaching: SituationTeaching = {
       prompt: 'Why change down to first before you stop?',
       options: [
         { id: 'a', label: 'So you are ready to move off, and can find neutral — it is only reachable from first or second' },
-        { id: 'b', label: 'To brake harder' },
+        { id: 'b', label: 'To brake harder, because first gear gives the strongest engine braking for the last metres of the stop' },
         { id: 'c', label: 'It makes the engine idle faster' },
       ],
       correctOptionId: 'a',
@@ -134,7 +134,7 @@ export const trafficSignalTeaching: SituationTeaching = {
       prompt: 'When should the clutch go in as you stop at the light?',
       options: [
         { id: 'a', label: 'As the engine slows towards idle, before you stop' },
-        { id: 'b', label: 'Only after you have stopped' },
+        { id: 'b', label: 'Only after you have stopped, so engine braking helps until the very end' },
         { id: 'c', label: 'It doesn’t matter' },
       ],
       correctOptionId: 'a',
@@ -254,7 +254,7 @@ export const movingInTrafficTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Wait until it moves off' },
         { id: 'b', label: 'Go anyway — it’s green' },
-        { id: 'c', label: 'Sound the horn and go' },
+        { id: 'c', label: 'Sound the horn, then go round it' },
       ],
       correctOptionId: 'a',
       explanation: 'The car ahead is what you would hit. Wait for it to move, then move off behind it.',
@@ -265,7 +265,7 @@ export const movingInTrafficTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Time to see it brake and to stop yourself' },
         { id: 'b', label: 'Better fuel economy only' },
-        { id: 'c', label: 'Nothing at low speed' },
+        { id: 'c', label: 'Nothing at low speed — it only matters once you are going fast' },
       ],
       correctOptionId: 'a',
       explanation: 'Reaction takes time; at any speed, two seconds of distance leaves room to react and brake if the car stops.',
@@ -371,7 +371,7 @@ export const slowTrafficTeaching: SituationTeaching = {
       prompt: 'In slow traffic, which control mainly sets your speed?',
       options: [
         { id: 'a', label: 'The clutch, held in the friction zone' },
-        { id: 'b', label: 'The throttle, with the clutch out' },
+        { id: 'b', label: 'The throttle, with the clutch fully out, opening and closing it as the car moves' },
         { id: 'c', label: 'The front brake' },
       ],
       correctOptionId: 'a',
@@ -382,7 +382,7 @@ export const slowTrafficTeaching: SituationTeaching = {
       prompt: 'Why hold the throttle steady while creeping?',
       options: [
         { id: 'a', label: 'So the clutch alone varies the drive smoothly' },
-        { id: 'b', label: 'Because the throttle doesn’t work in first' },
+        { id: 'b', label: 'Because the throttle has almost no effect in first gear at walking pace' },
         { id: 'c', label: 'To keep the engine at the redline' },
       ],
       correctOptionId: 'a',
@@ -512,7 +512,7 @@ export const speedBreakerTeaching: SituationTeaching = {
       prompt: 'Why does arriving fast make the jolt so much worse?',
       options: [
         { id: 'a', label: 'The fork must compress further in less time' },
-        { id: 'b', label: 'The bump gets higher' },
+        { id: 'b', label: 'The tyre climbs higher up the bump at speed, so the motorcycle is thrown up further' },
         { id: 'c', label: 'The tyres soften' },
       ],
       correctOptionId: 'a',
@@ -524,7 +524,7 @@ export const speedBreakerTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Braking compresses the fork, leaving less travel for the bump' },
         { id: 'b', label: 'The brakes don’t work on bumps' },
-        { id: 'c', label: 'It saves fuel' },
+        { id: 'c', label: 'The brakes stop working while the wheel is in the air over the bump' },
       ],
       correctOptionId: 'a',
       explanation: 'Load transfer under braking pre-compresses the fork; released, it has its full travel to absorb the bump.',
@@ -534,7 +534,7 @@ export const speedBreakerTeaching: SituationTeaching = {
       prompt: 'Which gear suits crossing a speed breaker at walking-to-jogging pace?',
       options: [
         { id: 'a', label: 'A low gear such as second, so the engine isn’t labouring' },
-        { id: 'b', label: 'Top gear' },
+        { id: 'b', label: 'Top gear, so the engine is quiet and the motorcycle rolls over smoothly' },
         { id: 'c', label: 'Neutral' },
       ],
       correctOptionId: 'a',
@@ -653,7 +653,7 @@ export const uTurnTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'It uses the tightest circle from the very start' },
         { id: 'b', label: 'It makes the engine idle' },
-        { id: 'c', label: 'It isn’t necessary' },
+        { id: 'c', label: 'It isn’t necessary — you can add steering as the turn tightens' },
       ],
       correctOptionId: 'a',
       explanation: 'Every metre ridden at less than full lock widens the turn; turning first uses the whole road for the circle.',
@@ -663,7 +663,7 @@ export const uTurnTeaching: SituationTeaching = {
       prompt: 'Which controls set your speed in a U-turn?',
       options: [
         { id: 'a', label: 'The clutch (friction zone) and a light rear brake' },
-        { id: 'b', label: 'The front brake' },
+        { id: 'b', label: 'The front brake, used lightly while the handlebar is turned' },
         { id: 'c', label: 'The throttle alone' },
       ],
       correctOptionId: 'a',
@@ -674,7 +674,7 @@ export const uTurnTeaching: SituationTeaching = {
       prompt: 'If you double your speed at full lock, the lean needed becomes…',
       options: [
         { id: 'a', label: 'About four times as much (for small leans)' },
-        { id: 'b', label: 'The same' },
+        { id: 'b', label: 'The same — the handlebar angle sets the lean, not the speed' },
         { id: 'c', label: 'Half as much' },
       ],
       correctOptionId: 'a',

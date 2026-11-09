@@ -149,7 +149,7 @@ export default function GearSpeedChart() {
                     <span className={cn('mr-2 inline-block h-0.5 w-3 align-middle', r.g === gear ? 'bg-coolant-400' : 'bg-ink-subtle')} />
                     {ordinal[r.g - 1]}
                   </td>
-                  <td className="tabular py-1.5 text-right font-mono text-ink">{Math.round(r.rpm / 10) * 10}</td>
+                  <td className="tabular py-1.5 text-right font-mono text-ink">{(Math.round(r.rpm / 10) * 10).toLocaleString('en')}</td>
                   <td className="py-1.5 pl-4 text-ink-muted">
                     <span className="inline-flex items-center gap-1.5">
                       {r.status === 'ok' && <Check className="size-3.5 text-ok-400" aria-hidden />}

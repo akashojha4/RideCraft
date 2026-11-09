@@ -113,7 +113,7 @@ export const potholeTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'A small, early change of line around it' },
         { id: 'b', label: 'Hitting it as fast as possible' },
-        { id: 'c', label: 'Braking hard in the hole' },
+        { id: 'c', label: 'Braking hard just as the wheel drops into the hole' },
       ],
       correctOptionId: 'a',
       explanation: 'Seen early, a pothole needs only a small, smooth change of line. Hitting it is the fallback when you cannot go around it.',
@@ -124,7 +124,7 @@ export const potholeTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Before the wheel drops in, so the fork has its full travel' },
         { id: 'b', label: 'Halfway through the hole' },
-        { id: 'c', label: 'Keep them on — they cushion the hit' },
+        { id: 'c', label: 'Keep them on — braking compresses the fork and cushions the hit' },
       ],
       correctOptionId: 'a',
       explanation: 'Braking pre-compresses the fork. Released, it has its full travel to absorb the hole instead of bottoming on the far edge.',
@@ -133,7 +133,7 @@ export const potholeTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'Why is hitting a pothole while leaned over especially risky?',
       options: [
-        { id: 'a', label: 'The engine cannot run while leaned' },
+        { id: 'a', label: 'The engine can cut out when the motorcycle is leaned and jolted at the same time, and you lose drive' },
         { id: 'b', label: 'The front tyre is already using grip to turn, and a jolt can tuck it' },
         { id: 'c', label: 'The rear brake stops working' },
       ],
@@ -262,7 +262,7 @@ export const suddenObstacleTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'Why does a second of surprise matter so much at 50 km/h?',
       options: [
-        { id: 'a', label: 'The brakes need a second to start working' },
+        { id: 'a', label: 'The brakes need about a second to build pressure after you squeeze the lever, so nothing happens at first' },
         { id: 'b', label: 'You still cover about 14 m at full speed before you even begin to brake' },
         { id: 'c', label: 'The engine stalls after one second' },
       ],
@@ -273,7 +273,7 @@ export const suddenObstacleTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'Why not brake at the limit and swerve at the same time?',
       options: [
-        { id: 'a', label: 'The handlebar locks under braking' },
+        { id: 'a', label: 'The handlebar locks when the front brake is on hard, so the motorcycle cannot be steered at all' },
         { id: 'b', label: 'Braking and turning share the tyre’s grip; both at full strength exceeds it' },
         { id: 'c', label: 'The rear brake will not work while leaned' },
       ],
@@ -381,7 +381,7 @@ export const overtakingTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Pull out anyway and hope' },
         { id: 'b', label: 'Stay behind with a two-second gap until you can see far enough' },
-        { id: 'c', label: 'Close right up so the pass will be shorter' },
+        { id: 'c', label: 'Close right up behind it so the pass will be shorter and you spend less time on the other side' },
       ],
       correctOptionId: 'b',
       explanation: 'If in doubt, do not overtake. Waiting is always safe; a close follow is not a shorter pass.',
@@ -541,7 +541,7 @@ export const highwayTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'The car ahead brakes hard. What should you do with the throttle?',
       options: [
-        { id: 'a', label: 'Hold it so you do not upset the motorcycle' },
+        { id: 'a', label: 'Hold it steady for a moment so you don’t upset the motorcycle, then brake' },
         { id: 'b', label: 'Shut it at once, then brake hard in a straight line' },
         { id: 'c', label: 'Open it to get around the car' },
       ],

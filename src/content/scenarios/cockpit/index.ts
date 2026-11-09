@@ -19,7 +19,8 @@ export { withWorld } from './run'
 /** The scenarios in the groups the cockpit lists them under. */
 export const cockpitScenarioGroups: readonly { title: string; ids: readonly string[] }[] = [
   { title: 'First controls', ids: ['start-and-move-off', 'stop-without-stalling', 'clutch-drill', 'gears-drill', 'brakes-drill'] },
-  { title: 'Yard manoeuvres', ids: ['u-turn'] },
-  { title: 'Stops you will need', ids: ['uphill-start', 'downhill', 'wet-road', 'gravel', 'emergency-braking', 'emergency-abs', 'speed-breaker', 'pothole', 'pothole-late', 'pothole-leaned-wet', 'wet-painted-line', 'wet-first-rain', 'emergency-in-bend', 'obstacle-no-escape', 'pillion', 'night-riding', 'night-rain-horn', 'hill-car-behind'] },
+  { title: 'Slow riding and turning', ids: ['u-turn'] },
+  { title: 'Stops you will need', ids: ['uphill-start', 'downhill', 'wet-road', 'gravel', 'emergency-braking', 'emergency-abs', 'speed-breaker', 'pothole', 'pothole-late', 'pothole-leaned-wet', 'wet-painted-line', 'wet-first-rain', 'emergency-in-bend', 'obstacle-no-escape'] },
   { title: 'Other traffic', ids: ['traffic-signal', 'moving-in-traffic', 'slow-traffic', 'heavy-traffic', 'sudden-obstacle', 'overtaking', 'highway', 'pedestrian-ahead', 'pedestrian-wet-behind', 'following-with-room', 'following-one-second-wet', 'overtake-gap', 'overtake-pressured', 'signal-amber-behind', 'signal-green-cross', 'tailgater'] },
+  { title: 'Roadcraft', ids: ['hill-car-behind', 'night-riding', 'night-rain-horn', 'pillion'] },
 ]

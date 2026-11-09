@@ -23,6 +23,8 @@ const ADVANCE_MS = 2400
 
 interface Stage {
   title: string
+  /** Shown under the title in the table. */
+  note?: string
   parts: PartId[]
   text: string
 }
@@ -31,7 +33,7 @@ const stages: Stage[] = [
   { title: 'Crankshaft', parts: ['engine'], text: 'The engine turns the crankshaft. This is where the power starts: fast, with modest torque.' },
   { title: 'Primary drive & clutch', parts: ['clutch'], text: 'Gears on the crankshaft drive the clutch basket about 3.35 times slower. With the clutch engaged, it turns the gearbox mainshaft.' },
   { title: 'Gearbox', parts: ['gearbox'], text: 'The selected gear pair drives the countershaft — slower again in low gears, almost the same speed in top.' },
-  { title: 'Chain & sprockets', parts: ['chain'], text: 'The 15-tooth front sprocket drives the chain, which turns the 45-tooth rear sprocket a further three times slower.' },
+  { title: 'Front sprocket & chain', note: 'on the gearbox shaft, so the same speed', parts: ['chain'], text: 'The 15-tooth front sprocket sits on the gearbox’s output shaft, so it turns at the gearbox’s speed. It drives the chain, which turns the 45-tooth rear sprocket three times slower.' },
   { title: 'Rear wheel', parts: ['wheels'], text: 'The rear sprocket is bolted to the wheel, so the tyre turns at its speed and pushes against the road.' },
 ]
 
@@ -140,6 +142,7 @@ export default function PowerFlow() {
                 <tr key={s.title} onClick={() => choose(i)} className={cn('cursor-pointer border-t border-line', stage === i && 'bg-coolant-950/60')}>
                   <td className="py-1.5 text-ink">
                     {i + 1}. {s.title}
+                    {s.note && <span className="block text-xs text-ink-subtle">{s.note}</span>}
                   </td>
                   <td className="tabular py-1.5 text-right font-mono text-ink">{Math.round(v.rows[i].rpm).toLocaleString('en')}</td>
                   <td className="tabular py-1.5 text-right font-mono text-ink">{Math.round(v.rows[i].torque)} N·m</td>

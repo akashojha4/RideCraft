@@ -17,7 +17,9 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-')
  * highlights the parts of the item you are working on, and the verdict updates as you go.
  * State is held for this visit only, on purpose: the checklist is meant to be run fresh before every ride.
  */
-export function PreRideChecklist() {
+/** `headingLevel`: 2 on its own page (under the page title), 3 inside a lesson (under a section heading). */
+export function PreRideChecklist({ headingLevel = 3 }: { headingLevel?: 2 | 3 } = {}) {
+  const GroupHeading = headingLevel === 2 ? 'h2' : 'h3'
   const [results, setResults] = useState<Record<string, Result>>(() => Object.fromEntries(checklist.map((i) => [i.id, 'pending'])))
   const [active, setActive] = useState<string>(checklist[0].id)
   const [open, setOpen] = useState<string | null>(null)
@@ -115,9 +117,9 @@ export function PreRideChecklist() {
         <div className="space-y-6">
           {checklistGroups.map((group) => (
             <section key={group} aria-labelledby={`group-${slug(group)}`}>
-              <h3 id={`group-${slug(group)}`} className="mb-2 font-mono text-xs tracking-[0.16em] text-ink-subtle uppercase">
+              <GroupHeading id={`group-${slug(group)}`} className="mb-2 font-mono text-xs tracking-[0.16em] text-ink-subtle uppercase">
                 {group}
-              </h3>
+              </GroupHeading>
               <ul className="space-y-2">
                 {checklist
                   .filter((i) => i.group === group)

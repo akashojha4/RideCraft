@@ -56,6 +56,4 @@ export interface SituationTeaching {
   controls: ControlGuide[]
   mistakes: MistakeGuide[]
   questions: QuizQuestion[]
-  /** The lesson has a narrated walkthrough (pilot). */
-  narrated?: boolean
 }

@@ -1,5 +1,5 @@
-import { ChevronDown, ChevronUp, Maximize2, Minimize2, Power, Smartphone, Square } from 'lucide-react'
-import { useEffect, useState, type FocusEvent, type ReactNode } from 'react'
+import { ChevronDown, ChevronUp, Keyboard, Maximize2, Minimize2, Power, Smartphone, Square } from 'lucide-react'
+import { useEffect, useRef, useState, type FocusEvent, type ReactNode } from 'react'
 import type { CockpitControls } from '@/hooks/useCockpitControls'
 import type { RideNudge } from '@/lib/simulation/rideNudge'
 import { cn } from '@/lib/cn'
@@ -60,7 +60,7 @@ function Zone({
       className={cn('rounded-xl border bg-bg/80 p-2 backdrop-blur-sm transition-shadow', lit ? 'border-ignition-400 ring-2 ring-ignition-500/60' : 'border-line/70', className)}
     >
       <header className={cn('flex flex-wrap items-baseline gap-x-2 font-mono', align === 'right' && 'flex-row-reverse text-right')}>
-        <h2 className="text-xs tracking-wide text-ink">{title}</h2>
+        <p className="text-xs tracking-wide text-ink">{title}</p>
         <p className="text-xs text-ink-muted" data-value={zone}>
           {value}
         </p>
@@ -129,6 +129,9 @@ export function RiderCockpit({
   // at its corners, so both hands can work while watching the road.
   const [expanded, setExpanded] = useState(false)
   const [portrait, setPortrait] = useState(false)
+  // The keyboard works only while the cockpit has focus, so say which it is (computers only).
+  const [keyboardOn, setKeyboardOn] = useState(false)
+  const frameRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!expanded) return
     const previous = document.body.style.overflow
@@ -150,15 +153,20 @@ export function RiderCockpit({
   }, [expanded])
 
   const blur = (e: FocusEvent<HTMLDivElement>) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) controls?.keyHandlers.onBlur()
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return
+    setKeyboardOn(false)
+    controls?.keyHandlers.onBlur()
   }
 
   return (
     // Sized by the space it is given (a container query), so it also works in a narrow column.
     <div className={cn('@container', expanded && 'fixed inset-0 z-50 bg-bg p-2 sm:p-4')}>
       <div
+        ref={frameRef}
         data-cockpit
+        data-keyboard={controls ? (keyboardOn ? 'on' : 'off') : undefined}
         data-expanded={expanded || undefined}
+        onFocus={controls ? () => setKeyboardOn(true) : undefined}
         tabIndex={controls ? 0 : undefined}
         aria-label={
           controls ? 'Rider cockpit. Drag the controls, or use the keyboard: A and Z clutch, arrow up and down throttle, Space front brake, S rear brake, E and D gears, N neutral.' : undefined
@@ -184,6 +192,20 @@ export function RiderCockpit({
               {expanded ? <Minimize2 className="size-3.5" aria-hidden /> : <Maximize2 className="size-3.5" aria-hidden />}
               {expanded ? 'Exit full screen' : 'Fill the screen'}
             </button>
+            {keyboardOn ? (
+              <p data-keyboard-badge className="hidden items-center gap-1.5 rounded-full border border-ok-500/40 bg-bg/85 px-3 py-1 text-xs text-ok-400 backdrop-blur pointer-fine:flex">
+                <Keyboard className="size-3.5" aria-hidden /> Keyboard on — hold A to pull the clutch in
+              </p>
+            ) : (
+              <button
+                type="button"
+                data-keyboard-badge
+                onClick={() => frameRef.current?.focus({ preventScroll: true })}
+                className="hidden min-h-9 items-center gap-1.5 rounded-full border border-caution-500/50 bg-bg/85 px-3 text-xs font-medium text-caution-400 backdrop-blur hover:border-caution-400 pointer-fine:flex"
+              >
+                <Keyboard className="size-3.5" aria-hidden /> Click here to use the keyboard
+              </button>
+            )}
             {expanded && portrait && (
               <p className="flex items-center gap-1.5 rounded-full bg-bg/85 px-3 py-1 text-xs text-ink-muted backdrop-blur">
                 <Smartphone className="size-3.5" aria-hidden /> Turn your phone sideways — the road fills the screen and the controls move to the corners.

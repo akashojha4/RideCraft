@@ -1,13 +1,17 @@
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Footer } from './Footer'
+import { GaPageViews } from './GaPageViews'
 import { Navbar } from './Navbar'
+import { SeoHead } from './SeoHead'
 
 export function AppShell() {
   const navigation = useNavigation()
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <SeoHead />
+      <GaPageViews />
       <a
         href="#main"
         className="sr-only z-50 rounded-lg bg-ignition-500 px-4 py-2 font-medium text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

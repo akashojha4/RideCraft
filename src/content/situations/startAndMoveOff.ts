@@ -3,7 +3,6 @@ import type { SituationTeaching } from './types'
 /** Teaching for the cockpit scenario "Starting and moving off". */
 export const startAndMoveOffTeaching: SituationTeaching = {
   scenario: 'start-and-move-off',
-  narrated: true,
   situation: {
     where: 'Sitting on a stationary motorcycle on a level, quiet road, engine switched off, the road ahead clear.',
     happening: 'Nothing yet: the engine is off and the gear lever could be in any gear. Before you can ride, the engine has to be running and its turning has to be fed, gently, to a rear wheel that is standing still.',
@@ -20,7 +19,7 @@ export const startAndMoveOffTeaching: SituationTeaching = {
     {
       control: 'clutch',
       what: 'The clutch lever, under your left hand. It controls how hard the clutch plates are clamped together — and so how much of the engine’s torque reaches the gearbox and rear wheel.',
-      when: 'Pull it fully in before starting the engine and before selecting first. Ease it out to the biting point once you have a little throttle, then on through the friction zone as the motorcycle moves away.',
+      when: 'Pull it fully in before selecting first — and, as a good habit, hold it in while you press the starter, as a backup in case a gear is still selected. Ease it out to the biting point once you have a little throttle, then on through the friction zone as the motorcycle moves away.',
       how: 'Squeeze it fully in with all four fingers. Release it slowly and smoothly: pause at the biting point (you feel the motorcycle want to move and the engine note dips), then keep releasing gradually. Never let it snap out.',
       howMuch:
         'The friction zone is a small part of the lever’s travel — on this simulated motorcycle roughly the middle third of a full pull (about 12–36 % pulled in). On a real motorcycle find it by feel: it depends on the clutch, its adjustment and its wear.',
@@ -139,7 +138,7 @@ export const startAndMoveOffTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'They are the same — the gearbox always ties them together' },
         { id: 'b', label: 'The engine turns faster than first gear would make it for that wheel speed; the difference is the slip' },
-        { id: 'c', label: 'The wheel turns faster than the engine' },
+        { id: 'c', label: 'The wheel turns faster than the engine, because the slipping plates add speed to the drive' },
       ],
       correctOptionId: 'b',
       explanation: 'Only a fully gripping clutch ties engine and wheel together through the gear ratio. While it slips, the engine runs faster than the wheel side, and the friction between the plates passes part of the torque across.',
@@ -150,7 +149,7 @@ export const startAndMoveOffTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Release the clutch more slowly, with a little more throttle' },
         { id: 'b', label: 'Move off in second gear instead' },
-        { id: 'c', label: 'Hold the front brake on while releasing the clutch' },
+        { id: 'c', label: 'Hold the front brake on while you release the clutch, so the engine has time to catch up' },
       ],
       correctOptionId: 'a',
       explanation: 'A stall on moving off means the clutch loaded the engine faster than its torque could cope with. Releasing more slowly and giving it a little more throttle lets it take up the load. Second gear makes it harder; a brake left on adds load.',

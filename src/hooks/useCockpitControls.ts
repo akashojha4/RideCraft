@@ -21,6 +21,9 @@ const REST: Axes = { clutch: 0, throttle: 0, front: 0, rear: 0 }
 /** Full travel per second while a key is held, and while Shift is held for fine control. */
 const RATE: Axes = { clutch: 1.6, throttle: 1, front: 1.2, rear: 1.2 }
 const FINE_RATE = 0.3
+/** How far one tap of a key moves its control (with Shift: a fine step, for the biting point). */
+const TAP_STEP = 0.1
+const TAP_STEP_FINE = 0.02
 const SPRING_MS = 120
 
 /** Held keys: which axis they move and in which direction. */
@@ -155,7 +158,11 @@ export function useCockpitControls({
       if (held.current.has(k)) return
       held.current.add(k)
       setShiftIsLatest(false)
-      cancelAnimationFrame(springing.current[KEYS[k].axis] ?? 0)
+      const m = KEYS[k]
+      cancelAnimationFrame(springing.current[m.axis] ?? 0)
+      // A tap moves the control a visible step; holding the key keeps it moving smoothly.
+      const step = (fine.current ? TAP_STEP_FINE : TAP_STEP) * m.dir
+      setAxes((a) => ({ ...a, [m.axis]: Math.min(1, Math.max(0, a[m.axis] + step)) }))
       tick()
     },
     [lever, tick, setSteer],

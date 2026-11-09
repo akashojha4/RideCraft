@@ -29,7 +29,7 @@ export function DemoDriver({
   handle: Ref<DemoHandle>
   onChange: (state: { index: number; status: DemoStatus; done: readonly boolean[]; nudge: RideNudge }) => void
 }) {
-  const player = useDemoPlayer(cockpit, scenario, run, undefined, { autoPlay: true })
+  const player = useDemoPlayer(cockpit, scenario, run, { autoPlay: true })
   // Start once. The effect is re-run in development after the player's own pause, so it has to
   // play again rather than remember that it already did.
   useEffect(() => {

@@ -56,9 +56,9 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'Why is a shoulder check needed as well as the mirrors?', options: [{ id: 'a', label: 'Mirrors are only for the rear' }, { id: 'b', label: 'A vehicle can sit in the blind spot beside you, where the mirror cannot show it' }, { id: 'c', label: 'It is only for motorways' }], correctOptionId: 'b', explanation: 'Mirrors have a blind patch alongside the motorcycle. A quick look over the shoulder covers it before you change position.' },
+      { id: 'q1', prompt: 'Why is a shoulder check needed as well as the mirrors?', options: [{ id: 'a', label: 'Mirrors are only for the rear' }, { id: 'b', label: 'A vehicle can sit in the blind spot beside you, where the mirror cannot show it' }, { id: 'c', label: 'It is only for motorways, where cars come up beside you much faster' }], correctOptionId: 'b', explanation: 'Mirrors have a blind patch alongside the motorcycle. A quick look over the shoulder covers it before you change position.' },
       { id: 'q2', prompt: 'Where should you not sit for long in traffic?', options: [{ id: 'a', label: 'Where the driver ahead can see you in a mirror' }, { id: 'b', label: 'In another vehicle’s blind spot' }, { id: 'c', label: 'Far enough back to see past them' }], correctOptionId: 'b', explanation: 'If they cannot see you, they can change lane or pull out as if the space is empty.' },
-      { id: 'q3', prompt: 'A driver looks at you at a junction. What have they promised?', options: [{ id: 'a', label: 'Nothing — keep an escape until they actually give way' }, { id: 'b', label: 'That they will wait' }, { id: 'c', label: 'That you must go immediately' }], correctOptionId: 'a', explanation: 'Looking is not yielding. You are still easy to miss once they look back at their own gap.' },
+      { id: 'q3', prompt: 'A driver looks at you at a junction. What have they promised?', options: [{ id: 'a', label: 'Nothing — keep an escape until they actually give way' }, { id: 'b', label: 'That they have seen you and will wait for you to pass' }, { id: 'c', label: 'That you must go immediately' }], correctOptionId: 'a', explanation: 'Looking is not yielding. You are still easy to miss once they look back at their own gap.' },
     ],
   },
   {
@@ -105,9 +105,9 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'How do you measure a two-second gap?', options: [{ id: 'a', label: 'Stay two car-lengths back' }, { id: 'b', label: 'When the vehicle ahead passes a mark, you should reach that mark no sooner than two seconds later' }, { id: 'c', label: 'Stay close enough to read their number plate' }], correctOptionId: 'b', explanation: 'A fixed mark and a two-second count works at any speed. Car-lengths shrink in the mind as you go faster.' },
+      { id: 'q1', prompt: 'How do you measure a two-second gap?', options: [{ id: 'a', label: 'Stay two car-lengths back at any speed, because that is about two seconds of travel' }, { id: 'b', label: 'When the vehicle ahead passes a mark, you should reach that mark no sooner than two seconds later' }, { id: 'c', label: 'Stay close enough to read their number plate' }], correctOptionId: 'b', explanation: 'A fixed mark and a two-second count works at any speed. Car-lengths shrink in the mind as you go faster.' },
       { id: 'q2', prompt: 'At 80 km/h, why is one second not enough?', options: [{ id: 'a', label: 'The brakes take one second to work' }, { id: 'b', label: 'You cover about 22 m in that second before you start braking, while the car is already slowing' }, { id: 'c', label: 'Tyres cannot grip above 70 km/h' }], correctOptionId: 'b', explanation: 'Reaction uses the whole gap. A modern car can already be stopping during that second.' },
-      { id: 'q3', prompt: 'Besides the gap behind, what else should you leave?', options: [{ id: 'a', label: 'A sideways escape and a view past the vehicle ahead' }, { id: 'b', label: 'Nothing — the gap is enough' }, { id: 'c', label: 'A smaller gap so nobody fills it' }], correctOptionId: 'a', explanation: 'If the only space you own is the boot in front of you, a sudden stop has nowhere for you to go.' },
+      { id: 'q3', prompt: 'Besides the gap behind, what else should you leave?', options: [{ id: 'a', label: 'A sideways escape and a view past the vehicle ahead' }, { id: 'b', label: 'Nothing — the gap is enough' }, { id: 'c', label: 'A smaller gap in front, so nobody cuts in between you and the vehicle ahead' }], correctOptionId: 'a', explanation: 'If the only space you own is the boot in front of you, a sudden stop has nowhere for you to go.' },
     ],
   },
   {
@@ -135,7 +135,7 @@ export const roadcraftLessons: Lesson[] = [
         heading: 'Approaching a junction',
         steps: [
           { title: 'Position', body: 'Mirrors, signal if needed, and the part of the lane that matches the turn.' },
-          { title: 'Slow', body: 'Brake and change down while upright. Arrive as if the light will be red and the side road will spit a car.' },
+          { title: 'Slow', body: 'Brake and change down while upright. Arrive slowly enough to stop if the light turns red or a car pulls out of the side road.' },
           { title: 'Look', body: 'Traffic, pedestrians, the surface, and the bit of road you still cannot see.' },
           { title: 'Go or wait', body: 'Only take a gap you can take without rushing. Hesitation in the middle of the junction is worse than waiting.' },
         ],
@@ -159,7 +159,7 @@ export const roadcraftLessons: Lesson[] = [
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'When should you set your speed for a junction turn?', options: [{ id: 'a', label: 'Halfway round' }, { id: 'b', label: 'Before you start turning, while upright' }, { id: 'c', label: 'After you see you are going too fast' }], correctOptionId: 'b', explanation: 'Braking while leaned uses the grip you need for the turn. Slow on the straight.' },
-      { id: 'q2', prompt: 'You cannot see into a side road because a van is parked at the corner. What is safest?', options: [{ id: 'a', label: 'Hold your speed — they should give way' }, { id: 'b', label: 'Slow enough to stop if something appears, and take a position that opens the view' }, { id: 'c', label: 'Sound the horn and continue' }], correctOptionId: 'b', explanation: 'A hidden junction is a hazard until you can see. Speed you cannot stop from is a bet.' },
+      { id: 'q2', prompt: 'You cannot see into a side road because a van is parked at the corner. What is safest?', options: [{ id: 'a', label: 'Hold your speed — they should give way' }, { id: 'b', label: 'Slow enough to stop if something appears, and take a position that opens the view' }, { id: 'c', label: 'Sound the horn as you approach and continue at the same speed' }], correctOptionId: 'b', explanation: 'A hidden junction is a hazard until you can see. Speed you cannot stop from is a bet.' },
       { id: 'q3', prompt: 'A gap at a junction is only just big enough if you accelerate hard. What should you do?', options: [{ id: 'a', label: 'Take it — hesitation causes crashes' }, { id: 'b', label: 'Wait for a gap you can take without rushing' }, { id: 'c', label: 'Pull out slowly into the middle and decide there' }], correctOptionId: 'b', explanation: 'Rushing a marginal gap puts you in someone’s path at an awkward speed. Waiting is slow and safe.' },
     ],
   },
@@ -202,9 +202,9 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'How much room should you leave when passing parked cars?', options: [{ id: 'a', label: 'As little as possible so you stay in your lane' }, { id: 'b', label: 'About a door’s width, or slow until you can stop if one opens' }, { id: 'c', label: 'None if they look empty' }], correctOptionId: 'b', explanation: 'Doors open, and children appear between cars. Width or a speed you can stop from.' },
+      { id: 'q1', prompt: 'How much room should you leave when passing parked cars?', options: [{ id: 'a', label: 'As little as possible, so you stay in the middle of your lane and clear of oncoming traffic' }, { id: 'b', label: 'About a door’s width, or slow until you can stop if one opens' }, { id: 'c', label: 'None if they look empty' }], correctOptionId: 'b', explanation: 'Doors open, and children appear between cars. Width or a speed you can stop from.' },
       { id: 'q2', prompt: 'A dog freezes in your lane and you cannot stop. What is the better option if the other lane is empty?', options: [{ id: 'a', label: 'Brake as hard as you can and swerve at the same time' }, { id: 'b', label: 'A firm countersteer into the gap, eyes on the gap, brakes off the limit' }, { id: 'c', label: 'Close your eyes' }], correctOptionId: 'b', explanation: 'Braking and turning share one budget of grip. A limit brake plus a swerve asks for more than the tyres have.' },
-      { id: 'q3', prompt: 'Why slow near a bus at a stop?', options: [{ id: 'a', label: 'Buses are always empty' }, { id: 'b', label: 'People walk out in front of it, and it may pull away without seeing you' }, { id: 'c', label: 'It is illegal to pass a bus' }], correctOptionId: 'b', explanation: 'The bus hides the pavement. Treat the front of it as a junction you cannot see into.' },
+      { id: 'q3', prompt: 'Why slow near a bus at a stop?', options: [{ id: 'a', label: 'Buses are always empty' }, { id: 'b', label: 'People walk out in front of it, and it may pull away without seeing you' }, { id: 'c', label: 'It is illegal to pass a bus that has stopped to let people on or off' }], correctOptionId: 'b', explanation: 'The bus hides the pavement. Treat the front of it as a junction you cannot see into.' },
     ],
   },
   {
@@ -255,7 +255,7 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'What is the test for a safe speed?', options: [{ id: 'a', label: 'Matching the vehicle ahead' }, { id: 'b', label: 'Being able to stop in the distance you can see to be clear' }, { id: 'c', label: 'The speed written on the last sign' }], correctOptionId: 'b', explanation: 'A limit is a maximum, not a target. Sight, surface and traffic set the speed you can actually use.' },
+      { id: 'q1', prompt: 'What is the test for a safe speed?', options: [{ id: 'a', label: 'Matching the vehicle ahead' }, { id: 'b', label: 'Being able to stop in the distance you can see to be clear' }, { id: 'c', label: 'The speed limit on the last sign, which already allows for the road ahead' }], correctOptionId: 'b', explanation: 'A limit is a maximum, not a target. Sight, surface and traffic set the speed you can actually use.' },
       { id: 'q2', prompt: 'A car is following too closely. What is the safer response?', options: [{ id: 'a', label: 'Brake-check them so they learn' }, { id: 'b', label: 'Open your gap ahead, stay predictable, and let them pass when it is safe' }, { id: 'c', label: 'Speed up and weave' }], correctOptionId: 'b', explanation: 'You cannot control a tailgater. You can refuse to steal your own stopping distance, and you can refuse a fight.' },
       { id: 'q3', prompt: 'Which is the more honest clue that a car will pull out?', options: [{ id: 'a', label: 'The front wheels starting to turn, or the nose creeping forward' }, { id: 'b', label: 'No indicator, so they will not turn' }, { id: 'c', label: 'Eye contact from the driver' }], correctOptionId: 'a', explanation: 'Indicators lie; wheels and movement do not. Eye contact is still not a promise.' },
     ],
@@ -299,8 +299,8 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'What should limit your speed at night on an unlit road?', options: [{ id: 'a', label: 'The daytime speed you like' }, { id: 'b', label: 'The distance in which you can stop inside the beam' }, { id: 'c', label: 'The speed of the car ahead, whatever it is' }], correctOptionId: 'b', explanation: 'If the hazard is beyond the light, you will meet it at full speed. Fit the speed to the beam.' },
-      { id: 'q2', prompt: 'When should you dip the main beam?', options: [{ id: 'a', label: 'For oncoming traffic, and when you are following someone' }, { id: 'b', label: 'Never — you need to see' }, { id: 'c', label: 'Only in towns' }], correctOptionId: 'a', explanation: 'Dazzling the person you are about to share the road with makes both of you worse at seeing.' },
+      { id: 'q1', prompt: 'What should limit your speed at night on an unlit road?', options: [{ id: 'a', label: 'The daytime speed you like' }, { id: 'b', label: 'The distance in which you can stop inside the beam' }, { id: 'c', label: 'The speed of the car ahead, because its lights show you the road beyond your own beam' }], correctOptionId: 'b', explanation: 'If the hazard is beyond the light, you will meet it at full speed. Fit the speed to the beam.' },
+      { id: 'q2', prompt: 'When should you dip the main beam?', options: [{ id: 'a', label: 'For oncoming traffic, and when you are following someone' }, { id: 'b', label: 'Never — you need to see' }, { id: 'c', label: 'Only in towns, where street lights already light the road' }], correctOptionId: 'a', explanation: 'Dazzling the person you are about to share the road with makes both of you worse at seeing.' },
       { id: 'q3', prompt: 'Why leave night rides until later as a new rider?', options: [{ id: 'a', label: 'The motorcycle does not work in the dark' }, { id: 'b', label: 'You get less time to see and to be judged, on top of skills that are not yet automatic' }, { id: 'c', label: 'Helmets are illegal at night' }], correctOptionId: 'b', explanation: 'Night removes time. It should not be where you still think about the clutch.' },
     ],
   },
@@ -351,8 +351,8 @@ export const roadcraftLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'What does a passenger change most obviously about a stop?', options: [{ id: 'a', label: 'Nothing' }, { id: 'b', label: 'It takes longer — more mass, and more of it on the rear until you brake' }, { id: 'c', label: 'The front brake stops working' }], correctOptionId: 'b', explanation: 'Stopping distance grows with mass if deceleration is limited by grip and technique. You also feel the extra load as you move off and brake.' },
-      { id: 'q2', prompt: 'When should a passenger get on?', options: [{ id: 'a', label: 'While you are finding neutral' }, { id: 'b', label: 'After you are ready: engine running, in control, both feet down' }, { id: 'c', label: 'As you roll away, to save time' }], correctOptionId: 'b', explanation: 'A motorcycle that is not yet stable, with a person climbing on, is how street-side drops start.' },
+      { id: 'q1', prompt: 'What does a passenger change most obviously about a stop?', options: [{ id: 'a', label: 'Nothing' }, { id: 'b', label: 'It takes longer — more mass, and more of it on the rear until you brake' }, { id: 'c', label: 'Nothing much — the extra weight presses the tyres down, so the stop stays the same' }], correctOptionId: 'b', explanation: 'Stopping distance grows with mass if deceleration is limited by grip and technique. You also feel the extra load as you move off and brake.' },
+      { id: 'q2', prompt: 'When should a passenger get on?', options: [{ id: 'a', label: 'Before you get on, so they can hold the motorcycle steady while you climb on' }, { id: 'b', label: 'After you are ready: engine running, in control, both feet down' }, { id: 'c', label: 'As you roll away, to save time' }], correctOptionId: 'b', explanation: 'A motorcycle that is not yet stable, with a person climbing on, is how street-side drops start.' },
       { id: 'q3', prompt: 'Why is a pillion a bad idea for a brand-new rider?', options: [{ id: 'a', label: 'Friends are distracting, and the motorcycle behaves differently, on top of skills that are not automatic' }, { id: 'b', label: 'Passengers are always illegal' }, { id: 'c', label: 'The engine cannot take two people' }], correctOptionId: 'a', explanation: 'You need spare attention. A passenger spends it. Many licences also forbid it for learners — check locally.' },
     ],
   },
@@ -371,16 +371,16 @@ export const roadcraftLessons: Lesson[] = [
         type: 'concept',
         heading: 'The brave choice is often to stop',
         body: [
-          'Fatigue feels like “a bit longer”. It rides like missed mirrors and late brakes. Anger at another driver spends the same attention. There is no safe amount of alcohol before riding, and tired is a cousin of drunk for reaction time. If you would not let a friend ride in your state, do not.',
+          'When you are tired it feels as if you can manage “a bit longer”, but you start missing mirror checks and braking late. Being angry at another driver uses up the same attention. There is no safe amount of alcohol before riding, and being very tired slows your reactions in a similar way to drinking. If you would not let a friend ride in the state you are in, do not ride yourself.',
           'A puncture, a snapped chain, a dead engine: first, get out of the live lane if you can do it without walking into traffic. Lights on, somewhere people can see you, then look. Do not crouch in a fast lane with your back to traffic. On a fast road, getting yourself to the safe side matters more than saving the motorcycle.',
         ],
       },
-      { type: 'illustration', illustration: 'tyre-check', caption: 'A lot of “sudden” failures were visible at 20 km/h in a car park: a nail, a bald patch, a dry chain. The checklist is the boring version of this lesson.' },
+      { type: 'illustration', illustration: 'tyre-check', caption: 'Many “sudden” failures could have been spotted before the ride: a nail in a tyre, a worn patch, a dry chain. The pre-ride checklist catches them early.' },
       { type: 'cta', to: '/checklist', title: 'The checks that prevent this lesson', text: 'Tyres, chain, brakes, lights — five minutes, every ride.' },
       {
         type: 'example',
         body: [
-          'A chain jumps off on a busy ring road. The rider tries to refit it in the left lane because the next exit is “only a kilometre”. A bus does not expect a crouched figure. Pushing the motorcycle onto the shoulder first would have been slower and alive.',
+          'A chain jumps off on a busy ring road. The rider tries to refit it in the left lane because the next exit is “only a kilometre”. A bus driver does not expect someone crouching in the lane. Pushing the motorcycle onto the shoulder first would have taken longer, but it would have been safe.',
         ],
       },
       { type: 'callout', tone: 'safety', title: 'After a drop or a crash', body: 'Move out of traffic only if you can. Engine off. Call for help. Do not ride away on a motorcycle that has been down until the levers, bars, wheels and brakes have been checked — damage is easy to miss.' },
@@ -389,14 +389,14 @@ export const roadcraftLessons: Lesson[] = [
         heading: 'Remember',
         points: [
           'Tired, angry or after a drink: you do not ride.',
-          'A broken motorcycle is a traffic hazard first, a puzzle second.',
-          'Passing every quiz here is not a licence and not an emergency-stop in the rain.',
+          'If the motorcycle breaks down, get it out of the traffic first; find the fault afterwards.',
+          'Passing every quiz here is not a licence, and it is not the same as practising an emergency stop on a real motorcycle.',
         ],
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'The engine dies in a live lane. What comes first?', options: [{ id: 'a', label: 'Open the seat and look at the fuse' }, { id: 'b', label: 'Get yourself and the motorcycle out of the moving traffic if you can do it safely' }, { id: 'c', label: 'Wave people past while you diagnose' }], correctOptionId: 'b', explanation: 'You are easier to hit than to help while you are in the path. Safety of position first, then the machine.' },
-      { id: 'q2', prompt: 'You have been riding for hours and keep missing the mirror check. What should you do?', options: [{ id: 'a', label: 'Open the visor and go on' }, { id: 'b', label: 'Stop, rest, drink water; do not treat willpower as a safety system' }, { id: 'c', label: 'Speed up so the trip ends sooner' }], correctOptionId: 'b', explanation: 'Missed checks are the symptom. More speed is not the cure.' },
+      { id: 'q1', prompt: 'The engine dies in a live lane. What comes first?', options: [{ id: 'a', label: 'Open the seat and look at the fuse' }, { id: 'b', label: 'Get yourself and the motorcycle out of the moving traffic if you can do it safely' }, { id: 'c', label: 'Stay with the motorcycle in the lane, hazard lights on, and wave traffic past while you find the fault' }], correctOptionId: 'b', explanation: 'You are easier to hit than to help while you are in the path. Safety of position first, then the machine.' },
+      { id: 'q2', prompt: 'You have been riding for hours and keep missing the mirror check. What should you do?', options: [{ id: 'a', label: 'Open the visor and go on' }, { id: 'b', label: 'Stop, rest, drink water; do not treat willpower as a safety system' }, { id: 'c', label: 'Open the visor for fresh air and carry on, checking the mirrors more often' }], correctOptionId: 'b', explanation: 'Missed checks are the symptom. More speed is not the cure.' },
       { id: 'q3', prompt: 'What does a high score on RideCraft prove?', options: [{ id: 'a', label: 'That you may ride unsupervised on public roads' }, { id: 'b', label: 'That you understand the ideas — real competence still needs a motorcycle, an instructor, and the licence your country requires' }, { id: 'c', label: 'That you will not crash' }], correctOptionId: 'b', explanation: 'Knowledge is necessary and not sufficient. The road does not grade quizzes.' },
     ],
   },

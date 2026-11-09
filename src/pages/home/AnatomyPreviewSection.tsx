@@ -11,6 +11,8 @@ import { transition } from '@/lib/motion'
 
 const AUTO_ADVANCE_MS = 3200
 const partIds: readonly PartId[] = mainPartIds
+const WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve']
+const allParts = Object.keys(parts).length
 
 /**
  * A taste of the Phase 2 Anatomy Explorer: pick a component (or hover it on the
@@ -46,7 +48,7 @@ export function AnatomyPreviewSection() {
           <SectionHeading
             eyebrow="Motorcycle anatomy"
             title="Know every part before you ride"
-            description="Ten components do the work of turning fuel into forward motion — and stopping it again. Select one to see where it is."
+            description={`${WORDS[partIds.length] ?? partIds.length} main components do the work of turning fuel into forward motion — and stopping it again. Select one to see where it is; the anatomy explorer covers all ${allParts} parts.`}
           />
           <ButtonLink to={`/anatomy?part=${selected}`} variant="outline" trailingIcon={<ArrowRight className="size-4" />} className="self-start lg:self-auto">
             Open the anatomy explorer

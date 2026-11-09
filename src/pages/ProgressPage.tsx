@@ -12,7 +12,6 @@ import { cn } from '@/lib/cn'
 import { PASS_MARK, buildAssessment } from '@/lib/progress/assessment'
 import { progress, useProgress, type PracticeEvent } from '@/lib/progress/store'
 import { LEVELS, SIMULATORS, summarize } from '@/lib/progress/summary'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 const RESULT: Record<PracticeEvent['result'], { label: string; Icon: typeof CircleCheck; cls: string }> = {
   pass: { label: 'Passed', Icon: CircleCheck, cls: 'text-ok-400' },
@@ -46,7 +45,6 @@ const ASSESSMENT_SIZE = ASSESSMENT.length
 const ASSESSMENT_MODULES = new Set(ASSESSMENT.map((q) => q.moduleId)).size
 
 export default function ProgressPage() {
-  usePageTitle('Your progress')
   const p = useProgress()
   const s = summarize(p)
   const [confirmReset, setConfirmReset] = useState(false)

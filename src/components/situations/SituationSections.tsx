@@ -105,12 +105,9 @@ function stagesUsing(run: RunResult, control: ControlId) {
   return [...used].sort((a, b) => a - b)
 }
 
-/** `focus` / `focusDetail`: set while the narration points at a control (and at its mechanics). */
-export function ControlsSection({ teaching, scenario, run, focus, focusDetail }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult; focus?: ControlId; focusDetail?: boolean }) {
-  const [chosen, setActive] = useState<ControlId>(teaching.controls[0].control)
-  const [openChosen, setOpen] = useState(false)
-  const active = focus ?? chosen
-  const open = focusDetail ?? openChosen
+export function ControlsSection({ teaching, scenario, run }: { teaching: SituationTeaching; scenario: CockpitScenario; run: RunResult }) {
+  const [active, setActive] = useState<ControlId>(teaching.controls[0].control)
+  const [open, setOpen] = useState(false)
   const g = teaching.controls.find((c) => c.control === active) ?? teaching.controls[0]
   const style = CONTROLS[g.control]
   const stages = stagesUsing(run, g.control)
@@ -206,10 +203,8 @@ export function ControlsSection({ teaching, scenario, run, focus, focusDetail }:
 
 // ---- Section 5 ----
 
-/** `focus`: the mistake the narration is describing. */
-export function MistakesSection({ teaching, scenario, focus }: { teaching: SituationTeaching; scenario: CockpitScenario; focus?: number }) {
-  const [openChosen, setOpen] = useState<number | null>(0)
-  const open = focus ?? openChosen
+export function MistakesSection({ teaching, scenario }: { teaching: SituationTeaching; scenario: CockpitScenario }) {
+  const [open, setOpen] = useState<number | null>(0)
   const spotted = new Set(scenario.mistakes.map((m) => m.id))
   return (
     <ol className="space-y-3">

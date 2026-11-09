@@ -42,7 +42,7 @@ export const mechanicsLessons: Lesson[] = [
       { type: 'explore', part: 'engine', text: 'See the engine in the Anatomy Explorer.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'How many crankshaft turns does one four-stroke cycle take?', options: [{ id: 'a', label: 'One' }, { id: 'b', label: 'Two' }, { id: 'c', label: 'Four' }], correctOptionId: 'b', explanation: 'Each stroke is half a turn, so four strokes take two full turns of the crankshaft.' },
+      { id: 'q1', prompt: 'Through how many degrees does the crankshaft turn during one stroke of the piston?', options: [{ id: 'a', label: '90°, a quarter of a turn' }, { id: 'b', label: '180°' }, { id: 'c', label: '360°, one full turn of the crankshaft' }], correctOptionId: 'b', explanation: 'A stroke is the piston travelling from one end of the cylinder to the other: half a crankshaft turn, 180°. Four strokes therefore take 720° — two full turns.' },
       { id: 'q2', prompt: 'Why does the intake valve close after bottom dead centre?', options: [{ id: 'a', label: 'To let the moving air keep filling the cylinder' }, { id: 'b', label: 'Because the camshaft is slow' }, { id: 'c', label: 'To reduce noise' }], correctOptionId: 'a', explanation: 'The incoming air has momentum and keeps flowing in for a while even as the piston starts to rise.' },
       { id: 'q3', prompt: 'What is valve overlap?', options: [{ id: 'a', label: 'When both valves are closed' }, { id: 'b', label: 'When both valves are open together around top dead centre' }, { id: 'c', label: 'When a valve opens twice' }], correctOptionId: 'b', explanation: 'Overlap uses the outgoing exhaust to help draw in the fresh charge.' },
     ],

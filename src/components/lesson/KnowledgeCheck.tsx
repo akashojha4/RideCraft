@@ -6,6 +6,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import type { QuizQuestion } from '@/content/types'
 import { cn } from '@/lib/cn'
 import { fadeUp } from '@/lib/motion'
+import { seededOrder } from '@/lib/shuffle'
 import { quizPassMark, quizPassed } from '@/lib/progress/store'
 
 export interface KnowledgeCheckResult {
@@ -110,7 +111,8 @@ export function KnowledgeCheck({
           <motion.fieldset key={question.id} variants={fadeUp} initial="hidden" animate="visible" exit="hidden">
             <legend className="mb-4 text-base font-medium text-ink sm:text-lg">{question.prompt}</legend>
             <div className="space-y-2.5">
-              {question.options.map((option) => {
+              {/* Shown in a stable mixed order, so the right answer isn't always in the same place. */}
+              {seededOrder(question.options, question.prompt).map((option) => {
                 const chosen = selected === option.id
                 const isAnswer = option.id === question.correctOptionId
                 return (

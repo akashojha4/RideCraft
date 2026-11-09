@@ -9,12 +9,10 @@ import { getPhase } from '@/config/roadmap'
 import { getModule, lessonPath, lessonsInAcademyOrder, moduleMinutes } from '@/content/curriculum'
 import { useProgress } from '@/lib/progress/store'
 import NotFoundPage from './NotFoundPage'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function ModulePage() {
   const { moduleId } = useParams()
   const module = getModule(moduleId)
-  usePageTitle(module?.title ?? 'Page not found')
   const { lessons: lessonRecords } = useProgress()
   if (!module) return <NotFoundPage />
 

@@ -110,7 +110,7 @@ export const hillStartTeaching: SituationTeaching = {
       id: 'q1',
       prompt: 'Why use the rear brake to hold the motorcycle for a hill start?',
       options: [
-        { id: 'a', label: 'It is stronger than the front' },
+        { id: 'a', label: 'It is stronger than the front brake when the motorcycle is pointing uphill' },
         { id: 'b', label: 'It leaves the right hand free for the throttle' },
         { id: 'c', label: 'The front brake doesn’t work on hills' },
       ],
@@ -121,7 +121,7 @@ export const hillStartTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'When is it safe to release the brake?',
       options: [
-        { id: 'a', label: 'As soon as first gear is selected' },
+        { id: 'a', label: 'As soon as first gear is selected, because the gearbox then holds the motorcycle on the slope' },
         { id: 'b', label: 'When the clutch is passing enough drive to hold against the slope' },
         { id: 'c', label: 'After the clutch is fully out' },
       ],
@@ -134,7 +134,7 @@ export const hillStartTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Less throttle' },
         { id: 'b', label: 'A little more throttle, because the engine also fights gravity' },
-        { id: 'c', label: 'Second gear' },
+        { id: 'c', label: 'Second gear, so the rear wheel doesn’t spin as you pull away up the slope' },
       ],
       correctOptionId: 'b',
       explanation: 'The slope adds load. A little more throttle gives the engine the torque to take it up without stalling.',
@@ -263,7 +263,7 @@ export const downhillTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Engine braking in third holds back less than gravity pulls on this slope' },
         { id: 'b', label: 'The engine is still driving the wheel' },
-        { id: 'c', label: 'The clutch is slipping' },
+        { id: 'c', label: 'The clutch is slipping, so the engine can’t hold the motorcycle back at all' },
       ],
       correctOptionId: 'a',
       explanation: 'Gravity’s pull is set by the slope. In third the engine turns slowly for the speed and holds back only a little — less than gravity pulls.',
@@ -273,7 +273,7 @@ export const downhillTeaching: SituationTeaching = {
       prompt: 'Why does a lower gear hold the speed better downhill?',
       options: [
         { id: 'a', label: 'The engine turns faster for the same speed, so its braking is stronger' },
-        { id: 'b', label: 'The brakes work better in a lower gear' },
+        { id: 'b', label: 'The brakes grip harder in a lower gear, because the gearbox adds its own friction' },
         { id: 'c', label: 'It reduces gravity' },
       ],
       correctOptionId: 'a',
@@ -283,7 +283,7 @@ export const downhillTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'What is the right order on a long descent?',
       options: [
-        { id: 'a', label: 'Change down first, then brake' },
+        { id: 'a', label: 'Change down first at the speed you are doing, then brake once the engine is holding' },
         { id: 'b', label: 'Brake to a safe speed, then change down so the gear holds it' },
         { id: 'c', label: 'Pull the clutch in and use the brakes' },
       ],
@@ -400,7 +400,7 @@ export const wetRoadTeaching: SituationTeaching = {
       id: 'q1',
       prompt: 'On a wet road, what has changed?',
       options: [
-        { id: 'a', label: 'The brakes are weaker' },
+        { id: 'a', label: 'The brakes are weaker, because water on the discs stops the pads gripping' },
         { id: 'b', label: 'The tyres have less grip, so they lock at a lower brake force' },
         { id: 'c', label: 'Load no longer transfers forward' },
       ],
@@ -424,7 +424,7 @@ export const wetRoadTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Brake later and harder' },
         { id: 'b', label: 'Start earlier, with smooth, progressive braking' },
-        { id: 'c', label: 'Pull the clutch in and coast' },
+        { id: 'c', label: 'Pull the clutch in and coast, so engine braking can’t make the rear tyre slide' },
       ],
       correctOptionId: 'b',
       explanation: 'Less grip means less deceleration, so you need more distance. Smooth inputs keep the tyres within their grip.',
@@ -541,7 +541,7 @@ export const gravelTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'A sliding rear is far easier to control than a sliding front' },
         { id: 'b', label: 'The rear brake is stronger' },
-        { id: 'c', label: 'The front brake doesn’t work on gravel' },
+        { id: 'c', label: 'The front brake doesn’t work on gravel, because stones get between the pads and the disc' },
       ],
       correctOptionId: 'a',
       explanation: 'A locked front wheel can’t steer and washes out; a sliding rear can usually be recovered by easing off.',
@@ -550,7 +550,7 @@ export const gravelTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'What limits braking on gravel?',
       options: [
-        { id: 'a', label: 'The brake discs' },
+        { id: 'a', label: 'How hot the brake discs get, because loose stones make them overheat quickly' },
         { id: 'b', label: 'The very low grip between tyre and loose stones' },
         { id: 'c', label: 'The engine' },
       ],
@@ -563,7 +563,7 @@ export const gravelTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Slow down before it, then ride across gently, upright' },
         { id: 'b', label: 'Brake hard on it' },
-        { id: 'c', label: 'Accelerate across it' },
+        { id: 'c', label: 'Accelerate across it, so the motorcycle skims over the loose stones' },
       ],
       correctOptionId: 'a',
       explanation: 'Slowing on the grippier tarmac first means you need little braking on the gravel itself.',
@@ -681,7 +681,7 @@ export const emergencyTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'The front, because most of the load is on the front tyre' },
         { id: 'b', label: 'The rear' },
-        { id: 'c', label: 'Both equally' },
+        { id: 'c', label: 'Both equally, so neither tyre is asked for more grip than the other' },
       ],
       correctOptionId: 'a',
       explanation: 'Hard braking transfers load forward, so the front tyre has most of the grip and can pass most of the braking force.',
@@ -692,7 +692,7 @@ export const emergencyTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'Grip builds as load transfers; a grab asks for full force before it is there' },
         { id: 'b', label: 'To save the brakes' },
-        { id: 'c', label: 'It makes no difference' },
+        { id: 'c', label: 'It makes no difference to the stopping distance; it only feels smoother' },
       ],
       correctOptionId: 'a',
       explanation: 'Load transfer takes a fraction of a second. Building the force as the grip builds uses all of it without locking the wheel.',
@@ -701,7 +701,7 @@ export const emergencyTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'If you double your speed, your braking distance becomes about…',
       options: [
-        { id: 'a', label: 'Twice as long' },
+        { id: 'a', label: 'Twice as long, because the brakes work for twice the distance' },
         { id: 'b', label: 'Four times as long' },
         { id: 'c', label: 'The same' },
       ],

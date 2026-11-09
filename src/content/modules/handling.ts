@@ -43,7 +43,7 @@ export const handlingLessons: Lesson[] = [
       { type: 'callout', tone: 'mistake', title: 'Target fixation', body: 'In a fright, people stare at the thing they fear — the kerb, the pothole, the oncoming car — and ride straight at it. Force your eyes to the escape route instead.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'When should you do your braking for a bend?', options: [{ id: 'a', label: 'In the middle of the bend' }, { id: 'b', label: 'Before the bend, while upright and travelling straight' }, { id: 'c', label: 'Only if you start to run wide' }], correctOptionId: 'b', explanation: 'Braking uses grip. Done upright on the straight, all the grip is available for it; leaned over, much of the grip is already needed for turning.' },
+      { id: 'q1', prompt: 'When should you do your braking for a bend?', options: [{ id: 'a', label: 'In the middle of the bend' }, { id: 'b', label: 'Before the bend, while upright and travelling straight' }, { id: 'c', label: 'Mid-bend, a little at a time, so you can adjust your speed as you see the exit' }], correctOptionId: 'b', explanation: 'Braking uses grip. Done upright on the straight, all the grip is available for it; leaned over, much of the grip is already needed for turning.' },
       { id: 'q2', prompt: 'Where should you look in a bend?', options: [{ id: 'a', label: 'At the front wheel' }, { id: 'b', label: 'At the edge of the road nearest you' }, { id: 'c', label: 'Through the bend, towards the exit' }], correctOptionId: 'c', explanation: 'Riders steer towards where they look. Looking through the bend also shows you what’s coming as early as possible.' },
       { id: 'q3', prompt: 'What should the throttle be doing in the middle of a bend?', options: [{ id: 'a', label: 'Fully closed' }, { id: 'b', label: 'Open gently and steadily' }, { id: 'c', label: 'Opening and closing to adjust the line' }], correctOptionId: 'b', explanation: 'A steady throttle keeps the speed and the load on the tyres constant, so the motorcycle stays balanced and settled.' },
     ],
@@ -86,7 +86,7 @@ export const handlingLessons: Lesson[] = [
     knowledgeCheck: [
       { id: 'q1', prompt: 'You take the same bend at twice the speed. What happens to the sideways push the tyres must provide?', options: [{ id: 'a', label: 'It doubles' }, { id: 'b', label: 'It becomes about four times bigger' }, { id: 'c', label: 'It stays the same' }], correctOptionId: 'b', explanation: 'The push grows with speed squared, so twice the speed needs four times the push — and much more lean.' },
       { id: 'q2', prompt: 'A heavier rider takes the same bend at the same speed. How far does the motorcycle lean?', options: [{ id: 'a', label: 'Further' }, { id: 'b', label: 'Less' }, { id: 'c', label: 'The same' }], correctOptionId: 'c', explanation: 'Weight and the cornering push both scale with mass, so the lean depends only on speed and radius.' },
-      { id: 'q3', prompt: 'Why is the lean limit lower on a wet road?', options: [{ id: 'a', label: 'The tyres are colder' }, { id: 'b', label: 'The tyres can grip less, so they can provide less sideways push' }, { id: 'c', label: 'The footpegs touch down sooner' }], correctOptionId: 'b', explanation: 'With μ ≈ 0.5 the tyres can only push sideways with half the weight, which limits the lean to about 27°.' },
+      { id: 'q3', prompt: 'Why is the lean limit lower on a wet road?', options: [{ id: 'a', label: 'The tyres are colder' }, { id: 'b', label: 'The tyres can grip less, so they can provide less sideways push' }, { id: 'c', label: 'The suspension sits lower on a wet road, so the footpegs touch down sooner' }], correctOptionId: 'b', explanation: 'With μ ≈ 0.5 the tyres can only push sideways with half the weight, which limits the lean to about 27°.' },
     ],
   },
 
@@ -129,7 +129,7 @@ export const handlingLessons: Lesson[] = [
     knowledgeCheck: [
       { id: 'q1', prompt: 'At 50 km/h you want to turn left. What do you do with the handlebar?', options: [{ id: 'a', label: 'Press the left handlebar forward' }, { id: 'b', label: 'Pull the left handlebar back' }, { id: 'c', label: 'Press the right handlebar forward' }], correctOptionId: 'a', explanation: 'Pressing the left bar points the front wheel briefly right, which makes the motorcycle lean left — and turn left.' },
       { id: 'q2', prompt: 'Why can’t you start a turn by turning the handlebar towards it?', options: [{ id: 'a', label: 'The steering is locked at speed' }, { id: 'b', label: 'The tyres move out from under the motorcycle the wrong way, so it leans away from the turn' }, { id: 'c', label: 'You can — it just takes longer' }], correctOptionId: 'b', explanation: 'Steering right first pushes the tyres right, so the motorcycle falls to the left — the outside of the turn.' },
-      { id: 'q3', prompt: 'How do you lean the motorcycle more quickly, for example to swerve?', options: [{ id: 'a', label: 'Press the handlebar harder and faster' }, { id: 'b', label: 'Lean your body first' }, { id: 'c', label: 'Brake hard' }], correctOptionId: 'a', explanation: 'A firmer countersteer moves the tyres out from under the motorcycle faster, so it leans faster.' },
+      { id: 'q3', prompt: 'How do you lean the motorcycle more quickly, for example to swerve?', options: [{ id: 'a', label: 'Press the handlebar harder and faster' }, { id: 'b', label: 'Lean your body hard first, then turn the handlebar towards the gap' }, { id: 'c', label: 'Brake hard' }], correctOptionId: 'a', explanation: 'A firmer countersteer moves the tyres out from under the motorcycle faster, so it leans faster.' },
     ],
   },
 
@@ -168,8 +168,8 @@ export const handlingLessons: Lesson[] = [
       },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'What does leaning your body into a bend do?', options: [{ id: 'a', label: 'Reduces the grip the tyres need' }, { id: 'b', label: 'Lets the motorcycle lean less for the same bend' }, { id: 'c', label: 'Makes the motorcycle go faster' }], correctOptionId: 'b', explanation: 'Moving your mass inside means the motorcycle can stay more upright while the combined centre of mass leans as the turn requires.' },
-      { id: 'q2', prompt: 'Which body position suits a slow, tight U-turn?', options: [{ id: 'a', label: 'Leaning further in than the motorcycle' }, { id: 'b', label: 'Upright, letting the motorcycle lean beneath you' }, { id: 'c', label: 'Standing on the footpegs' }], correctOptionId: 'b', explanation: 'Keeping your weight upright over the tyres at walking pace makes the motorcycle easier to balance and lets it turn tighter.' },
+      { id: 'q1', prompt: 'What does leaning your body into a bend do?', options: [{ id: 'a', label: 'Reduces how much grip the tyres need, so you can take the bend faster' }, { id: 'b', label: 'Lets the motorcycle lean less for the same bend' }, { id: 'c', label: 'Makes the motorcycle go faster' }], correctOptionId: 'b', explanation: 'Moving your mass inside means the motorcycle can stay more upright while the combined centre of mass leans as the turn requires.' },
+      { id: 'q2', prompt: 'Which body position suits a slow, tight U-turn?', options: [{ id: 'a', label: 'Leaning your body further into the turn than the motorcycle, as in a fast bend' }, { id: 'b', label: 'Upright, letting the motorcycle lean beneath you' }, { id: 'c', label: 'Standing on the footpegs' }], correctOptionId: 'b', explanation: 'Keeping your weight upright over the tyres at walking pace makes the motorcycle easier to balance and lets it turn tighter.' },
       { id: 'q3', prompt: 'Does leaning in change how much grip the turn uses?', options: [{ id: 'a', label: 'Yes, it uses much less' }, { id: 'b', label: 'No — the grip needed depends on speed and radius' }, { id: 'c', label: 'Yes, it uses more' }], correctOptionId: 'b', explanation: 'The sideways push is set by speed and radius. Body position changes the motorcycle’s lean, not the push.' },
     ],
   },
@@ -177,8 +177,8 @@ export const handlingLessons: Lesson[] = [
   // 5 ───────────────────────────────────────────────────────────────────────────
   {
     id: 'u-turns',
-    title: 'U-turns',
-    summary: 'Turning round in the road: full lock, walking pace, eyes on the exit.',
+    title: 'Will a U-turn fit? Planning the turn',
+    summary: 'Before you turn round: is the road wide enough at full lock, and when a three-point turn is the better choice.',
     durationMinutes: 6,
     objectives: ['Work out whether a U-turn fits the road', 'Control speed in a U-turn with clutch and rear brake', 'Know when to choose a three-point turn instead'],
     blocks: [
@@ -215,7 +215,7 @@ export const handlingLessons: Lesson[] = [
     knowledgeCheck: [
       { id: 'q1', prompt: 'What sets how tight a walking-pace U-turn can be?', options: [{ id: 'a', label: 'How hard you lean your body' }, { id: 'b', label: 'How far the handlebar can turn — the steering lock' }, { id: 'c', label: 'The engine’s power' }], correctOptionId: 'b', explanation: 'At walking pace the handlebar angle sets the turning radius; full lock gives the tightest turn.' },
       { id: 'q2', prompt: 'Which brake should control your speed during a U-turn?', options: [{ id: 'a', label: 'The front brake' }, { id: 'b', label: 'The rear brake' }, { id: 'c', label: 'Neither — use the kill switch' }], correctOptionId: 'b', explanation: 'The rear brake slows you gently without tipping the leaned, fully steered motorcycle into the turn as the front brake would.' },
-      { id: 'q3', prompt: 'The road is too narrow for a U-turn even at full lock. What should you do?', options: [{ id: 'a', label: 'Do it faster so the motorcycle leans more' }, { id: 'b', label: 'Do a three-point turn or push the motorcycle round' }, { id: 'c', label: 'Mount the pavement' }], correctOptionId: 'b', explanation: 'More speed makes the turn wider, not tighter. A three-point turn is the safe choice.' },
+      { id: 'q3', prompt: 'The road is too narrow for a U-turn even at full lock. What should you do?', options: [{ id: 'a', label: 'Do it a little faster, so the motorcycle leans more and the circle gets tighter' }, { id: 'b', label: 'Do a three-point turn or push the motorcycle round' }, { id: 'c', label: 'Mount the pavement' }], correctOptionId: 'b', explanation: 'More speed makes the turn wider, not tighter. A three-point turn is the safe choice.' },
     ],
   },
 
@@ -255,7 +255,7 @@ export const handlingLessons: Lesson[] = [
       { type: 'callout', tone: 'tip', body: 'Junction surfaces often carry gravel, diesel and painted lines — all low grip. Another reason to keep your lean small by keeping your speed low.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'Why do you run wide if you take a tight corner too fast?', options: [{ id: 'a', label: 'The brakes stop working' }, { id: 'b', label: 'The corner needs more lean than the motorcycle can reach, so it turns more gently' }, { id: 'c', label: 'The engine pushes you wide' }], correctOptionId: 'b', explanation: 'Beyond the lean limit, the motorcycle can only turn at the radius that limit allows — wider than the corner.' },
+      { id: 'q1', prompt: 'Why do you run wide if you take a tight corner too fast?', options: [{ id: 'a', label: 'The brakes stop working' }, { id: 'b', label: 'The corner needs more lean than the motorcycle can reach, so it turns more gently' }, { id: 'c', label: 'The engine pushes you wide, because more speed means more drive at the rear wheel' }], correctOptionId: 'b', explanation: 'Beyond the lean limit, the motorcycle can only turn at the radius that limit allows — wider than the corner.' },
       { id: 'q2', prompt: 'When should you slow down for a junction turn?', options: [{ id: 'a', label: 'Before you start turning' }, { id: 'b', label: 'Halfway round' }, { id: 'c', label: 'Once you see you are running wide' }], correctOptionId: 'a', explanation: 'Set your speed while upright, so the turn itself can be ridden smoothly with full attention on the road.' },
       { id: 'q3', prompt: 'A corner needs 19° at 15 km/h. Roughly how much lean would it need at 25 km/h?', options: [{ id: 'a', label: 'About 25°' }, { id: 'b', label: 'About 32°' }, { id: 'c', label: 'About 45° — more than the motorcycle can lean' }], correctOptionId: 'c', explanation: 'The push grows with speed squared: (25/15)² ≈ 2.8 times more, which needs about 45° of lean.' },
     ],
@@ -298,8 +298,8 @@ export const handlingLessons: Lesson[] = [
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'Who has priority at a roundabout?', options: [{ id: 'a', label: 'Whoever arrives first' }, { id: 'b', label: 'Traffic already on the roundabout' }, { id: 'c', label: 'The larger vehicle' }], correctOptionId: 'b', explanation: 'Joining traffic gives way to vehicles already circulating.' },
-      { id: 'q2', prompt: 'You are going straight on. When do you signal to leave?', options: [{ id: 'a', label: 'On approach' }, { id: 'b', label: 'After passing the exit before yours' }, { id: 'c', label: 'You never signal for straight on' }], correctOptionId: 'b', explanation: 'Signalling after the exit before yours tells waiting drivers you are about to leave.' },
-      { id: 'q3', prompt: 'Why should you avoid braking hard while circulating?', options: [{ id: 'a', label: 'It annoys other drivers' }, { id: 'b', label: 'You are leaned, so much of the grip is already used — and roundabouts often have diesel spills' }, { id: 'c', label: 'The brakes overheat' }], correctOptionId: 'b', explanation: 'Leaned over, grip is shared between turning and braking. Set your speed before you join.' },
+      { id: 'q2', prompt: 'You are going straight on. When do you signal to leave?', options: [{ id: 'a', label: 'On approach, and keep signalling all the way round so everyone knows' }, { id: 'b', label: 'After passing the exit before yours' }, { id: 'c', label: 'You never signal for straight on' }], correctOptionId: 'b', explanation: 'Signalling after the exit before yours tells waiting drivers you are about to leave.' },
+      { id: 'q3', prompt: 'Why should you avoid braking hard while circulating?', options: [{ id: 'a', label: 'It annoys other drivers' }, { id: 'b', label: 'You are leaned, so much of the grip is already used — and roundabouts often have diesel spills' }, { id: 'c', label: 'It annoys drivers behind you, and the brakes can overheat on a tight circle' }], correctOptionId: 'b', explanation: 'Leaned over, grip is shared between turning and braking. Set your speed before you join.' },
     ],
   },
 
@@ -341,8 +341,8 @@ export const handlingLessons: Lesson[] = [
       { type: 'cta', to: '/simulators/ride-and-stop', title: 'Try the slow race', text: 'Ride 15 m as slowly as you can in the riding-and-stopping simulator, using the clutch and rear brake.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'Why is a motorcycle harder to balance at walking pace?', options: [{ id: 'a', label: 'The engine is weaker' }, { id: 'b', label: 'The steering correction needed to catch a lean grows enormously as speed drops' }, { id: 'c', label: 'The tyres have less grip' }], correctOptionId: 'b', explanation: 'The force from steering grows with speed squared, so at low speed much more steering is needed — eventually more than the lock allows.' },
-      { id: 'q2', prompt: 'What is the main speed control at walking pace?', options: [{ id: 'a', label: 'The front brake' }, { id: 'b', label: 'The clutch, slipped in the friction zone' }, { id: 'c', label: 'Changing gear' }], correctOptionId: 'b', explanation: 'Small clutch movements smoothly add or remove drive without the jerks of the throttle alone.' },
+      { id: 'q1', prompt: 'Why is a motorcycle harder to balance at walking pace?', options: [{ id: 'a', label: 'The engine is weaker' }, { id: 'b', label: 'The steering correction needed to catch a lean grows enormously as speed drops' }, { id: 'c', label: 'The tyres have much less grip at low speed, so they can’t hold the motorcycle up' }], correctOptionId: 'b', explanation: 'The force from steering grows with speed squared, so at low speed much more steering is needed — eventually more than the lock allows.' },
+      { id: 'q2', prompt: 'What is the main speed control at walking pace?', options: [{ id: 'a', label: 'The front brake, used gently with the handlebar turned' }, { id: 'b', label: 'The clutch, slipped in the friction zone' }, { id: 'c', label: 'Changing gear' }], correctOptionId: 'b', explanation: 'Small clutch movements smoothly add or remove drive without the jerks of the throttle alone.' },
       { id: 'q3', prompt: 'Where should you look during slow manoeuvres?', options: [{ id: 'a', label: 'At the ground just in front of the wheel' }, { id: 'b', label: 'Up and ahead, where you want to go' }, { id: 'c', label: 'At the instruments' }], correctOptionId: 'b', explanation: 'Looking down makes you steer down and lose balance; looking up and ahead keeps the motorcycle steady and on line.' },
     ],
   },
@@ -384,9 +384,9 @@ export const handlingLessons: Lesson[] = [
       { type: 'cockpit', scenario: 'wet-road', caption: 'Watch a wet bend: slow on the way in, then hold about 35 km/h so the lean stays small — the friction circle has shrunk.' },
     ],
     knowledgeCheck: [
-      { id: 'q1', prompt: 'What does the friction circle show?', options: [{ id: 'a', label: 'That braking and turning share the same limited grip' }, { id: 'b', label: 'The shape of the contact patch' }, { id: 'c', label: 'How fast the wheel turns' }], correctOptionId: 'a', explanation: 'The total force — braking and turning combined — can’t exceed the tyre’s grip, drawn as a circle.' },
-      { id: 'q2', prompt: 'You need to brake hard while leaned in a bend. What is safest?', options: [{ id: 'a', label: 'Brake hard immediately, still leaned' }, { id: 'b', label: 'Stand the motorcycle up, then brake hard' }, { id: 'c', label: 'Lean further and brake' }], correctOptionId: 'b', explanation: 'Upright, no grip is used for turning, so all of it is available for braking.' },
-      { id: 'q3', prompt: 'How should you cross a wet painted line or a metal cover?', options: [{ id: 'a', label: 'Upright, without braking or accelerating hard' }, { id: 'b', label: 'Leaned over, as quickly as possible' }, { id: 'c', label: 'Braking firmly' }], correctOptionId: 'a', explanation: 'These surfaces have very little grip; crossing them upright and smoothly asks the least of the tyres.' },
+      { id: 'q1', prompt: 'What does the friction circle show?', options: [{ id: 'a', label: 'That braking and turning share the same limited grip' }, { id: 'b', label: 'The round shape of the tyre’s contact patch, and how it grows when you lean' }, { id: 'c', label: 'How fast the wheel turns' }], correctOptionId: 'a', explanation: 'The total force — braking and turning combined — can’t exceed the tyre’s grip, drawn as a circle.' },
+      { id: 'q2', prompt: 'You need to brake hard while leaned in a bend. What is safest?', options: [{ id: 'a', label: 'Brake hard immediately, still leaned' }, { id: 'b', label: 'Stand the motorcycle up, then brake hard' }, { id: 'c', label: 'Lean further to tighten the line, and brake hard at the same time' }], correctOptionId: 'b', explanation: 'Upright, no grip is used for turning, so all of it is available for braking.' },
+      { id: 'q3', prompt: 'How should you cross a wet painted line or a metal cover?', options: [{ id: 'a', label: 'Upright, without braking or accelerating hard' }, { id: 'b', label: 'Leaned over, as quickly as possible' }, { id: 'c', label: 'Braking firmly as you cross, so you are slower if the tyre slips' }], correctOptionId: 'a', explanation: 'These surfaces have very little grip; crossing them upright and smoothly asks the least of the tyres.' },
     ],
   },
 
@@ -430,8 +430,8 @@ export const handlingLessons: Lesson[] = [
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'Braking hard in a bend makes which tyre most likely to slide?', options: [{ id: 'a', label: 'The rear — it loses load but still has to carry its share of the cornering force' }, { id: 'b', label: 'Neither' }, { id: 'c', label: 'The front only' }], correctOptionId: 'a', explanation: 'Load moves forward under braking. The rear tyre has less grip but the same cornering job, so it reaches its limit first. Heavy front braking while leaned is dangerous too: the front tyre is asked to brake and corner at once and can wash out.' },
-      { id: 'q2', prompt: 'Why hold a steady throttle through a bend?', options: [{ id: 'a', label: 'To go as fast as possible' }, { id: 'b', label: 'It keeps the load near its natural split, so both tyres work equally' }, { id: 'c', label: 'It keeps the engine cool' }], correctOptionId: 'b', explanation: 'A steady throttle avoids pitching load forward or backward, so neither tyre is overloaded.' },
-      { id: 'q3', prompt: 'What happens to the front tyre if you open the throttle hard while leaned?', options: [{ id: 'a', label: 'It gains load and grip' }, { id: 'b', label: 'It loses load, so it has less grip for its cornering job' }, { id: 'c', label: 'Nothing changes' }], correctOptionId: 'b', explanation: 'Acceleration moves load to the rear, leaving the front with less grip — it can wash out.' },
+      { id: 'q2', prompt: 'Why hold a steady throttle through a bend?', options: [{ id: 'a', label: 'To go as fast as possible' }, { id: 'b', label: 'It keeps the load near its natural split, so both tyres work equally' }, { id: 'c', label: 'It keeps the engine cool and saves fuel through the turn' }], correctOptionId: 'b', explanation: 'A steady throttle avoids pitching load forward or backward, so neither tyre is overloaded.' },
+      { id: 'q3', prompt: 'What happens to the front tyre if you open the throttle hard while leaned?', options: [{ id: 'a', label: 'It gains load and grip, because the motorcycle is pushed forward onto it' }, { id: 'b', label: 'It loses load, so it has less grip for its cornering job' }, { id: 'c', label: 'Nothing changes' }], correctOptionId: 'b', explanation: 'Acceleration moves load to the rear, leaving the front with less grip — it can wash out.' },
     ],
   },
 ]

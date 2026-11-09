@@ -102,7 +102,7 @@ export const clutchTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'All of the engine’s torque' },
         { id: 'b', label: 'Almost nothing — the plates are apart (only a little oil drag)' },
-        { id: 'c', label: 'Half of the engine’s torque' },
+        { id: 'c', label: 'About half of the engine’s torque, so the motorcycle can creep forward on its own' },
       ],
       correctOptionId: 'b',
       explanation: 'Pulling the lever lifts the pressure plate so the plates are no longer clamped. They turn freely apart; only a little drag through the oil remains.',
@@ -111,7 +111,7 @@ export const clutchTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'In the friction zone, how do the clutch basket and hub turn?',
       options: [
-        { id: 'a', label: 'At the same speed' },
+        { id: 'a', label: 'At the same speed, locked together, but with only part of the clamping force' },
         { id: 'b', label: 'At different speeds, with friction passing part of the torque across' },
         { id: 'c', label: 'The hub stops completely' },
       ],
@@ -124,7 +124,7 @@ export const clutchTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'More throttle mostly turns into heat in the slipping plates' },
         { id: 'b', label: 'The throttle doesn’t work while the clutch slips' },
-        { id: 'c', label: 'It makes the motorcycle stall' },
+        { id: 'c', label: 'Because more throttle makes the motorcycle stall as soon as the plates start to grip' },
       ],
       correctOptionId: 'a',
       explanation: 'With the plates slipping, power that doesn’t move the motorcycle becomes heat. A little throttle is enough; letting the clutch out further ends the slipping.',
@@ -229,7 +229,7 @@ export const gearsTeaching: SituationTeaching = {
       id: 'q1',
       prompt: 'After changing up from first to second at the same road speed, what happens to the engine speed?',
       options: [
-        { id: 'a', label: 'It rises' },
+        { id: 'a', label: 'It rises, because second gear asks the engine for more power' },
         { id: 'b', label: 'It falls — second is a taller ratio' },
         { id: 'c', label: 'It stays the same' },
       ],
@@ -242,7 +242,7 @@ export const gearsTeaching: SituationTeaching = {
       options: [
         { id: 'a', label: 'To unload the gearbox so the dogs can slide into the new gear' },
         { id: 'b', label: 'To brake the motorcycle' },
-        { id: 'c', label: 'To make the engine rev higher' },
+        { id: 'c', label: 'To let the engine rev higher so the next gear goes in with more speed' },
       ],
       correctOptionId: 'a',
       explanation: 'With the clutch in, the engine no longer drives the gearbox, so the selector can move the dogs without fighting the engine’s torque.',
@@ -251,7 +251,7 @@ export const gearsTeaching: SituationTeaching = {
       id: 'q3',
       prompt: 'Changing down from third to second with the throttle closed gives…',
       options: [
-        { id: 'a', label: 'Less engine braking' },
+        { id: 'a', label: 'Less engine braking, because a lower gear lets the wheel turn more freely' },
         { id: 'b', label: 'More engine braking — the engine is turned faster by the wheel' },
         { id: 'c', label: 'No change' },
       ],
@@ -357,7 +357,7 @@ export const brakesTeaching: SituationTeaching = {
       id: 'q1',
       prompt: 'Why can the front brake do most of the stopping?',
       options: [
-        { id: 'a', label: 'It has a bigger lever' },
+        { id: 'a', label: 'Its lever is bigger and closer to your hand, so you can squeeze it harder' },
         { id: 'b', label: 'Braking moves load onto the front tyre, giving it more grip' },
         { id: 'c', label: 'The front tyre is always wider' },
       ],
@@ -368,7 +368,7 @@ export const brakesTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'Why does the rear wheel lock so easily under hard braking?',
       options: [
-        { id: 'a', label: 'The rear brake is stronger' },
+        { id: 'a', label: 'The rear brake is the stronger of the two, so it overpowers the tyre' },
         { id: 'b', label: 'Load moves off the rear tyre, so it has little grip' },
         { id: 'c', label: 'The rear tyre is worn' },
       ],
@@ -380,7 +380,7 @@ export const brakesTeaching: SituationTeaching = {
       prompt: 'Why squeeze the front brake progressively rather than grab it?',
       options: [
         { id: 'a', label: 'To give the load time to move onto the front tyre before asking for full force' },
-        { id: 'b', label: 'To save the brake pads' },
+        { id: 'b', label: 'To save the brake pads and disc, which wear out quickly if the lever is grabbed' },
         { id: 'c', label: 'Because the lever is stiff' },
       ],
       correctOptionId: 'a',

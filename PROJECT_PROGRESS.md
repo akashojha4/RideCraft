@@ -1799,7 +1799,7 @@ Tests:
   - The test now allows for it. The lessons were left unchanged (outside this work's scope); flagged for the user.
 - Types, lint and build clean. **Riding Situations complete: 15 lessons.**
 
-## Narrated lessons — pilot (2026-11-07) · BUILT, awaiting review
+## Narrated lessons — pilot (2026-11-07) · REMOVED 2026-11-09 (user decision; see "Beginner review fixes")
 
 Request: narration plus visual demonstration for every lesson. Agreed approach: no recorded video files. Instead, a narrated walkthrough generated from each lesson's own text: the browser's built-in voice (Web Speech API), captions, and the lesson's visuals moving with the voice (section, control tab, timeline stage, mistake; Watch it done playing each step as it is described).
 - Frontend-only and free.
@@ -1830,3 +1830,77 @@ Tests:
 Limitation: real voices can't be heard in automated tests. Voice quality and timing on the user's devices still need checking by ear.
 
 - Regression with the pilot: rs4 27, rs3 11, rs2 14, rs1 46, ck13 19, ck1 20, ck2 34, ck4 19, ck5 16, ck6 14, ck7 22, ck8 25, ck9 22, ck9axe 17, ck10 32, ck11 29, ck12 15, P0 60, P5 32, P11 49, P12 27 — all 21 suites pass. (The run was split across a session restart; scratchpad scripts deleted by the system were restored from `tests/e2e/`.) **Pilot complete — awaiting the user's review.**
+
+## Beginner review fixes (2026-11-09) · BUILT, not pushed
+
+A walk-through of the live site as a beginner found 19 problems; all fixed (plan: `~/.claude/plans/buzzing-hatching-heron.md`).
+- **Direct links / refresh 404:** `vercel.json` SPA rewrite (all paths except `/assets/*` → `index.html`). Takes effect only once deployed.
+- **Wrong diagrams:** new `LiftTechnique` (picking up a dropped motorcycle) and `WalkingLean` (walking it) illustrations replace the cornering and speed-chart widgets.
+- **Cockpit:** arriving from a lesson folds the 40-scenario list, collapses the help note, scrolls to the instruction and gives the cockpit keyboard focus. A "Keyboard on / Click here to use the keyboard" badge shows the focus state; a key tap now moves a control 10 % (Shift: 2 %).
+- **Guessable answers:** options shown in a stable shuffled order (`lib/shuffle.ts`, seeded per question) in lesson quizzes, the assessment and scenarios. 137 distractors rewritten. `quizBalance.test.ts`: the correct answer is the longest option in ≤ 35 % of questions (was 79 %); no duplicate questions.
+- **Scenario pages:** the seat-view demonstration appears only after the learner has chosen.
+- **Order and naming:**
+  - home path written from the phase data;
+  - phase 5 renamed "Slow riding and turning";
+  - seeing/space moved before traffic;
+  - Roadcraft cockpit group;
+  - U-turn, wet-bend and gravel lessons retitled;
+  - one start-up order everywhere;
+  - repeated start demo removed from the Throttle and Stalling lessons.
+- **Plain language:** 10 new glossary terms; g explained; Roadcraft idioms rewritten; glossary links underlined (fixes axe link-in-text-block).
+- **Narration pilot removed** (user decision): `useNarration`, `NarrationBar`, `narration.ts` and the demo player's hold mode are deleted.
+- **Tests:**
+  - lint, types and build clean; unit 278/278;
+  - new browser `fixtest` 35/35; lesson, page and RS sweeps clean.
+  - The older ck/rs/p suites have failures that also occur on the pushed version (they expect 14 scenarios, 15 lessons, 41 buttons, 4 groups). p10 updated for shuffled choices.
+
+## Sitemap and robots.txt (2026-11-09) · BUILT, not deployed
+
+- `public/sitemap.xml`: 144 canonical URLs on https://www.ridecraft.in. Covers home, the main pages, 6 simulators, 8 phases, 7 topics, 83 lessons and 32 scenarios.
+- Excluded: `/progress` and `/progress/assessment` (personal), `/design-system` (development only), query-string variants and unknown paths.
+- Generated from the content by `src/lib/seo/sitemap.ts`. Run `npm run sitemap` after adding lessons, phases or scenarios.
+- `sitemap.test.ts` fails if the file is out of date or a new router path is neither listed nor excluded.
+- `public/robots.txt`: allows everything and references the sitemap.
+
+## Production readiness and technical SEO (2026-11-09) · BUILT, not deployed
+
+**Routing root cause:** RideCraft is a client-side single-page app (Vite + React Router `createBrowserRouter`). On Vercel only `/index.html` existed, so every other address had no file and Vercel answered 404; there was no `vercel.json`.
+
+**Fix:** the build writes a real HTML file for every page (`scripts/prerender-head.mjs`, after `vite build`), plus `404.html`. `vercel.json` sets `cleanUrls`, no trailing slash, the build command and output folder, and long-lived caching for hashed assets.
+- Valid pages are served as static files (status 200); unknown addresses and missing chunks get a genuine 404.
+- Query strings work.
+
+**On-page SEO:** `src/lib/seo/meta.ts` gives every page a unique title, description, canonical URL and Open Graph/Twitter tags, plus robots tags (personal pages `noindex`).
+- Keywords are used where they fit (home, Learn, simulators, clutch/gears lessons, scenarios, checklist).
+- The build writes the head into each page's HTML. `SeoHead` keeps it current on in-app navigation, loading the metadata on demand so the first-load bundle is unchanged. It replaces `usePageTitle` and the anatomy page's own title setter.
+- New `public/og-image.png` (1200×630).
+- Heading hierarchy fixed:
+  - cockpit control labels are no longer `h2`;
+  - the demonstration step title is now `h3`;
+  - checklist groups are `h2` on their own page.
+- "Learn it in a lesson" links added on the simulators, cockpit, anatomy, checklist and every scenario page (`content/related.ts`).
+
+**Performance:** the main fonts and each page's own code chunks are preloaded (from Vite's manifest, deleted after use).
+- Throttled phone (4× CPU, 1.6 Mbps, compressed): LCP 2.7–3.6 s (was 3.4–4.6 s), CLS 0.000.
+
+**Tests:**
+- `meta.test.ts` (unique, sized metadata; canonicals; noindex; related links) and `sitemap.test.ts`.
+- `npm run check:dist` serves dist/ with Vercel's rules and checks: 144 URLs 200, canonicals, robots, sitemap, 404s, redirects, query strings, assets.
+- Local browser `prodrender`: 144/144 render with no errors; client-navigation head; real 404; phone fit; vitals.
+- `seoaudit`: no duplicate metadata, one H1, no heading skips.
+- Unit 292/292; lint, types and build clean.
+
+## Pre-deployment integration check (2026-11-09)
+
+- GA4 `G-2F5Z15DSM5` (`lib/analytics/ga.ts`) is rendered through `GaPageViews` in `AppShell` and included in the production main bundle.
+- **Regression found and fixed:** after in-app navigation, page_view carried the *previous* page's title. `SeoHead` loads its metadata on demand, so `document.title` wasn't updated yet when `GaPageViews` read it.
+  - Fix: `GaPageViews` takes the title from the same metadata. `trackPageView` gained an optional `title` and falls back to `document.title`.
+  - New unit test.
+- Browser check `gatest` 21/21: production build on a non-localhost name, hits answered locally (nothing sent to the real property).
+  - gtag.js loads with the ID; `send_page_view: false`.
+  - One page_view on first load and per navigation (links, back button, `?section=`), each with the right path and title.
+  - No duplicates, no fragments; off on localhost.
+- All earlier checks still pass:
+  - unit 293/293; lint, types and build clean;
+  - check:dist 0 problems; prodrender 144/144; seoaudit clean; sitemap 144/144;
+  - fixtest 35/35; lesson and page sweeps clean.

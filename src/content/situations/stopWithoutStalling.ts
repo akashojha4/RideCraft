@@ -3,7 +3,6 @@ import type { SituationTeaching } from './types'
 /** Teaching for the cockpit scenario "Stopping without stalling". */
 export const stopWithoutStallingTeaching: SituationTeaching = {
   scenario: 'stop-without-stalling',
-  narrated: true,
   situation: {
     where: 'Riding along a quiet, straight, dry road in third gear at a moderate speed, with a place to stop ahead.',
     happening: 'The clutch is fully out, so the engine and the rear wheel are connected through third gear: every change in road speed changes the engine speed with it.',
@@ -124,7 +123,7 @@ export const stopWithoutStallingTeaching: SituationTeaching = {
       id: 'q1',
       prompt: 'Braking to a stop with the clutch still out, what happens to the engine speed?',
       options: [
-        { id: 'a', label: 'It stays at idle until you stop' },
+        { id: 'a', label: 'It stays at idle the whole way down, because the idle control keeps it there whatever the wheel does' },
         { id: 'b', label: 'It falls with the road speed, because the gearbox ties it to the rear wheel' },
         { id: 'c', label: 'It rises to help the brakes' },
       ],
@@ -135,7 +134,7 @@ export const stopWithoutStallingTeaching: SituationTeaching = {
       id: 'q2',
       prompt: 'When should you pull the clutch in during a normal stop?',
       options: [
-        { id: 'a', label: 'As soon as you start braking' },
+        { id: 'a', label: 'As soon as you start braking, so the engine can’t fight the brakes at all' },
         { id: 'b', label: 'As the engine slows towards idle, before it falls below it' },
         { id: 'c', label: 'Only once the motorcycle has stopped' },
       ],
@@ -147,7 +146,7 @@ export const stopWithoutStallingTeaching: SituationTeaching = {
       prompt: 'With the clutch pulled in, what stops the motorcycle?',
       options: [
         { id: 'a', label: 'The clutch itself' },
-        { id: 'b', label: 'The engine' },
+        { id: 'b', label: 'The engine, which keeps slowing the wheel through the gearbox while the clutch is in' },
         { id: 'c', label: 'The brakes — the motorcycle would otherwise roll on its momentum' },
       ],
       correctOptionId: 'c',

@@ -91,7 +91,7 @@ export const firstRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'That they have seen you' },
           { id: 'b', label: 'That they have not seen you, until there is eye contact' },
-          { id: 'c', label: 'That they will always give way to a motorcycle' },
+          { id: 'c', label: 'That they will always give way to a motorcycle, because it is the more vulnerable road user' },
         ],
         correctOptionId: 'b',
         explanation: 'Motorcycles are easy to miss. Ride where you can be seen, wear something visible, and treat eye contact as the first evidence you have been noticed.',
@@ -162,7 +162,7 @@ export const firstRideLessons: Lesson[] = [
         id: 'q1',
         prompt: 'Which side do you get on from?',
         options: [
-          { id: 'a', label: 'The right side, away from traffic' },
+          { id: 'a', label: 'The right side, so you stay away from passing traffic' },
           { id: 'b', label: 'The left side, where the side stand is' },
           { id: 'c', label: 'Whichever side is closer' },
         ],
@@ -173,7 +173,7 @@ export const firstRideLessons: Lesson[] = [
         id: 'q2',
         prompt: 'When do you fold the side stand up?',
         options: [
-          { id: 'a', label: 'After you have moved off, to save time' },
+          { id: 'a', label: 'After you have moved off, so you have something to lean on until you are rolling' },
           { id: 'b', label: 'Before you move, once both feet are down' },
           { id: 'c', label: 'Only on long rides' },
         ],
@@ -214,8 +214,14 @@ export const firstRideLessons: Lesson[] = [
       },
       {
         type: 'illustration',
-        illustration: 'slow-balance',
-        caption: 'At walking pace the motorcycle has almost no stability of its own. You balance it, whether you are riding slowly or walking beside it.',
+        illustration: 'walking-lean',
+        caption: 'Close to upright, even a 120 kg motorcycle takes little effort to hold; leaned over, the effort grows quickly. Keep it near upright, and let it down rather than fight it.',
+      },
+      {
+        type: 'callout',
+        tone: 'info',
+        title: 'You do the balancing',
+        body: 'Pushed along at walking pace, a motorcycle has almost no stability of its own: it stays up only because you hold it. Keep it close to upright, where it weighs least in your hands, and stop with the front brake before it leans too far.',
       },
       {
         type: 'steps',
@@ -230,7 +236,7 @@ export const firstRideLessons: Lesson[] = [
         type: 'concept',
         heading: 'Slopes',
         body: [
-          'Facing downhill, the motorcycle rolls as soon as you lift it off the stand, so cover the front brake before you stand it up. Facing uphill, you are holding its whole weight back — turn it round so it faces up the slope before you leave it, and leave it in gear.',
+          'Facing downhill, the motorcycle rolls as soon as you lift it off the stand, so cover the front brake before you stand it up. Pushing it uphill, you are holding its whole weight back, so keep the front brake covered there too. When you park on a slope, leave it facing uphill and in first gear, so it can’t roll forward off its stand.',
           'Never try to hold a motorcycle that has leaned past the point where you can stand it up again. Let it down gently instead; picking it up deliberately is far safer than being pulled over with it.',
         ],
       },
@@ -257,7 +263,7 @@ export const firstRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'As far toward you as you can hold' },
           { id: 'b', label: 'Just off upright, so you have its weight but it doesn’t pull you over' },
-          { id: 'c', label: 'Away from you, resting on your hip' },
+          { id: 'c', label: 'Away from you, with its weight resting against your hip and leg as you push' },
         ],
         correctOptionId: 'b',
         explanation: 'A motorcycle gets rapidly heavier as it leans. Keep it close to upright so you are controlling it rather than catching it.',
@@ -267,7 +273,7 @@ export const firstRideLessons: Lesson[] = [
         prompt: 'Which brake do you use while walking the motorcycle?',
         options: [
           { id: 'a', label: 'The front brake lever, which you can reach without letting go' },
-          { id: 'b', label: 'The rear brake pedal' },
+          { id: 'b', label: 'The rear brake pedal, pressed with your right foot as you walk beside it' },
           { id: 'c', label: 'Neither — you stop it with your legs' },
         ],
         correctOptionId: 'a',
@@ -341,7 +347,6 @@ export const firstRideLessons: Lesson[] = [
           'If it won’t start, check the cut-off switch and the side stand.',
         ],
       },
-      { type: 'cockpit', scenario: 'start-and-move-off', caption: 'Watch a smooth move-off. Then practise it yourself — and stall on purpose until the restart is automatic.' },
       { type: 'cta', to: '/simulators/cockpit?practice=start-and-move-off&from=/learn/first-ride/stalling', title: 'Practise the stall where it’s free', text: 'Stall on purpose in the cockpit and get the restart sequence into your hands before you need it.' },
     ],
     knowledgeCheck: [
@@ -361,7 +366,7 @@ export const firstRideLessons: Lesson[] = [
         prompt: 'Can you restart the engine while it is in gear?',
         options: [
           { id: 'a', label: 'Yes, if the clutch is pulled all the way in' },
-          { id: 'b', label: 'No, it must be in neutral' },
+          { id: 'b', label: 'No, it must always be in neutral, whatever you do with the clutch' },
           { id: 'c', label: 'Only in second gear or higher' },
         ],
         correctOptionId: 'a',
@@ -373,7 +378,7 @@ export const firstRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'The tyre pressures' },
           { id: 'b', label: 'The engine cut-off switch and the side stand' },
-          { id: 'c', label: 'The chain tension' },
+          { id: 'c', label: 'The chain tension, because a tight chain stops the starter turning the engine' },
         ],
         correctOptionId: 'b',
         explanation: 'The cut-off switch and, on many motorcycles, the side stand switch are designed to stop the engine. They are the two most common reasons a healthy motorcycle refuses to start.',
@@ -401,8 +406,8 @@ export const firstRideLessons: Lesson[] = [
       },
       {
         type: 'illustration',
-        illustration: 'body-position',
-        caption: 'The same idea as good riding posture: your legs do the work and your back stays straight.',
+        illustration: 'lift-technique',
+        caption: 'Your legs do the lifting and your back stays straight. On a heavier motorcycle, get a second person.',
       },
       {
         type: 'steps',
@@ -464,7 +469,7 @@ export const firstRideLessons: Lesson[] = [
         id: 'q3',
         prompt: 'What do you check before riding a motorcycle that has fallen?',
         options: [
-          { id: 'a', label: 'Only that the engine starts' },
+          { id: 'a', label: 'Only that the engine starts and runs — if it does, the rest is fine to ride on' },
           { id: 'b', label: 'Leaks, levers, wheels and that the bars point straight' },
           { id: 'c', label: 'The paintwork' },
         ],
@@ -549,7 +554,7 @@ export const firstRideLessons: Lesson[] = [
         options: [
           { id: 'a', label: 'Move off and stop reliably in a straight line' },
           { id: 'b', label: 'Ride at 50 km/h' },
-          { id: 'c', label: 'Change up to third gear' },
+          { id: 'c', label: 'Change up and down through all the gears at road speed' },
         ],
         correctOptionId: 'a',
         explanation: 'Turning adds balance and vision to skills you should already trust. Get moving off and stopping boring first.',

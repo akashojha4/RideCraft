@@ -91,9 +91,9 @@ export const academyPhases: readonly AcademyPhase[] = [
   },
   {
     id: 'yard',
-    title: 'Yard manoeuvres',
-    goal: 'Slow riding, a U-turn, and how a motorcycle actually turns — before any junction.',
-    practise: 'Cockpit for the U-turn rehearsal; figure-eight and slalom only on a real motorcycle.',
+    title: 'Slow riding and turning',
+    goal: 'Slow riding and a U-turn in the yard, then how a motorcycle turns at road speed — before any junction.',
+    practise: 'Slow riding and the U-turn in a closed area (rehearse the U-turn in the cockpit); bends on quiet roads with an instructor.',
     lessons: [
       { moduleId: 'handling', lessonId: 'slow-speed' },
       { moduleId: 'handling', lessonId: 'u-turns' },
@@ -125,9 +125,11 @@ export const academyPhases: readonly AcademyPhase[] = [
   {
     id: 'traffic',
     title: 'Other traffic',
-    goal: 'Signals, queues, a sudden obstacle, waiting to overtake, a highway gap, a roundabout.',
+    goal: 'Being seen and keeping space first — then signals, queues, a sudden obstacle, waiting to overtake, a highway gap and a roundabout.',
     practise: 'Cockpit and decision scenarios, then quiet real roads with an instructor.',
     lessons: [
+      { moduleId: 'roadcraft', lessonId: 'seeing-and-being-seen' },
+      { moduleId: 'roadcraft', lessonId: 'space-and-following' },
       { moduleId: 'riding-situations', lessonId: 'traffic-signal' },
       { moduleId: 'riding-situations', lessonId: 'moving-in-traffic' },
       { moduleId: 'riding-situations', lessonId: 'slow-traffic' },
@@ -140,11 +142,9 @@ export const academyPhases: readonly AcademyPhase[] = [
   {
     id: 'roadcraft',
     title: 'Roadcraft',
-    goal: 'Seeing, space, junctions, other people, and what to do when the ride goes wrong.',
+    goal: 'Junctions, other people, defensive riding, night, a passenger, and what to do when the ride goes wrong.',
     practise: 'Decision scenarios and, later, real roads. Night and a pillion wait until the rest is automatic.',
     lessons: [
-      { moduleId: 'roadcraft', lessonId: 'seeing-and-being-seen' },
-      { moduleId: 'roadcraft', lessonId: 'space-and-following' },
       { moduleId: 'roadcraft', lessonId: 'junctions' },
       { moduleId: 'roadcraft', lessonId: 'other-people' },
       { moduleId: 'roadcraft', lessonId: 'defensive-riding' },

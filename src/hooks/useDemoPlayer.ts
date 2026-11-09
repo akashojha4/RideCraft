@@ -13,8 +13,7 @@ import type { useCockpitSim } from './useCockpitSim'
  * seconds later). Jumping to a step restores the state a run of the same plan had there.
  */
 
-/** `held`: a narrated step has finished and waits for the narration to move on. */
-export type DemoStatus = 'ready' | 'playing' | 'paused' | 'held' | 'done'
+export type DemoStatus = 'ready' | 'playing' | 'paused' | 'done'
 
 /** Extra time a step may take in live playback to meet its check before moving on, s. */
 const GRACE = 3
@@ -23,7 +22,6 @@ export function useDemoPlayer(
   cockpit: ReturnType<typeof useCockpitSim>,
   scenario: CockpitScenario,
   run: RunResult,
-  onHeld?: (step: number) => void,
   { autoPlay = false }: { autoPlay?: boolean } = {},
 ) {
   const { sim, restore, start, getWorld, controls, setStage, setDriven } = cockpit
@@ -40,16 +38,11 @@ export function useDemoPlayer(
     active: false,
     done: demo.map(() => false),
     steer: 0,
-    hold: false,
     prev: null as NudgeInputs | null,
     nudgeText: '',
     nudgeHold: 0,
   })
   const [nudge, setNudge] = useState<RideNudge>({ text: 'Now: watch the controls' })
-  const held = useRef(onHeld)
-  useEffect(() => {
-    held.current = onHeld
-  }, [onHeld])
   const now = useRef(0)
   const checks = useRef(withWorld(scenario.steps, getWorld))
   useEffect(() => {
@@ -125,13 +118,6 @@ export function useDemoPlayer(
         // On the cockpit Watch, linger so the step list and the explanation can be read.
         const linger = autoPlay && L.done[L.index] && L.index + 1 < demo.length ? 1.4 : 0
         if (local >= step.seconds + linger && (L.done[L.index] || local >= step.seconds + GRACE)) {
-          if (L.hold) {
-            L.active = false
-            setStatus('held')
-            clockPause()
-            held.current?.(L.index)
-            return
-          }
           if (L.index + 1 >= demo.length) {
             L.active = false
             setStatus('done')
@@ -198,42 +184,10 @@ export function useDemoPlayer(
     clockPause()
   }, [clockPause])
 
-  /**
-   * Narrated playback: play step k and hold at its end. Straight on from the step before if it
-   * was just held there; otherwise jump to where the run had step k begin. Calling it again for
-   * the step already playing (or held) does nothing, and after a pause it resumes.
-   */
-  const playStep = useCallback(
-    (k: number) => {
-      const L = live.current
-      L.hold = true
-      if (L.index === k && (status === 'playing' || status === 'held')) return
-      if (L.index === k && status === 'paused') {
-        L.active = true
-        setStatus('playing')
-        clockPlay()
-        return
-      }
-      if (status === 'held' && k === L.index + 1) {
-        L.index = k
-        L.from = clock.time.get()
-        setStage(k)
-        setIndex(k)
-        L.active = true
-        setStatus('playing')
-        clockPlay()
-        return
-      }
-      goTo(k, 'play')
-    },
-    [status, goTo, clockPlay, setStage, clock.time],
-  )
-
   return {
     index,
     status,
     nudge,
-    playStep,
     done,
     speed: clock.speed,
     play,

@@ -20,7 +20,7 @@ describe('academy path', () => {
 
   it('lesson Next follows the academy path, not the module file', () => {
     const slow = getLesson('handling', 'slow-speed')
-    expect(slow?.place.title).toBe('Yard manoeuvres')
+    expect(slow?.place.title).toBe('Slow riding and turning')
     expect(slow?.place.step).toBe(1)
     expect(slow?.next?.lesson.id).toBe('u-turns')
     expect(slow?.previous?.lesson.id).toBe('using-the-brakes')

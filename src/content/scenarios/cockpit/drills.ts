@@ -158,7 +158,7 @@ export const brakesDrill: CockpitScenario = {
     {
       id: 'front',
       title: 'Front brake only',
-      instruction: 'Close the throttle and squeeze the front brake progressively until you are slowing firmly (about 0.3 g) — without locking the wheel.',
+      instruction: 'Close the throttle and squeeze the front brake progressively until you are slowing firmly — about 0.3 g, a firm but comfortable stop — without locking the wheel.',
       highlight: ['frontBrake', 'frontWheel'],
       done: (s, i) => (i.front ?? 0) > 0 && (i.rear ?? 0) === 0 && -s.acceleration >= 0.3 * G && !s.brakes.front.locked,
       explanation: 'Load moved onto the front tyre and the fork compressed: the extra load lets the front tyre grip harder, so it can do most of the stopping.',

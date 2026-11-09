@@ -1,10 +1,8 @@
 import { ArrowLeft } from 'lucide-react'
 import { ButtonLink } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 export default function NotFoundPage() {
-  usePageTitle('Page not found')
   return (
     <Container width="prose" className="flex flex-col items-start gap-5 py-28">
       <p className="font-mono text-sm text-ignition-400">404</p>

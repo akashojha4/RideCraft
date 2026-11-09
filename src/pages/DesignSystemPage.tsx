@@ -11,7 +11,6 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import ChainDriveIllustration from '@/content/illustrations/ChainDriveIllustration'
 import { lessonPath } from '@/content/curriculum'
 import { fadeUp, scaleIn, spring, staggerContainer } from '@/lib/motion'
-import { usePageTitle } from '@/hooks/usePageTitle'
 
 const palettes: { name: string; role: string; swatches: { token: string; className: string }[] }[] = [
   {
@@ -73,7 +72,6 @@ function Section({ title, description, children }: { title: string; description?
 }
 
 export default function DesignSystemPage() {
-  usePageTitle('Design system')
   const [replayKey, setReplayKey] = useState(0)
   const [progress, setProgress] = useState(40)
 
