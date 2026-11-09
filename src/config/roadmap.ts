@@ -102,7 +102,7 @@ export const phases: Phase[] = [
   {
     number: 10,
     title: 'Real-World Scenarios',
-    summary: 'Fourteen decision-based riding situations with explained consequences.',
+    summary: 'Thirty-two decision-based riding situations with explained consequences.',
     status: 'COMPLETED',
     route: '/scenarios',
     scope: ['Traffic', 'Hills', 'Wet roads & gravel', 'Emergency braking', 'Overtaking', 'Night riding', 'Pillion'],

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, ClipboardCheck, Cog, Flag, Gauge, Motorbike, Route, TrafficCone, type LucideIcon } from 'lucide-react'
+import { ArrowUpRight, BookOpen, ClipboardCheck, Cog, Eye, Flag, Gauge, Motorbike, Route, TrafficCone, type LucideIcon } from 'lucide-react'
 import { catalog } from '@/config/catalog'
 import { Link } from 'react-router-dom'
 import { Stagger, StaggerItem } from '@/components/motion/Reveal'
@@ -48,7 +48,7 @@ const categories: Category[] = [
   },
   {
     title: 'Your First Ride',
-    description: 'Getting on and off, walking the motorcycle, recovering from a stall, and what the law expects before your first road ride.',
+    description: 'Getting on and off, walking the motorcycle, recovering from a stall, and the licence and gear that come before a public road.',
     meta: `${catalog.lessons['first-ride']} lessons`,
     icon: Flag,
     to: '/learn/first-ride',
@@ -69,6 +69,14 @@ const categories: Category[] = [
     icon: Route,
     to: '/learn/handling',
     phase: 9,
+  },
+  {
+    title: 'Roadcraft',
+    description: 'Seeing and being seen, following distance, junctions, other people, night and a passenger.',
+    meta: `${catalog.lessons.roadcraft} lessons`,
+    icon: Eye,
+    to: '/learn/roadcraft',
+    phase: 10,
   },
   {
     title: 'Real-World Scenarios',

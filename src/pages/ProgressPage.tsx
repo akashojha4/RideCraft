@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { lessonPath, nextLesson } from '@/content/curriculum'
+import { academyPhases, phasePath } from '@/content/academy'
+import { getLesson, lessonPath, nextLesson } from '@/content/curriculum'
 import { scenarios } from '@/content/scenarios'
 import { cn } from '@/lib/cn'
 import { PASS_MARK, buildAssessment } from '@/lib/progress/assessment'
@@ -92,10 +93,45 @@ export default function ProgressPage() {
         </div>
       </section>
 
+      <section aria-labelledby="path-heading" className="space-y-4">
+        <h2 id="path-heading" className="text-2xl font-semibold text-ink">
+          Your path
+        </h2>
+        <ol className="grid gap-3">
+          {academyPhases.map((phase, i) => {
+            const done = phase.lessons.filter((step) => p.lessons[`${step.moduleId}/${step.lessonId}`]?.completedAt).length
+            const next = phase.lessons.find((step) => !p.lessons[`${step.moduleId}/${step.lessonId}`]?.completedAt)
+            return (
+              <li key={phase.id} className="rounded-2xl border border-line bg-surface p-5">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <h3 className="font-semibold text-ink">
+                    <span className="mr-2 font-mono text-xs text-ink-subtle">Phase {String(i + 1).padStart(2, '0')}</span>
+                    <Link to={phasePath(phase.id)} className="hover:text-ignition-300">
+                      {phase.title}
+                    </Link>
+                  </h3>
+                  <span className="tabular font-mono text-sm text-ink-muted">
+                    {done} / {phase.lessons.length}
+                  </span>
+                </div>
+                <ProgressBar value={done} max={phase.lessons.length} tone="ok" label={`${phase.title}: lessons completed`} />
+                {next ? (
+                  <Link to={phasePath(phase.id)} className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-ignition-400">
+                    {done === 0 ? 'Open' : 'Continue'} this phase: {getLesson(next.moduleId, next.lessonId)?.lesson.title ?? next.lessonId} <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                ) : (
+                  <p className="mt-2 text-sm text-ok-400">Phase complete.</p>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      </section>
+
       {/* Modules */}
       <section aria-labelledby="modules-heading" className="space-y-4">
         <h2 id="modules-heading" className="text-2xl font-semibold text-ink">
-          Learning modules
+          By topic
         </h2>
         <div className="grid gap-4 lg:grid-cols-2">
           {s.modules.map((m) => (

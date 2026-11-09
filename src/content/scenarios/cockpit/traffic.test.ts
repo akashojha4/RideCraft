@@ -4,12 +4,12 @@ import { movingInTraffic, slowTraffic, speedBreaker, trafficSignal } from './tra
 import { ride } from './scriptedRider'
 
 /** Front brake for a steady stop 2 m before the stop line (deceleration v² / 2x, as a share of 1 g). */
-const toLine = (s: { speed: number; distance: number }) => Math.min(0.5, Math.max(0.05, (s.speed * s.speed) / (2 * Math.max(0.5, 78 - s.distance)) / 9.81))
+const toLine = (s: { speed: number; distance: number }) => Math.min(0.5, Math.max(0.05, (s.speed * s.speed) / (2 * Math.max(0.5, 48 - s.distance)) / 9.81))
 
 describe('traffic and hazard scenarios', () => {
   it('traffic signal: brakes on amber, stops at the line, waits in neutral', () => {
     const r = ride(trafficSignal, [
-      [(_t, s) => (s.distance < 36 ? {} : { throttle: 0, front: toLine(s), rear: 0.05 }), 6],
+      [(_t, s) => (s.distance < 6 ? {} : { throttle: 0, front: toLine(s), rear: 0.05 }), 6],
       [(_t, s) => ({ clutch: s.speed < 4 ? 1 : 0, front: toLine(s), rear: 0.05 }), 8],
       [(t) => (t < 0.2 ? { gear: 0 } : {}), 0.5],
     ])
@@ -65,7 +65,7 @@ describe('traffic and hazard scenarios', () => {
 
   it('speed breaker: slowed and in second before it, off the brakes over it, away above 20', () => {
     const r = ride(speedBreaker, [
-      [(_t, s) => (s.distance < 35 ? {} : s.speed * 3.6 > 14 ? { throttle: 0, front: 0.25, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }), 8],
+      [(_t, s) => (s.speed * 3.6 > 14 ? { throttle: 0, front: 0.35, rear: 0.12 } : { front: 0, rear: 0, clutch: 1, gear: 2 }), 4],
       [(t) => ({ clutch: Math.max(0, 1 - t * 1.2), throttle: 0.12 }), 8],
       [(t) => ({ throttle: Math.min(0.6, 0.15 + t * 0.3), clutch: 0 }), 6],
     ])
@@ -74,8 +74,8 @@ describe('traffic and hazard scenarios', () => {
   })
 
   it('speed breaker: arriving fast, or braking on it, is flagged', () => {
-    expect(ride(speedBreaker, [[() => ({}), 8]], { strict: false }).mistakes).toContain('bump-fast')
-    const braking = ride(speedBreaker, [[(_t, s) => (s.distance < 47 ? {} : { throttle: 0, clutch: 1, front: s.speed * 3.6 > 12 ? 0.3 : 0.06 }), 10]], { strict: false })
+    expect(ride(speedBreaker, [[() => ({}), 4]], { strict: false }).mistakes).toContain('bump-fast')
+    const braking = ride(speedBreaker, [[() => ({ throttle: 0, clutch: 1, front: 0.25 }), 4]], { strict: false })
     expect(braking.mistakes).toContain('bump-braking')
     expect(braking.mistakes).not.toContain('bump-fast')
   })

@@ -1,13 +1,13 @@
 import { useMotionValue } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { RoadMotion } from '@/components/cockpit/RoadAhead'
+import type { RoadMotion, RoadTraffic } from '@/components/cockpit/RoadAhead'
 import { clampingForce } from '@/lib/mechanics/clutch'
 import type { CockpitSetup } from '@/content/scenarios/cockpit/types'
 import { canRestart, initialPowertrain, type PowertrainInputs, type PowertrainState } from '@/lib/mechanics/powertrain'
 import { AT_REST, setupState, type RunSnapshot } from '@/content/scenarios/cockpit/run'
 import { bumpRide } from '@/lib/scenarios/sim'
 import { suspension } from '@/lib/simulation/roadResponse'
-import { carGap, initialWorld, stepWorld, type SignalColour, type WorldPose, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
+import { behindGap, carGap, crossGap, initialWorld, oncomingGap, personGap, stepWorld, type SignalColour, type WorldPose, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
 import { useCockpitControls } from './useCockpitControls'
 import { usePowertrainSim } from './usePowertrainSim'
 
@@ -21,6 +21,20 @@ import { usePowertrainSim } from './usePowertrainSim'
 function loadArgs(setup: CockpitSetup): [PowertrainInputs, Partial<PowertrainState>] {
   const { inputs, state } = setupState(setup)
   return [inputs, state]
+}
+
+function readTraffic(w: WorldState, d: number, spec?: WorldSpec): RoadTraffic {
+  return {
+    behindGap: behindGap(w, d),
+    oncomingGap: oncomingGap(w, d),
+    personGap: personGap(w, d),
+    personX: w.personX,
+    personKind: w.personKind,
+    crossGap: crossGap(spec, d),
+    crossX: w.crossX,
+    carX: w.carX,
+    carKind: w.carKind,
+  }
 }
 
 /** How the last speed breaker was met: entry speed, the jolt felt, fork travel used (m, of 0.11) and how much braking had already used. */
@@ -42,7 +56,7 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
 
   const controls = useCockpitControls({
     initialGear: initial.gear,
-    initialAxes: { throttle: initial.throttle ?? 0, rear: initial.rear ?? 0 },
+    initialAxes: { throttle: initial.throttle ?? 0, rear: initial.rear ?? 0, clutch: initial.clutch ?? 0 },
     canShift: () => (state.current.running && clampingForce(inputs.current.clutch) > 0 ? 'Pull the clutch in fully to change gear.' : null),
   })
   const { axes, gear, steer } = controls
@@ -67,7 +81,7 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
   const waiting = useRef<{ clutch: number; throttle: number; front: number; rear: number; gear: number } | null>(null)
   const holdFor = useCallback(
     (setup: CockpitSetup) => {
-      waiting.current = setup.paused ? { clutch: 0, throttle: setup.throttle ?? 0, front: 0, rear: setup.rear ?? 0, gear: setup.gear } : null
+      waiting.current = setup.paused ? { clutch: setup.clutch ?? 0, throttle: setup.throttle ?? 0, front: 0, rear: setup.rear ?? 0, gear: setup.gear } : null
       if (setup.paused) pause()
       else play()
     },
@@ -116,6 +130,7 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
   const [spec, setSpec] = useState<WorldSpec | undefined>(initialWorldSpec)
   const gap = useMotionValue<number | null>(carGap(startWorld, 0))
   const pose = useMotionValue<WorldPose | null>(startWorld.pose)
+  const traffic = useMotionValue<RoadTraffic>(readTraffic(startWorld, 0, initialWorldSpec))
   const [signal, setSignal] = useState<SignalColour | null>(startWorld.signal)
   const lastT = useRef(0)
   const lastDistance = useRef(0)
@@ -136,13 +151,15 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
         const w = stepWorld(worldSpec.current, world.current, Math.min(dt, 0.1), s.distance, { speed: s.speed, steer: steering.current, gear: inputs.current.gear, clutch: inputs.current.clutch, stage: stage.current })
         world.current = w
         gap.set(carGap(w, s.distance))
-        if (w.pose) pose.set(w.pose)
+        traffic.set(readTraffic(w, s.distance, worldSpec.current))
+        pose.set(w.pose)
+        heading.set(w.pose ? w.pose.heading : (worldSpec.current?.curvature ?? 0) * s.distance)
         if (w.signal !== signal) setSignal(w.signal)
       }),
-    [onStep, gap, signal, pose, inputs],
+    [onStep, gap, signal, pose, traffic, heading, inputs],
   )
   const getWorld = useCallback(() => world.current, [])
-  const road: RoadMotion = { distance, heading, time: clock.time, carGap: gap, pose }
+  const road: RoadMotion = { distance, heading, time: clock.time, carGap: gap, pose, traffic }
 
   const start = useCallback(() => {
     controls.touch()
@@ -168,7 +185,7 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
    */
   const reset = useCallback((setup: CockpitSetup = { gear: 0, running: false }, spec?: WorldSpec) => {
     setNotice(null)
-    controls.reset(setup.gear, { throttle: setup.throttle ?? 0, rear: setup.rear ?? 0 })
+    controls.reset(setup.gear, { throttle: setup.throttle ?? 0, rear: setup.rear ?? 0, clutch: setup.clutch ?? 0 })
     load(...loadArgs(setup))
     worldSpec.current = spec
     setSpec(spec)
@@ -177,11 +194,13 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
     setCrossing(null)
     gap.set(carGap(world.current, 0))
     pose.set(world.current.pose)
+    traffic.set(readTraffic(world.current, 0, spec))
+    heading.set(0)
     setSignal(world.current.signal)
     distance.set(0)
     lastDownshift.set(-Infinity)
     holdFor(setup)
-  }, [controls, load, distance, lastDownshift, holdFor, gap, pose])
+  }, [controls, load, distance, lastDownshift, holdFor, gap, pose, traffic, heading])
 
   /** Put the motorcycle, its controls and the road back where a run was (playback jumping to a step). */
   const restore = useCallback(
@@ -196,11 +215,13 @@ export function useCockpitSim(initial: CockpitSetup = { gear: 0, running: false 
       lastT.current = clock.time.get()
       gap.set(carGap(snap.world, snap.state.distance))
       pose.set(snap.world.pose)
+      traffic.set(readTraffic(snap.world, snap.state.distance, worldSpec.current))
+      heading.set(snap.world.pose ? snap.world.pose.heading : (worldSpec.current?.curvature ?? 0) * snap.state.distance)
       setSignal(snap.world.signal)
       distance.set(snap.state.distance)
       lastDistance.current = snap.state.distance
     },
-    [controls, load, gap, pose, distance, clock.time],
+    [controls, load, gap, pose, traffic, heading, distance, clock.time],
   )
 
   return { sim, controls, road, notice, start, stop, reset, restore, setStage, setDriven, lastDownshift, signal, getWorld, worldSpec: spec, crossing }

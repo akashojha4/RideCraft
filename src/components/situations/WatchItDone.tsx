@@ -13,6 +13,7 @@ import { useRideSounds } from '@/hooks/useRideSounds'
 import { cn } from '@/lib/cn'
 import { REDLINE_RPM } from '@/lib/mechanics/gearbox'
 import { simulationSpeeds } from '@/lib/motion'
+import { leanForCurvature } from '@/lib/simulation/cockpitWorld'
 
 /*
  * The cockpit riding the scenario by itself: the same simulation and scenario as the cockpit
@@ -71,7 +72,7 @@ export function WatchItDone({ scenario, run, narrated, compact = false }: { scen
           gear: i.gear,
           frictionZone: FRICTION_ZONE,
         }}
-        road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene: roadSceneFor(i, worldSpec, signal) }}
+        road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene: roadSceneFor(i, worldSpec, signal), curvature: worldSpec?.curvature, lean: leanForCurvature(s.speed, worldSpec?.curvature ?? 0) }}
         highlight={hl.zones}
         nudge={playing ? player.nudge : undefined}
       />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { carGap } from '@/lib/simulation/cockpitWorld'
-import { downhill, emergencyBraking, gravel, uphillStart, wetRoad } from './roadConditions'
+import { crossGap } from '@/lib/simulation/cockpitWorld'
+import { downhill, emergencyAbs, emergencyBraking, gravel, uphillStart, wetRoad } from './roadConditions'
 import { ride } from './scriptedRider'
 
 describe('road-condition scenarios', () => {
@@ -22,19 +22,19 @@ describe('road-condition scenarios', () => {
 
   it('downhill: gathers speed in third, brakes below 25, then second holds the speed', () => {
     const r = ride(downhill, [
-      [() => ({}), 12],
-      [(t) => ({ front: Math.min(0.2, t * 0.4), rear: 0.1 }), 2],
+      [() => ({}), 8],
+      [(t) => ({ front: Math.min(0.22, t * 0.4), rear: 0.1 }), 3.2],
       [(t) => (t < 0.3 ? { front: 0, rear: 0, clutch: 1 } : t < 0.4 ? { gear: 2 } : { clutch: Math.max(0, 1 - (t - 0.4) * 0.8) }), 4],
     ])
     expect(r.complete).toBe(true)
     expect(r.mistakes).toEqual([])
   })
 
-  it('wet road: progressive braking stops without locking; a grab that works in the dry locks the front', () => {
+  it('wet road: slow into the bend without locking; a grab that works in the dry locks the front', () => {
     const r = ride(wetRoad, [
-      [() => ({ throttle: 0 }), 0.5],
-      [(t) => ({ front: Math.min(0.3, t * 0.4), rear: 0.05 }), 1.5],
-      [() => ({ clutch: 1, front: 0.3, rear: 0.05 }), 6],
+      [() => ({ throttle: 0 }), 0.6],
+      [(_t, s) => (s.speed * 3.6 > 32 ? { front: 0.2, rear: 0.05 } : { front: 0, rear: 0 }), 3.5],
+      [() => ({ throttle: 0.22, front: 0, rear: 0, clutch: 0 }), 5.5],
     ])
     expect(r.complete).toBe(true)
     expect(r.mistakes).toEqual([])
@@ -42,11 +42,11 @@ describe('road-condition scenarios', () => {
     expect(grab.mistakes).toContain('front-lock')
   })
 
-  it('gravel: rear brake, then a gentle stop; the front locks far more easily than on tarmac', () => {
+  it('gravel: rear brake then through the bend; the front locks far more easily than on tarmac', () => {
     const r = ride(gravel, [
-      [() => ({ throttle: 0 }), 0.5],
-      [(t) => ({ rear: Math.min(0.2, t * 0.4) }), 3],
-      [() => ({ clutch: 1, rear: 0.15, front: 0.1 }), 5],
+      [() => ({ throttle: 0 }), 0.6],
+      [(_t, s) => (s.speed * 3.6 > 18 ? { rear: 0.18 } : { rear: 0 }), 4],
+      [() => ({ throttle: 0.14, rear: 0, front: 0, clutch: 0 }), 5],
     ])
     expect(r.complete).toBe(true)
     expect(r.mistakes).toEqual([])
@@ -61,8 +61,18 @@ describe('road-condition scenarios', () => {
     ])
     expect(r.complete).toBe(true)
     expect(r.mistakes).toEqual([])
-    expect(carGap(r.w, r.s.distance)).toBeGreaterThan(1)
+    expect(crossGap(emergencyBraking.world, r.s.distance)).toBeGreaterThan(1)
     const late = ride(emergencyBraking, [[() => ({ throttle: 0 }), 5]], { strict: false })
     expect(late.mistakes).toContain('collision')
+  })
+
+  it('emergency ABS: a grab stops short without locking', () => {
+    const r = ride(emergencyAbs, [
+      [() => ({ throttle: 0, clutch: 1, front: 1, rear: 0.25 }), 1],
+      [() => ({ clutch: 1, front: 1, rear: 0.25 }), 4],
+    ])
+    expect(r.complete).toBe(true)
+    expect(r.mistakes).toEqual([])
+    expect(crossGap(emergencyAbs.world, r.s.distance)).toBeGreaterThan(1)
   })
 })

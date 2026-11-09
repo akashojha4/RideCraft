@@ -17,10 +17,10 @@ import type { CockpitScenario, CockpitSetup, CockpitStep, DemoControls } from '.
 export const AT_REST: PowertrainInputs = { gear: 0, clutch: 0, throttle: 0, brake: 0, front: 0, rear: 0, grade: 0, grip: GRIP.dry, abs: false, cbs: false }
 
 /** The simulation's inputs and state for how a scenario finds the motorcycle: engine off, idling, or rolling in gear. */
-export function setupState({ gear, running, kmh = 0, throttle = 0, rear = 0, grade = 0, surface = 'dry' }: CockpitSetup): { inputs: PowertrainInputs; state: Partial<PowertrainState> } {
+export function setupState({ gear, running, kmh = 0, throttle = 0, rear = 0, grade = 0, surface = 'dry', extraMass = 0, clutch = 0, abs = false }: CockpitSetup): { inputs: PowertrainInputs; state: Partial<PowertrainState> } {
   const v = kmh / 3.6
   return {
-    inputs: { ...AT_REST, gear, throttle, rear, grade, grip: SURFACE_GRIP[surface] },
+    inputs: { ...AT_REST, gear, throttle, rear, grade, grip: SURFACE_GRIP[surface], extraMass, clutch, abs },
     state: !running ? { running: false, engine: 0 } : v > 0 && gear > 0 ? { speed: v, engine: drivelineSpeed(v, gear), locked: true } : {},
   }
 }

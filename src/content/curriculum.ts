@@ -1,8 +1,10 @@
+import { academyLessonIdsForModule, academyNeighbors, academyPath, phaseForLesson } from './academy'
 import { basicsLessons } from './modules/basics'
 import { handlingLessons } from './modules/handling'
 import { mechanicsLessons } from './modules/mechanics'
 import { firstRideLessons } from './modules/firstRide'
 import { preRideLessons } from './modules/preRide'
+import { roadcraftLessons } from './modules/roadcraft'
 import { ridingSituationLessons } from './modules/ridingSituations'
 import { getCockpitScenario } from './scenarios/cockpit'
 import type { LearningModule, Lesson } from './types'
@@ -48,6 +50,13 @@ export const modules: LearningModule[] = [
     lessons: handlingLessons,
   },
   {
+    id: 'roadcraft',
+    title: 'Roadcraft',
+    description: 'Seeing and being seen, space, junctions, other people, night, a passenger, and what to do when the ride goes wrong.',
+    phase: 10,
+    lessons: roadcraftLessons,
+  },
+  {
     id: 'mechanics',
     title: 'Advanced Mechanics',
     description: 'Optional deep-dives for the curious: combustion, fuel systems, cooling, ABS, traction control, suspension and tyres. Not needed to start riding.',
@@ -64,11 +73,20 @@ export const coreModules = visibleModules.filter((m) => !m.optional && m.lessons
 
 export const moduleMinutes = (m: LearningModule) => m.lessons.reduce((n, l) => n + l.durationMinutes, 0)
 
-/** The first lesson not yet completed, in curriculum order (core modules first), or undefined when all are done. */
+/** The first lesson not yet completed, along the academy path (turning and an emergency stop before traffic), then any leftover, then optional depth. */
 export function nextLesson(isCompleted: (moduleId: string, lessonId: string) => boolean) {
+  for (const step of academyPath) {
+    if (!isCompleted(step.moduleId, step.lessonId)) {
+      const found = getLesson(step.moduleId, step.lessonId)
+      if (found) return { module: found.module, lesson: found.lesson, path: lessonPath(step.moduleId, step.lessonId), place: found.place }
+    }
+  }
   for (const m of [...coreModules, ...visibleModules.filter((x) => x.optional)]) {
     const l = m.lessons.find((x) => !isCompleted(m.id, x.id))
-    if (l) return { module: m, lesson: l, path: lessonPath(m.id, l.id) }
+    if (l) {
+      const found = getLesson(m.id, l.id)
+      if (found) return { module: found.module, lesson: found.lesson, path: lessonPath(m.id, l.id), place: found.place }
+    }
   }
   return undefined
 }
@@ -77,21 +95,66 @@ export function getModule(moduleId: string | undefined) {
   return modules.find((m) => m.id === moduleId)
 }
 
+export type LessonNeighbor = { module: LearningModule; lesson: Lesson }
+
+export type LessonPlace = {
+  title: string
+  step: number
+  of: number
+  href: string
+  phaseId?: string
+}
+
+function neighborAt(moduleId: string, lessonId: string): LessonNeighbor | undefined {
+  const module = getModule(moduleId)
+  const lesson = module?.lessons.find((l) => l.id === lessonId)
+  if (!module || !lesson) return undefined
+  return { module, lesson }
+}
+
+/** This module’s lessons in the order the academy path meets them. */
+export function lessonsInAcademyOrder(module: LearningModule) {
+  const ids = academyLessonIdsForModule(module.id)
+  if (ids.length === 0) return module.lessons
+  const byId = new Map(module.lessons.map((l) => [l.id, l]))
+  const ordered = ids.map((id) => byId.get(id)).filter((l): l is Lesson => !!l)
+  const leftover = module.lessons.filter((l) => !ids.includes(l.id))
+  return leftover.length ? [...ordered, ...leftover] : ordered
+}
+
 export function getLesson(moduleId: string | undefined, lessonId: string | undefined) {
   const module = getModule(moduleId)
-  if (!module) return undefined
+  if (!module || !lessonId) return undefined
   const index = module.lessons.findIndex((l) => l.id === lessonId)
   if (index === -1) return undefined
-  const listed = visibleModules.filter((m) => m.lessons.length > 0)
-  return {
-    module,
-    lesson: module.lessons[index],
-    index,
-    previous: module.lessons[index - 1] as Lesson | undefined,
-    next: module.lessons[index + 1] as Lesson | undefined,
-    /** The module that follows in the curriculum, for the pager after a module's last lesson. */
-    nextModule: listed[listed.indexOf(module) + 1] as LearningModule | undefined,
-  }
+  const onPath = academyNeighbors(module.id, lessonId)
+  const phase = phaseForLesson(module.id, lessonId)
+  const previous =
+    onPath.index >= 0
+      ? onPath.previous
+        ? neighborAt(onPath.previous.moduleId, onPath.previous.lessonId)
+        : undefined
+      : index > 0
+        ? { module, lesson: module.lessons[index - 1] }
+        : undefined
+  const next =
+    onPath.index >= 0
+      ? onPath.next
+        ? neighborAt(onPath.next.moduleId, onPath.next.lessonId)
+        : undefined
+      : index < module.lessons.length - 1
+        ? { module, lesson: module.lessons[index + 1] }
+        : undefined
+  const place: LessonPlace = phase
+    ? {
+        title: phase.title,
+        step: phase.lessons.findIndex((s) => s.moduleId === module.id && s.lessonId === lessonId) + 1,
+        of: phase.lessons.length,
+        href: `/learn/phase/${phase.id}`,
+        phaseId: phase.id,
+      }
+    : { title: module.title, step: index + 1, of: module.lessons.length, href: `/learn/${module.id}` }
+  return { module, lesson: module.lessons[index], index, previous, next, place }
 }
 
 export function lessonPath(moduleId: string, lessonId: string) {

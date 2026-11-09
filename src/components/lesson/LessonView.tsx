@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Reveal } from '@/components/motion/Reveal'
 import { Container } from '@/components/ui/Container'
-import { lessonPath } from '@/content/curriculum'
+import { lessonPath, type LessonNeighbor, type LessonPlace } from '@/content/curriculum'
 import type { LearningModule, Lesson, LessonBlock as Block } from '@/content/types'
 import { cn } from '@/lib/cn'
 import { progress } from '@/lib/progress/store'
@@ -26,17 +26,16 @@ function slug(text: string) {
 export function LessonView({
   module,
   lesson,
-  index,
   previous,
   next,
-  nextModule,
+  place,
 }: {
   module: LearningModule
   lesson: Lesson
   index: number
-  previous?: Lesson
-  next?: Lesson
-  nextModule?: LearningModule
+  previous?: LessonNeighbor
+  next?: LessonNeighbor
+  place: LessonPlace
 }) {
   const outline = lesson.blocks
     .map((block, i) => {
@@ -59,13 +58,13 @@ export function LessonView({
             </li>
             <ChevronRight className="size-3.5" aria-hidden />
             <li>
-              <Link to={`/learn/${module.id}`} className="hover:text-ink">
-                {module.title}
+              <Link to={place.href} className="hover:text-ink">
+                {place.title}
               </Link>
             </li>
             <ChevronRight className="size-3.5" aria-hidden />
             <li aria-current="page" className="text-ink-muted">
-              Lesson {index + 1}
+              Lesson {place.step}
             </li>
           </ol>
         </nav>
@@ -74,7 +73,7 @@ export function LessonView({
           <div className="min-w-0 max-w-3xl">
             <Reveal className="mb-10 space-y-4">
               <p className="tabular font-mono text-xs tracking-[0.18em] text-ignition-400 uppercase">
-                Lesson {index + 1} of {module.lessons.length}
+                {place.title} · lesson {place.step} of {place.of}
               </p>
               <h1 className="text-3xl font-semibold text-ink sm:text-4xl">{lesson.title}</h1>
               <p className="text-lg text-ink-muted">{lesson.summary}</p>
@@ -108,8 +107,8 @@ export function LessonView({
             </div>
 
             <nav aria-label="Lesson navigation" className="mt-12 grid gap-3 sm:grid-cols-2">
-              <PagerLink module={module} lesson={previous} direction="previous" />
-              <PagerLink module={module} lesson={next} direction="next" nextModule={nextModule} />
+              <PagerLink target={previous} direction="previous" />
+              <PagerLink target={next} direction="next" />
             </nav>
           </div>
 
@@ -139,21 +138,15 @@ export function LessonView({
 }
 
 export function PagerLink({
-  module,
-  lesson,
+  target,
   direction,
-  nextModule,
 }: {
-  module: LearningModule
-  lesson?: Lesson
+  target?: LessonNeighbor
   direction: 'previous' | 'next'
-  /** After a module's last lesson, the next link leads into this module. */
-  nextModule?: LearningModule
 }) {
   const isNext = direction === 'next'
-  const intoNext = isNext && !lesson && nextModule?.lessons[0]
-  const to = lesson ? lessonPath(module.id, lesson.id) : intoNext ? lessonPath(nextModule!.id, intoNext.id) : `/learn/${module.id}`
-  const label = lesson ? lesson.title : intoNext ? `${nextModule!.title}: ${intoNext.title}` : isNext ? 'Back to module overview' : 'Module overview'
+  const to = target ? lessonPath(target.module.id, target.lesson.id) : '/learn'
+  const label = target ? target.lesson.title : isNext ? 'Back to the path' : 'The path'
 
   return (
     <Link
@@ -165,7 +158,7 @@ export function PagerLink({
     >
       <span className="flex items-center gap-1.5 text-xs text-ink-subtle">
         {!isNext && <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" aria-hidden />}
-        {lesson ? (isNext ? 'Next lesson' : 'Previous lesson') : intoNext ? 'Module finished — next module' : 'Module'}
+        {target ? (isNext ? 'Next lesson' : 'Previous lesson') : isNext ? 'Path finished' : 'Path'}
         {isNext && <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />}
       </span>
       <span className="font-medium text-ink">{label}</span>

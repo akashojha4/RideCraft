@@ -97,6 +97,12 @@ export default function SimulatorsPage() {
           )
         })}
       </Stagger>
+      <Link to="/challenges" className="mt-8 flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface p-5 text-sm text-ink-muted hover:border-line-strong">
+        <span>
+          <span className="text-ink">Practical challenges.</span> Yard exercises you can rehearse here, and the ones that still need a real motorcycle.
+        </span>
+        <ArrowRight className="size-4 shrink-0 text-ignition-400" aria-hidden />
+      </Link>
     </Container>
   )
 }

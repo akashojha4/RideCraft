@@ -19,6 +19,7 @@ export type MistakeId =
   | 'shift-without-clutch'
   // Scenario-specific (spotted with the world in view):
   | 'collision'
+  | 'rear-ended'
   | 'ran-red'
   | 'tailgating'
   | 'bump-fast'

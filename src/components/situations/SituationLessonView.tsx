@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { KnowledgeCheck } from '@/components/lesson/KnowledgeCheck'
 import { PagerLink } from '@/components/lesson/LessonView'
 import { Container } from '@/components/ui/Container'
-import { lessonPath } from '@/content/curriculum'
+import { lessonPath, type LessonNeighbor, type LessonPlace } from '@/content/curriculum'
 import { getCockpitScenario } from '@/content/scenarios/cockpit'
 import { demoPlan, runScenario } from '@/content/scenarios/cockpit/run'
 import type { LearningModule, Lesson } from '@/content/types'
@@ -27,7 +27,7 @@ import { WatchItDone } from './WatchItDone'
  */
 
 
-export function SituationLessonView({ module, lesson, index, previous, next, nextModule }: { module: LearningModule; lesson: Lesson; index: number; previous?: Lesson; next?: Lesson; nextModule?: LearningModule }) {
+export function SituationLessonView({ module, lesson, previous, next, place }: { module: LearningModule; lesson: Lesson; index: number; previous?: LessonNeighbor; next?: LessonNeighbor; place: LessonPlace }) {
   const teaching = lesson.situation!
   const scenario = getCockpitScenario(teaching.scenario)!
   const run = useMemo(() => runScenario(scenario, demoPlan(scenario)), [scenario])
@@ -78,20 +78,20 @@ export function SituationLessonView({ module, lesson, index, previous, next, nex
             </li>
             <ChevronRight className="size-3.5" aria-hidden />
             <li>
-              <Link to={`/learn/${module.id}`} className="hover:text-ink">
-                {module.title}
+              <Link to={place.href} className="hover:text-ink">
+                {place.title}
               </Link>
             </li>
             <ChevronRight className="size-3.5" aria-hidden />
             <li aria-current="page" className="text-ink-muted">
-              Lesson {index + 1}
+              Lesson {place.step}
             </li>
           </ol>
         </nav>
 
         <header className="mb-6 space-y-2">
           <p className="tabular font-mono text-xs tracking-[0.18em] text-ignition-400 uppercase">
-            Riding situation {index + 1} of {module.lessons.length}
+            {place.title} · lesson {place.step} of {place.of}
           </p>
           <h1 className="text-3xl font-semibold text-ink sm:text-4xl">{lesson.title}</h1>
           <p className="text-lg text-ink-muted">{lesson.summary}</p>
@@ -200,8 +200,8 @@ export function SituationLessonView({ module, lesson, index, previous, next, nex
 
         {at === SECTIONS.length - 1 && (
           <nav aria-label="Lesson navigation" className="mt-12 grid gap-3 sm:grid-cols-2">
-            <PagerLink module={module} lesson={previous} direction="previous" />
-            <PagerLink module={module} lesson={next} direction="next" nextModule={nextModule} />
+            <PagerLink target={previous} direction="previous" />
+            <PagerLink target={next} direction="next" />
           </nav>
         )}
       </Container>

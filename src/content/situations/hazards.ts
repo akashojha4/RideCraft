@@ -147,7 +147,7 @@ export const suddenObstacleTeaching: SituationTeaching = {
   scenario: 'sudden-obstacle',
   situation: {
     where: 'Riding at 50 km/h in third on a dry road.',
-    happening: 'A hazard has appeared in your lane about 32 m ahead — close enough that you must act at once.',
+    happening: 'A dog has run out and frozen in your lane about 32 m ahead — close enough that you must act at once.',
     goal: 'Brake immediately, hard and straight, and stop before you reach it.',
     challenge: 'Grabbing the lever locks the front; swerving while braking at the limit asks the tyres for more grip than they have.',
     before: [

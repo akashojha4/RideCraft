@@ -1,12 +1,12 @@
 import { G } from '@/lib/mechanics/braking'
-import { NOSE, carGap, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
+import { NOSE, carGap, personGap, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
 import type { MistakeId } from '@/lib/simulation/ridingMistakes'
 import type { CockpitScenario, WorldWatch } from './types'
 
 /*
  * Extra cockpit rides that match decision scenarios the picker did not yet have: a pothole,
- * a sudden obstacle, staying behind to overtake, and a highway following gap. Night riding
- * and a pillion need lighting and extra mass the world does not model yet.
+ * a sudden obstacle, staying behind to overtake, and a highway following gap. Night, a
+ * pillion, cars behind and bends live in fullWorld.ts.
  */
 
 const RIDE_SAFETY = 'Practise these situations for real only with a qualified instructor, in a closed area first.'
@@ -32,10 +32,10 @@ const TAILGATING = { id: 'tailgating' as MistakeId, title: 'Too close', text: 'Y
 // ---- Pothole ----
 
 /** A short, sharp hole in the wheel track, m. */
-export const HOLE = { at: 50, length: 0.6, height: 0.08 }
+export const HOLE = { at: 40, length: 0.6, height: 0.08 }
 /** Above this entry speed the jolt is treated as too hard (km/h). */
 export const HOLE_LIMIT = 25
-const hole: WorldSpec = { bump: HOLE }
+const hole: WorldSpec = { bump: HOLE, oncoming: { at: 90, speed: () => 50 / 3.6 } }
 const onHole = (distance: number) => distance >= HOLE.at && distance <= HOLE.at + HOLE.length
 
 export const pothole: CockpitScenario = {
@@ -50,7 +50,7 @@ export const pothole: CockpitScenario = {
     if (onHole(s.distance) && (i.front ?? 0) > 0.05) return 'bump-braking'
     return null
   },
-  situation: `You are riding at about 50 km/h in fourth. A deep pothole is ${HOLE.at} m ahead, right in your wheel track. On a real road you would often ease around it; this ride is the case where you have to go over it. The scenario waits, paused, until you touch a control.`,
+  situation: `You are riding at about 50 km/h in fourth. A deep pothole is ${HOLE.at} m ahead, right in your wheel track. There is room in your lane, and an oncoming car is in the other lane. On a real road you would often ease around it; this ride is the case where you have to go over it. The scenario waits, paused, until you touch a control.`,
   objective: 'Slow before the hole, roll over it upright and off the brakes, then ride away smoothly.',
   actions: ['Close the throttle and brake to below 20 km/h before the hole, changing down to second.', 'Release the brakes and roll over it at a steady speed, upright.', 'Once over it, open the throttle smoothly and ride away.'],
   mechanical: 'A short hole punches the front wheel up faster than a long speed breaker. The fork must compress in less time; braking beforehand leaves the fork already compressed, so it has less travel left. Second gear keeps the engine from labouring at the low speed.',
@@ -95,7 +95,7 @@ export const pothole: CockpitScenario = {
       step: 'slow',
       seconds: 8,
       watch: 'Braking starts well before the hole; below about 18 km/h the clutch goes in and the lever presses down to second.',
-      act: (_t, s) => (s.distance < 22 ? {} : s.speed * 3.6 > 16 ? { throttle: 0, front: 0.28, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }),
+      act: (_t, s) => (s.speed * 3.6 > 16 ? { throttle: 0, front: 0.32, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }),
     },
     { step: 'over', seconds: 8, watch: 'Brakes off, clutch out with a touch of throttle: the motorcycle rolls over the hole — watch for a short, sharp jolt.', act: (t) => ({ clutch: Math.max(0, 1 - t * 1.2), throttle: 0.12 }) },
     { step: 'away', seconds: 6, watch: 'Over it: the throttle opens smoothly and the motorcycle rides away.', act: (t) => ({ throttle: Math.min(0.6, 0.15 + t * 0.3), clutch: 0 }) },
@@ -104,25 +104,34 @@ export const pothole: CockpitScenario = {
 
 // ---- Sudden obstacle ----
 
-/** A stopped hazard in the rider's lane, this far ahead at the start, m. */
-const HAZARD = 32
+/** A dog frozen in the rider's lane, this far ahead at the start, m. */
+const HAZARD = 26
+
+function dogWatch(): WorldWatch {
+  return (prev, s, _i, _d, w) => {
+    const before = personGap(w, prev.distance)
+    const now = personGap(w, s.distance)
+    if (before != null && now != null && before >= NOSE && now < NOSE) return 'collision'
+    return null
+  }
+}
 
 export const suddenObstacle: CockpitScenario = {
   id: 'sudden-obstacle',
   title: 'A sudden obstacle',
-  summary: 'Something has appeared in your lane: brake immediately, hard and straight, and stop before you reach it.',
+  summary: 'A dog has frozen in your lane: brake immediately, hard and straight, and stop before you reach it.',
   setup: { gear: 3, running: true, kmh: 50, throttle: 0.25, paused: true },
   view: 'rider',
-  world: { car: { gap: HAZARD } },
-  watch: followWatch(),
-  situation: `You are riding at 50 km/h in third. A hazard — a stopped vehicle, an animal, a fallen object — is ${HAZARD} m ahead in your lane. The scenario waits, paused, until you touch a control. In this cockpit you act at once; on a real road a second of surprise uses about 14 m at this speed.`,
-  objective: 'Brake immediately, hard and straight, and stop before you reach the hazard, without locking a wheel.',
+  world: { person: { at: HAZARD, kind: 'dog' } },
+  watch: dogWatch(),
+  situation: `You are riding at 50 km/h in third. A dog has run out from the left and frozen in the middle of your lane, ${HAZARD} m ahead. The scenario waits, paused, until you touch a control. In this cockpit you act at once; on a real road a second of surprise uses about 14 m at this speed.`,
+  objective: 'Brake immediately, hard and straight, and stop before you reach the dog, without locking a wheel.',
   actions: ['Close the throttle and squeeze the front brake firmly but progressively, with the rear brake too.', 'Stay upright — do not try to swerve while braking at the limit.', 'Pull the clutch in and hold both brakes until you stop.'],
   mechanical: 'At 50 km/h, hard braking at about 0.8 g takes roughly 12 m plus however far you cover before you act. Grabbing the lever asks for full force before the load has moved onto the front tyre and locks it. Braking and turning share the same grip: both at full strength exceeds it.',
   road: 'The motorcycle pitches forward, the fork compresses, and almost all the load sits on the front tyre. Stay in a straight line so that tyre only has to brake. If you cannot stop in time and another lane is clearly empty, a swerve (eyes on the gap, a firm press on that handlebar) is a different skill — not this ride.',
-  why: 'A sudden obstacle leaves little time. Braking hard at once always helps — even if you cannot stop, you hit slower. Do not mix a limit brake with a swerve.',
+  why: 'A dog in the lane leaves little time. Braking hard at once always helps — even if you cannot stop, you hit slower. Do not mix a limit brake with a swerve.',
   mistakes: [
-    COLLISION,
+    { id: 'collision' as MistakeId, title: 'Reaching the dog', text: 'You ran into the dog. Brake at once, in a straight line — hoping it will move spends the metres you had.' },
     { id: 'front-lock', title: 'Locking the front wheel', text: 'A grabbed lever asks for full force before the load has moved onto the front tyre. Release and squeeze again — on a real motorcycle a locked front wheel usually means a fall.' },
     { id: 'rear-lock', title: 'Locking the rear wheel', text: 'Hard braking takes almost all the load off the rear tyre. Ease off the pedal.' },
     { id: 'stall', title: 'Stalling as you stop', text: 'Pull the clutch in as you come to a stop.' },
@@ -139,23 +148,23 @@ export const suddenObstacle: CockpitScenario = {
     },
     {
       id: 'stop',
-      title: 'Stop before the hazard',
+      title: 'Stop before the dog',
       instruction: 'Stay straight, pull the clutch in and hold both brakes until you stop — before you reach it.',
       highlight: ['clutch', 'frontBrake', 'rearBrake'],
-      done: (s, _i, d, w) => s.running && Math.abs(s.speed) < 0.05 && d.clamp === 0 && (carGap(w, s.distance) ?? 0) >= NOSE,
+      done: (s, _i, d, w) => s.running && Math.abs(s.speed) < 0.05 && d.clamp === 0 && (personGap(w, s.distance) ?? 0) >= NOSE,
       explanation: 'Stopped with room to spare, engine running, no wheel locked, and still in a straight line.',
     },
   ],
   demo: [
     { step: 'brake', seconds: 1.2, watch: 'Throttle shut at once and the front brake squeezed hard but progressively, with some rear: the motorcycle pitches forward.', act: (t) => ({ throttle: 0, front: Math.min(0.6, t * 1.2), rear: 0.1 }) },
-    { step: 'stop', seconds: 4, watch: 'Clutch in, both brakes held, still straight: the motorcycle stops short of the hazard, engine running, no wheel locked.', act: () => ({ clutch: 1, front: 0.6, rear: 0.1 }) },
+    { step: 'stop', seconds: 4, watch: 'Clutch in, both brakes held, still straight: the motorcycle stops short of the dog, engine running, no wheel locked.', act: () => ({ clutch: 1, front: 0.6, rear: 0.1 }) },
   ],
 }
 
 // ---- Overtaking (stay behind) ----
 
 const V40 = 40 / 3.6
-const truck: WorldSpec = { car: { gap: 24, speed: () => V40 } }
+const truck: WorldSpec = { car: { gap: 24, speed: () => V40, kind: 'truck' }, oncoming: { at: 110, speed: () => 60 / 3.6 } }
 
 export const overtaking: CockpitScenario = {
   id: 'overtaking',
@@ -165,11 +174,11 @@ export const overtaking: CockpitScenario = {
   view: 'rider',
   world: truck,
   watch: followWatch(),
-  situation: 'You are about two seconds behind a slow vehicle doing 40 km/h, in fifth. This cockpit is a single lane: it cannot show pulling out. The safe choice when you cannot see a clear road well beyond the pass is to stay behind. The scenario waits, paused, until you touch a control.',
+  situation: 'You are about two seconds behind a slow truck doing 40 km/h, in fifth. An oncoming car is in the other lane. This cockpit cannot show pulling out. The safe choice when you cannot see a clear road well beyond the pass is to stay behind. The scenario waits, paused, until you touch a control.',
   objective: 'Match its speed, hold a two-second gap, and stay there — do not close in.',
   actions: ['Hold about 40 km/h so the gap does not shrink.', 'Keep at least two seconds behind (at 40 km/h that is about 22 m).', 'Stay behind. Closing in does not make a pass safer, and this ride has no other lane to use.'],
   mechanical: 'A two-second gap is twice your speed in metres per second. At 40 km/h that is about 22 m — room to see, decide and brake if the vehicle ahead stops. Closing up steals that time. Passing belongs in a lower gear with a long, empty road; this ride is the wait.',
-  road: 'The vehicle ahead holds a steady 40 km/h. If you open the throttle you close on it; if you ease off the gap grows. There is no oncoming traffic drawn here, which is why staying behind is the whole exercise.',
+  road: 'The truck holds a steady 40 km/h. An oncoming car is in the other lane. If you open the throttle you close on the truck; if you ease off the gap grows. Staying behind is the whole exercise.',
   why: 'If in doubt, do not overtake. A few seconds behind a slow vehicle is always safer than a pass you have not got the road for. When you later do pass, change down first so the engine can pull.',
   mistakes: [
     TAILGATING,

@@ -6,7 +6,7 @@ import { ride } from './scriptedRider'
 describe('hazard cockpit scenarios', () => {
   it('pothole: slowed and in second before it, off the brakes over it, away above 25', () => {
     const r = ride(pothole, [
-      [(_t, s) => (s.distance < 22 ? {} : s.speed * 3.6 > 16 ? { throttle: 0, front: 0.28, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }), 8],
+      [(_t, s) => (s.speed * 3.6 > 16 ? { throttle: 0, front: 0.32, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }), 6],
       [(t) => ({ clutch: Math.max(0, 1 - t * 1.2), throttle: 0.12 }), 8],
       [(t) => ({ throttle: Math.min(0.6, 0.15 + t * 0.3), clutch: 0 }), 6],
     ])
@@ -16,7 +16,7 @@ describe('hazard cockpit scenarios', () => {
 
   it('pothole: arriving fast, or braking on it, is flagged', () => {
     expect(ride(pothole, [[() => ({}), 8]], { strict: false }).mistakes).toContain('bump-fast')
-    const braking = ride(pothole, [[(_t, s) => (s.distance < 18 ? {} : { throttle: 0, clutch: 1, front: 0.2 }), 8]], { strict: false })
+    const braking = ride(pothole, [[(_t, s) => (s.distance < 12 ? {} : { throttle: 0, clutch: 1, front: 0.28 }), 8]], { strict: false })
     expect(braking.mistakes).toContain('bump-braking')
     expect(braking.mistakes).not.toContain('bump-fast')
   })

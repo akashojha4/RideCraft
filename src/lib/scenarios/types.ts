@@ -32,7 +32,7 @@ export interface BikePose {
 /** Another road user. (x, y) is the front-centre, like the motorcycle's front wheel. */
 export interface Actor {
   id: string
-  kind: 'car' | 'truck' | 'dog' | 'tractor'
+  kind: 'car' | 'truck' | 'dog' | 'tractor' | 'person'
   x: number
   y: number
   heading: number

@@ -1,4 +1,4 @@
-import { NOSE, carGap, lineGap, type RideInputs, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
+import { NOSE, ROAD_HALF, carGap, crossGap, lineGap, type RideInputs, type WorldSpec, type WorldState } from '@/lib/simulation/cockpitWorld'
 import type { MistakeId } from '@/lib/simulation/ridingMistakes'
 import type { CockpitScenario, WorldWatch } from './types'
 
@@ -21,12 +21,14 @@ function trafficWatch(spec: WorldSpec): WorldWatch {
     const before = carGap(w, prev.distance)
     const now = carGap(w, s.distance)
     if (before != null && now != null) {
-      if (before >= NOSE && now < NOSE) return 'collision'
+      if (Math.abs(w.carX) <= 1.5 && before >= NOSE && now < NOSE) return 'collision'
       if (!tooClose(before, prev.speed) && tooClose(now, s.speed) && now >= NOSE) return 'tailgating'
     }
     const lineBefore = lineGap(spec, prev.distance)
     const lineNow = lineGap(spec, s.distance)
     if (lineBefore != null && lineNow != null && lineBefore >= 0 && lineNow < 0 && w.signal === 'red') return 'ran-red'
+    const cg = crossGap(spec, s.distance)
+    if (cg != null && Math.abs(cg) < 2 && w.crossX != null && Math.abs(w.crossX) < 1.5) return 'collision'
     return null
   }
 }
@@ -38,17 +40,23 @@ const TAILGATING = { id: 'tailgating' as MistakeId, title: 'Too close', text: 'Y
 
 /** Front brake for a steady stop 2 m before the stop line: deceleration v² / 2x, as a share of 1 g (used by the demonstration). */
 // Engine braking, rolling resistance and the light rear brake already give a few hundredths of a g, so the front adds the rest.
-const toLine = (s: { speed: number; distance: number }) => Math.min(0.5, Math.max(0.02, (s.speed * s.speed) / (2 * Math.max(0.5, 78 - s.distance)) / 9.81 - 0.06))
+const SIGNAL_LINE = 50
+const toLine = (s: { speed: number; distance: number }) => Math.min(0.5, Math.max(0.02, (s.speed * s.speed) / (2 * Math.max(0.5, SIGNAL_LINE - 2 - s.distance)) / 9.81 - 0.06))
 
 /** The light turns amber as the rider comes within this distance of the stop line, m, then red after 3 s. */
 const AMBER_AT = 45
 const signalStop: WorldSpec = {
   signal: {
-    at: 80,
+    at: SIGNAL_LINE,
     colour: (w, d) => {
-      if (w.mem.amberAt === undefined && 80 - d <= AMBER_AT) w.mem.amberAt = w.t
+      if (w.mem.amberAt === undefined && SIGNAL_LINE - d <= AMBER_AT) w.mem.amberAt = w.t
       return w.mem.amberAt === undefined ? 'green' : w.t - w.mem.amberAt < 3 ? 'amber' : 'red'
     },
+  },
+  cross: {
+    at: SIGNAL_LINE + 4,
+    x0: 9,
+    vx: (w) => (w.signal === 'red' && w.mem.amberAt !== undefined && w.t - w.mem.amberAt > 4 ? -6 : 0),
   },
 }
 
@@ -56,18 +64,18 @@ export const trafficSignal: CockpitScenario = {
   id: 'traffic-signal',
   title: 'Stopping at a traffic signal',
   summary: 'The light ahead turns amber: slow down smoothly and stop at the line, ready to wait.',
-  setup: { gear: 3, running: true, kmh: 40, throttle: 0.2 },
+  setup: { gear: 3, running: true, kmh: 50, throttle: 0.25 },
   view: 'rider',
   world: signalStop,
   watch: trafficWatch(signalStop),
-  situation: 'You are riding at about 40 km/h in third gear towards a junction with a traffic signal. It is green — for now.',
+  situation: 'You are riding at about 50 km/h in third gear towards a junction with a traffic signal. It is green — for now. Cross traffic waits on the right.',
   objective: 'When the light changes, stop smoothly at the stop line — not past it, and without stalling — then wait in neutral.',
   actions: ['When the light turns amber, close the throttle and start braking with both brakes.', 'Pull the clutch in as you slow, change down to first, and stop at the line.', 'Select neutral (a half-lift from first) while you wait for green.'],
   mechanical: 'Closing the throttle gives engine braking through the gearbox; the brakes do the rest. Pulling the clutch in before you stop separates the engine from the stopping rear wheel, so it keeps idling. Changing down while still rolling leaves you in first, ready to go; neutral, found with a half-lift from first, then lets you release the clutch while you wait.',
   road: 'As you brake, load moves onto the front tyre and the fork compresses; it rebounds as you come to rest. The stop line is where the front wheel must stop.',
   why: 'An amber light means stop, if you can do so safely. Reacting early, and braking progressively, gives a calm stop instead of a late, hard one — or a red light run.',
   mistakes: [
-    { id: 'ran-red', title: 'Crossing on red', text: 'The light was red when you crossed the line. Start braking as soon as it turns amber — at 40 km/h you need about 25 m to react and stop.' },
+    { id: 'ran-red', title: 'Crossing on red', text: 'The light was red when you crossed the line. Start braking as soon as it turns amber — at 50 km/h you need about 30 m to react and stop.' },
     { id: 'stall', title: 'Stalling as you stop', text: 'In gear with the clutch out, the stopping wheel drags the engine down. Pull the clutch in before you stop.' },
     { id: 'front-lock', title: 'Locking the front wheel', text: 'A grabbed lever locks the front before the load has moved onto it. Squeeze progressively.' },
     { id: 'rear-lock', title: 'Locking the rear wheel', text: 'Braking takes load off the rear tyre, so it locks easily. Use a lighter foot.' },
@@ -293,7 +301,7 @@ export const slowTraffic: CockpitScenario = {
 // ---- Speed breaker ----
 
 /** Where the speed breaker starts, how long and high it is, m. */
-export const BREAKER = { at: 60, length: 2, height: 0.08 }
+export const BREAKER = { at: 20, length: 3.7, height: 0.1 }
 /** Above this entry speed the jolt passes 1 g (km/h); at 30 km/h the front tyre leaves the road. */
 export const BREAKER_LIMIT = 20
 const breaker: WorldSpec = { bump: BREAKER }
@@ -303,7 +311,7 @@ export const speedBreaker: CockpitScenario = {
   id: 'speed-breaker',
   title: 'Crossing a speed breaker',
   summary: 'Slow down before a speed breaker, roll over it off the brakes, and ride away.',
-  setup: { gear: 3, running: true, kmh: 35, throttle: 0.2, paused: true },
+  setup: { gear: 3, running: true, kmh: 40, throttle: 0.22, paused: true },
   view: 'split',
   world: breaker,
   watch: (prev, s, i) => {
@@ -311,7 +319,7 @@ export const speedBreaker: CockpitScenario = {
     if (onBreaker(s.distance) && (i.front ?? 0) > 0.05) return 'bump-braking'
     return null
   },
-  situation: `You are riding at about 35 km/h in third gear. There is a speed breaker ${BREAKER.at} m ahead, ${BREAKER.length} m long and ${BREAKER.height * 100} cm high. The scenario waits, paused, until you touch a control.`,
+  situation: `You are riding at about 40 km/h in third gear. There is a speed breaker ${BREAKER.at} m ahead, ${BREAKER.length} m long and ${BREAKER.height * 100} cm high. The scenario waits, paused, until you touch a control.`,
   objective: 'Cross the speed breaker slowly, off the brakes, then ride away smoothly.',
   actions: ['Close the throttle and brake to below 15 km/h before the speed breaker, changing down to second.', 'Release the brakes and roll over it at a steady speed.', 'Once over it, open the throttle smoothly and ride away.'],
   mechanical: 'Below about 15 km/h third gear makes the engine labour, so second keeps it turning freely for the ride away. Over the bump, the front wheel is pushed up and the fork compresses to absorb it; the rear follows a moment later.',
@@ -355,13 +363,61 @@ export const speedBreaker: CockpitScenario = {
   demo: [
     {
       step: 'slow',
-      seconds: 8,
-      watch: 'Braking starts well before the speed breaker; below about 14 km/h the clutch goes in and the lever presses down to second.',
-      act: (_t, s) => (s.distance < 35 ? {} : s.speed * 3.6 > 14 ? { throttle: 0, front: 0.25, rear: 0.1 } : { front: 0, rear: 0, clutch: 1, gear: 2 }),
+      seconds: 4,
+      watch: 'Braking starts at once; below about 14 km/h the clutch goes in and the lever presses down to second.',
+      act: (_t, s) => (s.speed * 3.6 > 14 ? { throttle: 0, front: 0.35, rear: 0.12 } : { front: 0, rear: 0, clutch: 1, gear: 2 }),
     },
     { step: 'over', seconds: 8, watch: 'Brakes off, clutch out smoothly with a touch of throttle: the motorcycle rolls over the speed breaker — watch the gentle jolt reported.', act: (t) => ({ clutch: Math.max(0, 1 - t * 1.2), throttle: 0.12 }) },
     { step: 'away', seconds: 6, watch: 'Over it: the throttle opens smoothly and the motorcycle rides away.', act: (t) => ({ throttle: Math.min(0.6, 0.15 + t * 0.3), clutch: 0 }) },
   ],
 }
 
-export const trafficScenarios = [trafficSignal, movingInTraffic, slowTraffic, speedBreaker]
+const V20 = 20 / 3.6
+const heavyWorld: WorldSpec = { car: { gap: 14, speed: () => V20, kind: 'truck', x: ROAD_HALF } }
+
+export const heavyTraffic: CockpitScenario = {
+  id: 'heavy-traffic',
+  title: 'Beside a truck in traffic',
+  summary: 'A truck in the next lane: hold a two-second gap so you can see its mirror, not sit alongside the cab.',
+  setup: { gear: 2, running: true, kmh: 20, throttle: 0.12, paused: true },
+  view: 'rider',
+  world: heavyWorld,
+  watch: trafficWatch(heavyWorld),
+  situation: 'You are at about 20 km/h in second, in your own lane. A truck is in the next lane, a little ahead. Filtering up beside the cab puts you where the driver cannot see you. The scenario waits, paused, until you touch a control.',
+  objective: 'Match 20 km/h and stay about two seconds behind the truck — far enough back to see its right-hand mirror — not alongside.',
+  actions: ['Hold about 20 km/h so the gap does not shrink.', 'Keep at least two seconds behind (at 20 km/h that is about 11 m).', 'Do not pull up beside the cab. If you cannot see their mirror, they cannot see you.'],
+  mechanical: 'A two-second gap is twice your speed in metres per second. At 20 km/h that is about 11 m. Sitting next to the cab is inside the truck’s blind spot; dropping back until the mirror is visible is the whole exercise.',
+  road: 'The truck holds a steady 20 km/h in the next lane. You see its rear, offset to the right. If you open the throttle you come up alongside; if you hold 20 the gap stays.',
+  why: 'In slow traffic the safe place is where the other driver can see you. Two seconds back, mirror in view, is that place. Filtering past a truck’s cab is how you disappear from it.',
+  mistakes: [
+    TAILGATING,
+    COLLISION,
+    { id: 'stall', title: 'Stalling', text: 'If you slow too far in second, the engine labours. Open the throttle a little, or slip the clutch.' },
+    { id: 'shift-without-clutch', title: 'Changing gear without the clutch', text: 'Pull the clutch in fully before moving the gear lever.' },
+  ],
+  safety: [RIDE_SAFETY, 'If you cannot see the truck’s mirror, assume the driver cannot see you. Drop back.', MODEL_NOTE],
+  steps: [
+    {
+      id: 'match',
+      title: 'Match its speed',
+      instruction: 'Hold about 20 km/h so you stay behind the truck — do not pull up alongside.',
+      highlight: ['throttle'],
+      done: (s, _i, d, w) => w.t >= 1.5 && s.locked && d.kmh > 14 && d.kmh < 26 && (carGap(w, s.distance) ?? 0) >= 1.8 * s.speed,
+      explanation: 'Same speed as the truck, with a two-second gap still there — you can see the mirror.',
+    },
+    {
+      id: 'hold',
+      title: 'Stay where they can see you',
+      instruction: 'Keep that two-second gap for several seconds. Do not filter up beside the cab.',
+      highlight: ['throttle'],
+      done: (s, _i, d, w) => w.t >= 5 && s.locked && d.kmh > 14 && d.kmh < 26 && (carGap(w, s.distance) ?? 0) >= 1.8 * s.speed,
+      explanation: 'Still two seconds back. The truck’s driver can see you in the mirror.',
+    },
+  ],
+  demo: [
+    { step: 'match', seconds: 2.2, watch: 'A steady throttle holds about 20 km/h: the truck stays ahead in the next lane, its mirror in view.', act: () => ({ throttle: 0.12 }) },
+    { step: 'hold', seconds: 4, watch: 'The rider stays there. Pulling up beside the cab would put them where the driver cannot see.', act: () => ({ throttle: 0.12 }) },
+  ],
+}
+
+export const trafficScenarios = [trafficSignal, movingInTraffic, slowTraffic, heavyTraffic, speedBreaker]

@@ -40,7 +40,8 @@ export function ScenarioPlayer({ scenario }: { scenario: Scenario }) {
   const outcome: Outcome | null = useMemo(() => (choice ? scenario.run(choice) : null), [scenario, choice])
   const idle = useMemo(() => {
     if (scenario.intro.length) return scenario.intro
-    return [scenario.run(scenario.choices[scenario.choices.length - 1].id).frames[0]]
+    // First choice is the situation as described, not the recommended outcome.
+    return [scenario.run(scenario.choices[0].id).frames[0]]
   }, [scenario])
   const frames = outcome ? outcome.frames : idle
   const t0 = frames[0].t

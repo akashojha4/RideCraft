@@ -42,6 +42,15 @@ function ActorShape({ a, k }: { a: Actor; k: number }) {
         <rect x={0.7 * k} y={2.4 * k} width={0.5 * k} height={1.4 * k} className="fill-ink-subtle" />
       </g>
     )
+  if (a.kind === 'person')
+    return (
+      <g>
+        <circle cx={0} cy={0} r={0.16 * k} className="fill-ignition-200" />
+        <rect x={-0.14 * k} y={0.16 * k} width={0.28 * k} height={0.55 * k} rx={0.1 * k} className="fill-ignition-400" />
+        <rect x={-0.1 * k} y={0.7 * k} width={0.08 * k} height={0.4 * k} rx={0.04 * k} className="fill-ink-muted" />
+        <rect x={0.02 * k} y={0.7 * k} width={0.08 * k} height={0.4 * k} rx={0.04 * k} className="fill-ink-muted" />
+      </g>
+    )
   return (
     <g>
       <ellipse cx={0} cy={0.45 * k} rx={0.18 * k} ry={0.45 * k} className="fill-caution-300" />

@@ -56,6 +56,12 @@ export interface CockpitSetup {
   surface?: Surface
   /** Wait for the rider: the clock starts at the first touch of a control (traffic that is already close). */
   paused?: boolean
+  /** Extra mass on the motorcycle (a passenger), kg. */
+  extraMass?: number
+  /** Clutch lever at the start, 0–1 (1 = fully in). */
+  clutch?: number
+  /** Anti-lock brakes are fitted. */
+  abs?: boolean
 }
 
 export interface CockpitScenario {

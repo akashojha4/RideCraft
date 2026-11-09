@@ -16,6 +16,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, lazy: page(() => import('@/pages/HomePage')) },
       { path: 'learn', lazy: page(() => import('@/pages/LearnPage')) },
+      { path: 'challenges', lazy: page(() => import('@/pages/ChallengesPage')) },
+      { path: 'learn/phase/:phaseId', lazy: page(() => import('@/pages/PhasePage')) },
       { path: 'learn/:moduleId', lazy: page(() => import('@/pages/ModulePage')) },
       { path: 'learn/:moduleId/:lessonId', lazy: page(() => import('@/pages/LessonPage')) },
       { path: 'simulators', lazy: page(() => import('@/pages/SimulatorsPage')) },

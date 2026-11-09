@@ -296,9 +296,9 @@ export const downhillTeaching: SituationTeaching = {
 export const wetRoadTeaching: SituationTeaching = {
   scenario: 'wet-road',
   situation: {
-    where: 'Riding at a moderate speed in third on a straight road that is wet after rain.',
-    happening: 'A film of water between the tyre and the road cuts grip — in the simulation to about half the dry value.',
-    goal: 'Slow and stop smoothly without locking either wheel.',
+    where: 'Riding at a moderate speed toward a familiar right-hand bend on a road that is wet after rain.',
+    happening: 'A film of water between the tyre and the road cuts grip — in the simulation to about half the dry value. The bend asks for lean you no longer have the grip for at dry-road speed.',
+    goal: 'Slow on the way in and take the wet bend at about 35 km/h without locking a wheel.',
     challenge: 'The brakes are as strong as in the dry; the tyres aren’t. The same lever movement that works in the dry can lock a wheel on a wet road.',
     before: [
       'Grip is a property of the tyre and the surface, not of the brakes.',
@@ -435,9 +435,9 @@ export const wetRoadTeaching: SituationTeaching = {
 export const gravelTeaching: SituationTeaching = {
   scenario: 'gravel',
   situation: {
-    where: 'Riding slowly in second on a road where the tarmac has given way to loose gravel.',
+    where: 'Approaching a right-hand bend where loose gravel is spread across the lane.',
     happening: 'Loose stones roll under the tyre; grip is the lowest of any surface here — about 0.35 in the simulation.',
-    goal: 'Slow and stop on the gravel without locking a wheel.',
+    goal: 'Slow on the way in, then ride through the gravel upright without locking a wheel.',
     challenge: 'A locked front wheel on gravel washes out almost at once. Riders lean on the rear brake more than usual, and keep every input gentle.',
     before: [
       'Loose surfaces punish sudden inputs: smooth, small changes keep the tyres rolling.',

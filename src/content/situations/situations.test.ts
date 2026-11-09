@@ -7,8 +7,10 @@ describe('Riding Situations module', () => {
 
   it('is in the curriculum with a lesson for every cockpit scenario, basics first', () => {
     expect(m).toBeDefined()
-    expect(m.lessons.map((l) => l.id)).toEqual(['starting-and-moving-off', 'stopping-without-stalling', 'using-the-clutch', 'changing-gear', 'using-the-brakes', 'hill-start', 'riding-downhill', 'wet-road', 'gravel', 'emergency-braking', 'traffic-signal', 'moving-in-traffic', 'slow-traffic', 'speed-breaker', 'pothole', 'sudden-obstacle', 'overtaking', 'highway', 'u-turn'])
-    expect(m.lessons.map((l) => l.situation!.scenario).sort()).toEqual(cockpitScenarios.map((s) => s.id).sort())
+    expect(m.lessons.map((l) => l.id)).toEqual(['starting-and-moving-off', 'stopping-without-stalling', 'using-the-clutch', 'changing-gear', 'using-the-brakes', 'u-turn', 'hill-start', 'riding-downhill', 'wet-road', 'gravel', 'emergency-braking', 'traffic-signal', 'moving-in-traffic', 'slow-traffic', 'speed-breaker', 'pothole', 'sudden-obstacle', 'overtaking', 'highway'])
+    const taught = m.lessons.map((l) => l.situation!.scenario)
+    expect(cockpitScenarios.map((s) => s.id)).toEqual(expect.arrayContaining(taught))
+    expect(new Set(taught).size).toBe(taught.length)
   })
 
   it('passes the curriculum validator (with every other module)', () => {

@@ -33,6 +33,7 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { cn } from '@/lib/cn'
 import { leverForClamp } from '@/lib/mechanics/clutch'
 import { REDLINE_RPM, REVERSED_PATTERN, STANDARD_PATTERN } from '@/lib/mechanics/gearbox'
+import { leanForCurvature } from '@/lib/simulation/cockpitWorld'
 import { nextHint } from '@/lib/simulation/cockpitHints'
 import { progress as progressStore } from '@/lib/progress/store'
 import { guidedComplete } from '@/lib/simulation/guided'
@@ -272,7 +273,7 @@ export default function RiderCockpitPage() {
         frictionZone: FRICTION_ZONE,
       }}
       controls={watchingDemo ? undefined : { ...controls, keyHandlers }}
-      road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene }}
+      road={{ motion: road, idling: s.running && Math.abs(s.speed) < 0.3, scene, curvature: worldSpec?.curvature, lean: leanForCurvature(s.speed, worldSpec?.curvature ?? 0) }}
       engine={watchingDemo ? undefined : { running: s.running, onStart: start, onStop: stop }}
       highlight={hl.zones}
       nudge={watchingDemo && watchState.status !== 'done' ? watchState.nudge : undefined}

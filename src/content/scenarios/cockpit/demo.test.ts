@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { scenarios } from '@/content/scenarios'
 import { cockpitScenarios } from './index'
 import { cockpitForDecision } from '../cockpitLink'
 import { demoPlan, runScenario } from './run'
@@ -19,6 +20,12 @@ describe('scenario demonstrations', () => {
     const ids = new Set(cockpitScenarios.map((s) => s.id))
     for (const [from, to] of Object.entries(cockpitForDecision)) {
       expect(ids.has(to), `${from} → ${to}`).toBe(true)
+    }
+  })
+
+  it('every decision scenario has a cockpit ride', () => {
+    for (const s of scenarios) {
+      expect(cockpitForDecision[s.id], s.id).toBeDefined()
     }
   })
 

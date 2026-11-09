@@ -2,7 +2,7 @@ import { useMotionValue, useMotionValueEvent, useReducedMotion, type MotionValue
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { ROAD_HALF, type SignalColour, type Surface, type WorldPose } from '@/lib/simulation/cockpitWorld'
-import { CENTRE_LINE, FAR, FOCAL, HEAD_ROLL, HORIZON, LEFT_EDGE, NEAR, RIGHT_EDGE, VIEW_H, VIEW_W, hash, project, projectRoad, repeating, roadPoint, scaleAt, visibleLength } from './roadGeometry'
+import { CENTRE_LINE, FAR, FOCAL, HEAD_ROLL, HORIZON, LANE, LEFT_EDGE, NEAR, RIGHT_EDGE, VIEW_H, VIEW_W, hash, project, projectRoad, repeating, roadPoint, scaleAt, visibleLength } from './roadGeometry'
 
 /*
  * The road ahead from the rider's eye (geometry in roadGeometry.ts). Lane markings and
@@ -12,6 +12,18 @@ import { CENTRE_LINE, FAR, FOCAL, HEAD_ROLL, HORIZON, LEFT_EDGE, NEAR, RIGHT_EDG
  *
  * Without `motion` it is the same scene, stationary.
  */
+
+export interface RoadTraffic {
+  behindGap: number | null
+  oncomingGap: number | null
+  personGap: number | null
+  personX: number
+  personKind: 'person' | 'dog'
+  crossGap: number | null
+  crossX: number | null
+  carX: number
+  carKind: 'car' | 'truck' | 'tractor'
+}
 
 export interface RoadMotion {
   /** Distance ridden, m. */
@@ -24,6 +36,8 @@ export interface RoadMotion {
   carGap?: MotionValue<number | null>
   /** Position and heading on the road, for a scenario that steers: the road is then drawn from there. */
   pose?: MotionValue<WorldPose | null>
+  /** Other road users the world is tracking. */
+  traffic?: MotionValue<RoadTraffic>
 }
 
 /** What else a scenario puts on the road: its gradient and surface, a traffic signal, a speed breaker. */
@@ -35,6 +49,17 @@ export interface RoadScene {
   signal?: { at: number; colour: SignalColour }
   /** A speed breaker `at` metres from the start, `length` long. */
   bump?: { at: number; length: number }
+  /** Constant lane curvature, 1/m (positive = right). Used when the caller does not pass `curvature`. */
+  curvature?: number
+  /** Headlight reach at night, m. */
+  beam?: number
+  night?: boolean
+  /** A passenger is on the motorcycle. */
+  pillion?: boolean
+  /** A painted line in the wheel track. */
+  paint?: boolean
+  /** A roundabout / island kerb. */
+  island?: { at: number; x: number; r?: number }
 }
 
 /** How far beyond its stop line the signal head stands, m. */
@@ -167,7 +192,7 @@ const HILL_TILE = 1600
 /** Distances sampled along the road outline, near to far (closer together near the rider). */
 const SAMPLES = Array.from({ length: 36 }, (_, i) => NEAR * 0.7 * Math.pow(FAR / (NEAR * 0.7), i / 35))
 
-type Thing = { d: number; kind: 'post' | 'tree' | 'sign' | 'car'; x: number; seed: number; at?: { forward: number; side: number } }
+type Thing = { d: number; kind: 'post' | 'tree' | 'sign' | 'car' | 'truck' | 'tractor' | 'person' | 'dog' | 'oncoming' | 'cross' | 'island'; x: number; seed: number; at?: { forward: number; side: number }; unlit?: boolean; r?: number }
 type Pt = { x: number; y: number }
 
 function hills(shift: number) {
@@ -183,16 +208,71 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
   if (rp.forward < NEAR * 0.6) return null
   const p = project(rp.forward, rp.side)
   const s = scaleAt(rp.forward)
-  if (t.kind === 'car') {
+  if (t.kind === 'truck') {
+    const w = 2.4 * s
+    const h = 2.55 * s
+    return (
+      <g data-car="truck" data-truck opacity={t.unlit ? 0.08 : 1}>
+        <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.12 * s} className="fill-surface-overlay stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
+        <rect x={p.x - w * 0.38} y={p.y - h * 0.96} width={w * 0.76} height={h * 0.28} rx={0.06 * s} className="fill-surface-sunken" />
+        <rect x={p.x - w * 0.46} y={p.y - h * 0.42} width={w * 0.16} height={h * 0.1} className="fill-danger-400" />
+        <rect x={p.x + w * 0.3} y={p.y - h * 0.42} width={w * 0.16} height={h * 0.1} className="fill-danger-400" />
+        <rect x={p.x - w * 0.5} y={p.y - h * 0.04} width={w} height={h * 0.08} className="fill-bg" />
+      </g>
+    )
+  }
+  if (t.kind === 'tractor') {
+    const w = 1.7 * s
+    const h = 2.1 * s
+    return (
+      <g data-car="tractor" data-tractor opacity={t.unlit ? 0.08 : 1}>
+        <rect x={p.x - w * 0.38} y={p.y - h} width={w * 0.76} height={h * 0.55} rx={0.12 * s} className="fill-surface-raised stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
+        <ellipse cx={p.x - w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} className="fill-ink-subtle" />
+        <ellipse cx={p.x + w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} className="fill-ink-subtle" />
+        <rect x={p.x - w * 0.22} y={p.y - h * 0.92} width={w * 0.44} height={h * 0.22} rx={0.04 * s} className="fill-surface-sunken" />
+      </g>
+    )
+  }
+  if (t.kind === 'island') {
+    const r = (t.r ?? 2.4) * s
+    return (
+      <g data-island>
+        <ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.35} className="fill-surface-overlay stroke-ink-muted" strokeWidth={Math.max(0.6, 0.04 * s)} />
+      </g>
+    )
+  }
+  if (t.kind === 'car' || t.kind === 'oncoming' || t.kind === 'cross') {
     const w = 1.8 * s
     const h = 1.35 * s
     return (
-      <g data-car>
+      <g data-car={t.kind} data-oncoming={t.kind === 'oncoming' || undefined} opacity={t.unlit ? 0.08 : 1}>
         <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.18 * s} className="fill-surface-overlay stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
         <rect x={p.x - w * 0.36} y={p.y - h * 0.92} width={w * 0.72} height={h * 0.34} rx={0.08 * s} className="fill-surface-sunken" />
-        <rect x={p.x - w * 0.47} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className="fill-danger-400" />
-        <rect x={p.x + w * 0.31} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className="fill-danger-400" />
+        <rect x={p.x - w * 0.47} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className={t.kind === 'oncoming' ? 'fill-caution-400' : 'fill-danger-400'} />
+        <rect x={p.x + w * 0.31} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className={t.kind === 'oncoming' ? 'fill-caution-400' : 'fill-danger-400'} />
         <rect x={p.x - w * 0.5} y={p.y - h * 0.05} width={w} height={h * 0.1} className="fill-bg" />
+      </g>
+    )
+  }
+  if (t.kind === 'person') {
+    const h = 1.7 * s
+    return (
+      <g data-person opacity={t.unlit ? 0.08 : 1}>
+        <circle cx={p.x} cy={p.y - h * 0.88} r={0.16 * s} className="fill-ignition-200" />
+        <rect x={p.x - 0.16 * s} y={p.y - h * 0.72} width={0.32 * s} height={0.4 * s} rx={0.08 * s} className="fill-ignition-400" />
+        <rect x={p.x - 0.12 * s} y={p.y - h * 0.32} width={0.1 * s} height={0.32 * s} rx={0.04 * s} className="fill-ink-muted" />
+        <rect x={p.x + 0.02 * s} y={p.y - h * 0.32} width={0.1 * s} height={0.32 * s} rx={0.04 * s} className="fill-ink-muted" />
+      </g>
+    )
+  }
+  if (t.kind === 'dog') {
+    const h = 0.55 * s
+    return (
+      <g data-dog opacity={t.unlit ? 0.08 : 1}>
+        <ellipse cx={p.x} cy={p.y - h * 0.55} rx={0.38 * s} ry={0.22 * s} className="fill-caution-400" />
+        <circle cx={p.x + 0.28 * s} cy={p.y - h * 0.85} r={0.16 * s} className="fill-caution-300" />
+        <rect x={p.x - 0.32 * s} y={p.y - h * 0.35} width={0.08 * s} height={0.32 * s} rx={0.03 * s} className="fill-ink-muted" />
+        <rect x={p.x + 0.12 * s} y={p.y - h * 0.35} width={0.08 * s} height={0.32 * s} rx={0.03 * s} className="fill-ink-muted" />
       </g>
     )
   }
@@ -220,7 +300,7 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
 
 export function RoadAhead({
   motion,
-  curvature = 0,
+  curvature: given,
   lean = 0,
   idling = false,
   scene = {},
@@ -237,12 +317,14 @@ export function RoadAhead({
   className?: string
 }) {
   const reduce = useReducedMotion()
-  const read = () => ({ d: motion?.distance.get() ?? 0, psi: motion?.heading.get() ?? 0, t: motion?.time.get() ?? 0, gap: motion?.carGap?.get() ?? null, pose: motion?.pose?.get() ?? null })
+  const curvature = given ?? scene.curvature ?? 0
+  const emptyTraffic = { behindGap: null, oncomingGap: null, personGap: null, personX: 0, personKind: 'person' as const, crossGap: null, crossX: null, carX: 0, carKind: 'car' as const }
+  const read = () => ({ d: motion?.distance.get() ?? 0, psi: motion?.heading.get() ?? 0, t: motion?.time.get() ?? 0, gap: motion?.carGap?.get() ?? null, pose: motion?.pose?.get() ?? null, traffic: motion?.traffic?.get() ?? emptyTraffic })
   const [frame, setFrame] = useState(read)
   const still = useMotionValue(0)
   useMotionValueEvent(motion?.time ?? still, 'change', () => setFrame(read()))
 
-  const { d, t, gap, pose } = frame
+  const { d, t, gap, pose, traffic } = frame
   const psi = pose ? pose.heading : frame.psi
   const reach = visibleLength(curvature)
   const along = SAMPLES.filter((s) => s <= reach)
@@ -265,9 +347,19 @@ export function RoadAhead({
     const side = r < 0.5 ? -1 : 1
     const kind: Thing['kind'] = index % 9 === 0 ? 'sign' : r * 7 % 1 < 0.45 ? 'tree' : 'post'
     const off = kind === 'post' ? 1 : kind === 'sign' ? 1.4 : 3 + hash(index + 7) * 5
-    return { d: at, kind, x: side < 0 ? LEFT_EDGE - off : RIGHT_EDGE + off, seed: hash(index + 3) }
+    return { d: at, kind, x: side < 0 ? LEFT_EDGE - off : RIGHT_EDGE + off, seed: hash(index + 3), unlit: scene.beam != null && at > scene.beam }
   })
-  if (gap != null && gap > NEAR * 0.6) things.push({ d: gap, kind: 'car', x: 0, seed: 0 })
+  const beam = scene.beam
+  const night = scene.night || beam != null
+  const lit = (at: number) => beam == null || at <= beam
+  if (gap != null && gap > NEAR * 0.6) things.push({ d: gap, kind: traffic.carKind, x: traffic.carX, seed: 0, unlit: !lit(gap) })
+  if (scene.island) {
+    const islandGap = scene.island.at - d
+    if (islandGap > NEAR * 0.6) things.push({ d: islandGap, kind: 'island', x: scene.island.x, seed: 0, r: scene.island.r, unlit: !lit(islandGap) })
+  }
+  if (traffic.personGap != null && traffic.personGap > NEAR * 0.6) things.push({ d: traffic.personGap, kind: traffic.personKind === 'dog' ? 'dog' : 'person', x: traffic.personX, seed: 0, unlit: !lit(traffic.personGap) })
+  if (traffic.oncomingGap != null && traffic.oncomingGap > NEAR * 0.6) things.push({ d: traffic.oncomingGap, kind: 'oncoming', x: LANE, seed: 0, unlit: !lit(traffic.oncomingGap) })
+  if (traffic.crossGap != null && traffic.crossGap > NEAR * 0.4 && traffic.crossX != null) things.push({ d: traffic.crossGap, kind: 'cross', x: traffic.crossX, seed: 0, unlit: !lit(traffic.crossGap) })
   things.sort((a, b) => roadPoint(b.d, b.x, curvature).forward - roadPoint(a.d, a.x, curvature).forward)
 
   // On a gradient the rider looks along the slope, so the level horizon (hills) sits FOCAL·grade
@@ -282,7 +374,17 @@ export function RoadAhead({
   const sheen = surface === 'wet' ? repeating(d, 6, 120).map(({ d: at, index }) => ({ p: projectRoad(at, LEFT_EDGE + 0.6 + hash(index) * 2.4, curvature), s: scaleAt(at) })).filter((g): g is { p: Pt; s: number } => !!g.p) : []
 
   // The slope itself can't be seen from the saddle (the road rises with the rider), so it is named.
-  const badge = [grade > 0 ? `${Math.round(grade * 100)} % uphill` : grade < 0 ? `${Math.round(-grade * 100)} % downhill` : null, surface === 'wet' ? 'wet road' : surface === 'gravel' ? 'loose gravel' : null].filter(Boolean).join(' · ')
+  const paintBand = scene.paint
+    ? along.flatMap((at, i) => {
+        if (i === 0) return []
+        const a = along[i - 1]
+        const q = [projectRoad(a, -0.22, curvature), projectRoad(at, -0.22, curvature), projectRoad(at, 0.22, curvature), projectRoad(a, 0.22, curvature)]
+        if (q.some((p) => !p)) return []
+        const [p1, p2, p3, p4] = q as Pt[]
+        return [`M${p1.x},${p1.y} L${p2.x},${p2.y} L${p3.x},${p3.y} L${p4.x},${p4.y} Z`]
+      })
+    : []
+  const badge = [grade > 0 ? `${Math.round(grade * 100)} % uphill` : grade < 0 ? `${Math.round(-grade * 100)} % downhill` : null, surface === 'wet' ? 'wet road' : surface === 'gravel' ? 'loose gravel' : null, night ? 'night' : null, Math.abs(curvature) > 1e-4 ? (scene.island ? 'roundabout' : 'bend') : null, scene.paint ? 'painted line' : null].filter(Boolean).join(' · ')
 
   // Over the speed breaker the rider's eye rises and falls with it (exaggerated so it reads).
   const onBump = scene.bump && bumpGap != null && bumpGap <= 0 && -bumpGap <= scene.bump.length ? Math.sin((Math.PI * -bumpGap) / scene.bump.length) : 0
@@ -290,7 +392,7 @@ export function RoadAhead({
   const roll = -(pose ? pose.lean : lean) * HEAD_ROLL
 
   return (
-    <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid slice" className={cn('h-full w-full', className)} role="img" aria-label="The road ahead from the rider's seat." data-distance={d.toFixed(2)} data-heading={psi.toFixed(4)} data-car-gap={gap?.toFixed(2)} data-pose={pose ? `${pose.x.toFixed(2)},${pose.y.toFixed(2)}` : undefined}>
+    <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid slice" className={cn('h-full w-full', className)} role="img" aria-label="The road ahead from the rider's seat." data-distance={d.toFixed(2)} data-heading={psi.toFixed(4)} data-car-gap={gap?.toFixed(2)} data-person={traffic.personGap?.toFixed(2)} data-oncoming={traffic.oncomingGap?.toFixed(2)} data-behind={traffic.behindGap?.toFixed(2)} data-pose={pose ? `${pose.x.toFixed(2)},${pose.y.toFixed(2)}` : undefined}>
       <defs>
         <linearGradient id="cockpit-sky" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor="var(--color-surface-sunken)" />
@@ -298,7 +400,7 @@ export function RoadAhead({
         </linearGradient>
       </defs>
       <g data-road-scene transform={`translate(${shake.x.toFixed(2)} ${shake.y.toFixed(2)}) rotate(${roll.toFixed(2)} ${VIEW_W / 2} ${VIEW_H})`}>
-        <rect x={-600} y={-600} width={VIEW_W + 1200} height={HORIZON + 600} fill="url(#cockpit-sky)" />
+        <rect x={-600} y={-600} width={VIEW_W + 1200} height={HORIZON + 600} fill={night ? 'var(--color-bg)' : 'url(#cockpit-sky)'} opacity={night ? 0.92 : 1} />
         <g transform={`translate(0 ${(FOCAL * grade).toFixed(1)})`}>
           <path data-hills d={hills(psi * FOCAL)} className="fill-surface-overlay" />
         </g>
@@ -321,6 +423,13 @@ export function RoadAhead({
                 <path key={i} d={p} />
               ))}
             </g>
+            {paintBand.length > 0 && (
+              <g data-paint className="fill-coolant-200/50">
+                {paintBand.map((p, i) => (
+                  <path key={`p${i}`} d={p} />
+                ))}
+              </g>
+            )}
             {stopLine && <path data-stop-line d={stopLine} className="fill-ink" />}
             {bump && <path data-bump d={bump} className="fill-caution-400/70 stroke-caution-400" strokeWidth={1} />}
             {/* The signal head stands a few metres beyond its stop line, so it stays in view while waiting at the line. */}
@@ -331,7 +440,39 @@ export function RoadAhead({
           </>
         )}
         <line x1={-600} y1={HORIZON} x2={VIEW_W + 600} y2={HORIZON} strokeWidth={1} className="stroke-line" />
+        {night && (
+          <g data-night pointerEvents="none">
+            <rect x={-600} y={HORIZON} width={VIEW_W + 1200} height={VIEW_H + 600} className="fill-bg" opacity={0.28} />
+            {beam != null && <polygon points={`${VIEW_W / 2},${VIEW_H * 0.78} ${VIEW_W / 2 - 220},${HORIZON} ${VIEW_W / 2 + 220},${HORIZON}`} className="fill-caution-400" opacity={0.1} />}
+          </g>
+        )}
       </g>
+      {scene.pillion && (
+        <g data-pillion transform={`translate(${VIEW_W / 2 + 36}, ${VIEW_H - 58})`}>
+          <ellipse cx="0" cy="18" rx="16" ry="10" className="fill-ignition-400" />
+          <circle cx="0" cy="0" r="14" className="fill-ignition-200 stroke-line-strong" />
+          <path d="M-10,-2 Q0,8 10,-2" fill="none" className="stroke-ink-muted" strokeWidth="2" />
+        </g>
+      )}
+      {traffic.behindGap != null && (
+        <g data-mirror transform="translate(340, 10)">
+          <rect width="120" height="52" rx="10" className="fill-bg/85 stroke-line-strong" />
+          <text x="60" y="12" textAnchor="middle" className="fill-ink-subtle font-mono text-[9px]">
+            mirror
+          </text>
+          {traffic.behindGap > 0.5 && traffic.behindGap < 80 && (
+            <rect
+              data-behind
+              x={60 - Math.min(28, 220 / traffic.behindGap)}
+              y={18}
+              width={Math.min(56, 440 / traffic.behindGap)}
+              height={Math.min(28, 200 / traffic.behindGap)}
+              rx="3"
+              className="fill-surface-overlay stroke-danger-400"
+            />
+          )}
+        </g>
+      )}
       {badge && (
         <g data-road-badge>
           <rect x={VIEW_W / 2 - badge.length * 4.4 - 14} y={14} width={badge.length * 8.8 + 28} height={26} rx={13} className="fill-bg/80 stroke-line" />

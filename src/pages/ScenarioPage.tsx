@@ -31,7 +31,7 @@ export default function ScenarioPage() {
           <h2 className="text-xl font-semibold text-ink">See the same riding from the seat</h2>
           <LessonCockpit
             scenarioId={cockpit.id}
-            caption="The decision above shows what happens on the road. Here is how a careful rider works the controls for the safe choice — then try it yourself."
+            caption="The same road as the decision above, from the seat: the same people, traffic, bend or night. Watch a careful rider work the controls for the safe choice — then try it yourself."
             from={`/scenarios/${scenario.id}`}
           />
         </section>

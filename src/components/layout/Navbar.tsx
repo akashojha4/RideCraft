@@ -41,7 +41,7 @@ export function Navbar() {
       <Container className="flex h-16 items-center justify-between gap-6">
         <Logo />
 
-        <nav aria-label="Primary" className="hidden md:block">
+        <nav aria-label="Primary" className="hidden lg:block">
           <ul className="flex items-center gap-1">
             {primaryNav.map((item) => (
               <li key={item.to}>
@@ -73,7 +73,7 @@ export function Navbar() {
           </ul>
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <ButtonLink to="/learn" size="sm">
             Start learning
           </ButtonLink>
@@ -81,7 +81,7 @@ export function Navbar() {
 
         <button
           type="button"
-          className="-mr-2 inline-flex size-10 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-raised hover:text-ink md:hidden"
+          className="-mr-2 inline-flex size-10 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-raised hover:text-ink lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           aria-label={open ? 'Close menu' : 'Open menu'}
@@ -96,7 +96,7 @@ export function Navbar() {
           <motion.nav
             id="mobile-nav"
             aria-label="Primary"
-            className="overflow-hidden border-t border-line md:hidden"
+            className="overflow-hidden border-t border-line lg:hidden"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

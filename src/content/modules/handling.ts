@@ -381,7 +381,7 @@ export const handlingLessons: Lesson[] = [
         ],
       },
       { type: 'explore', part: 'wheels', text: 'See the wheels and tyres, and how their condition affects grip.' },
-      { type: 'cockpit', scenario: 'wet-road', caption: 'Watch a wet-road stop: earlier, gentler, and a longer gap — the friction circle has shrunk.' },
+      { type: 'cockpit', scenario: 'wet-road', caption: 'Watch a wet bend: slow on the way in, then hold about 35 km/h so the lean stays small — the friction circle has shrunk.' },
     ],
     knowledgeCheck: [
       { id: 'q1', prompt: 'What does the friction circle show?', options: [{ id: 'a', label: 'That braking and turning share the same limited grip' }, { id: 'b', label: 'The shape of the contact patch' }, { id: 'c', label: 'How fast the wheel turns' }], correctOptionId: 'a', explanation: 'The total force — braking and turning combined — can’t exceed the tyre’s grip, drawn as a circle.' },

@@ -24,7 +24,7 @@ export const SIMULATORS = [
 
 /** Levels describe knowledge gained here, never riding ability: that only comes from practice with an instructor. */
 export const LEVELS = [
-  { name: 'Newcomer', from: 0, text: 'Just getting started. Begin with Motorcycle Basics.' },
+  { name: 'Newcomer', from: 0, text: 'Just getting started. Begin with The machine.' },
   { name: 'Learner', from: 0.1, text: 'You know the machine’s parts and controls.' },
   { name: 'Practising the basics', from: 0.3, text: 'You understand the controls and have practised them in the simulators.' },
   { name: 'Theory ready', from: 0.55, text: 'You can explain riding technique and choose safe decisions in scenarios — ready to start real practice with an instructor.' },

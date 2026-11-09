@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { getPhase } from '@/config/roadmap'
-import { getModule, lessonPath, moduleMinutes } from '@/content/curriculum'
+import { getModule, lessonPath, lessonsInAcademyOrder, moduleMinutes } from '@/content/curriculum'
 import { useProgress } from '@/lib/progress/store'
 import NotFoundPage from './NotFoundPage'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -29,9 +29,10 @@ export default function ModulePage() {
     )
   }
 
-  const records = Object.fromEntries(module.lessons.map((l) => [l.id, lessonRecords[`${module.id}/${l.id}`]]))
-  const done = module.lessons.filter((l) => records[l.id]?.completedAt).length
-  const upNext = module.lessons.find((l) => !records[l.id]?.completedAt)
+  const ordered = lessonsInAcademyOrder(module)
+  const records = Object.fromEntries(ordered.map((l) => [l.id, lessonRecords[`${module.id}/${l.id}`]]))
+  const done = ordered.filter((l) => records[l.id]?.completedAt).length
+  const upNext = ordered.find((l) => !records[l.id]?.completedAt)
   return (
     <Container className="py-14 sm:py-20">
       <SectionHeading as="h1" eyebrow={module.optional ? 'Optional module' : 'Module'} title={module.title} description={module.description} />
@@ -46,11 +47,11 @@ export default function ModulePage() {
           </Link>
         )}
         <p className="tabular font-mono text-sm text-ink-muted" data-module-progress>
-          {done} of {module.lessons.length} lessons completed · {moduleMinutes(module)} min in total
+          {done} of {ordered.length} lessons completed · {moduleMinutes(module)} min in total
         </p>
       </div>
       <Stagger as="ol" className="mt-10 grid gap-3">
-        {module.lessons.map((lesson, i) => (
+        {ordered.map((lesson, i) => (
           <StaggerItem as="li" key={lesson.id} className="min-w-0">
             <Link to={lessonPath(module.id, lesson.id)} className="block">
               <Card interactive className="flex items-center gap-5 p-5">

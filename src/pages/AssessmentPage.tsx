@@ -49,7 +49,7 @@ export default function AssessmentPage() {
         <Link to="/progress" className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink">
           <ArrowLeft className="size-4" aria-hidden /> Your progress
         </Link>
-        <SectionHeading as="h1" eyebrow="Knowledge assessment" title="How much do you know?" description={`Up to ${PER_MODULE} questions from each of the ${listed.length} modules — ${listed.map((m) => m.title.toLowerCase()).join(', ')} — chosen afresh each time. Answer them all, then see your score, the areas to revise and an explanation for every question.`} />
+        <SectionHeading as="h1" eyebrow="Knowledge assessment" title="How much do you know?" description={`Up to ${PER_MODULE} questions from each of the ${listed.length} modules — ${listed.map((m) => m.title.toLowerCase()).join(', ')} — chosen afresh each time. This is a knowledge test, not a riding test: a pass does not mean you are ready for a public road.`} />
         <ul className="grid gap-3 sm:grid-cols-3">
           <li className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
             <span className="block font-display text-2xl text-ink">{PER_MODULE * listed.length}</span> questions
@@ -58,7 +58,7 @@ export default function AssessmentPage() {
             <span className="block font-display text-2xl text-ink">{PASS_MARK * 100} %</span> to pass
           </li>
           <li className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-muted">
-            <span className="block font-display text-2xl text-ink">≈ 10</span> minutes
+            <span className="block font-display text-2xl text-ink">≈ 15</span> minutes
           </li>
         </ul>
         <Button variant="primary" onClick={start} leadingIcon={<ClipboardCheck className="size-4" />}>
