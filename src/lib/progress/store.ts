@@ -127,20 +127,24 @@ export const progress = {
       window.removeEventListener('storage', onStorage)
     }
   },
-  visitLesson(moduleId: string, lessonId: string) {
+  /** The lesson was opened. Returns true only the first time (when its record is created). */
+  visitLesson(moduleId: string, lessonId: string): boolean {
     const k = lessonKey(moduleId, lessonId)
-    if (get().lessons[k]) return
+    if (get().lessons[k]) return false
     update((p) => ({ ...p, lessons: { ...p.lessons, [k]: { visitedAt: Date.now() } } }))
+    return true
   },
-  /** A finished knowledge check: with a passing score, the lesson counts as completed. */
-  recordQuiz(moduleId: string, lessonId: string, correct: number, total: number) {
+  /**
+   * A finished knowledge check: with a passing score, the lesson counts as completed.
+   * `completed` is true only on the attempt that first completes it (later attempts never undo it).
+   */
+  recordQuiz(moduleId: string, lessonId: string, correct: number, total: number): { completed: boolean; quiz: QuizRecord } {
     const k = lessonKey(moduleId, lessonId)
-    update((p) => {
-      const prev = p.lessons[k]
-      const quiz: QuizRecord = { best: Math.max(prev?.quiz?.best ?? 0, correct), last: correct, total, attempts: (prev?.quiz?.attempts ?? 0) + 1, at: Date.now() }
-      const completedAt = prev?.completedAt ?? (quizPassed(correct, total) ? Date.now() : undefined)
-      return { ...p, lessons: { ...p.lessons, [k]: { visitedAt: prev?.visitedAt ?? Date.now(), completedAt, quiz } } }
-    })
+    const prev = get().lessons[k]
+    const quiz: QuizRecord = { best: Math.max(prev?.quiz?.best ?? 0, correct), last: correct, total, attempts: (prev?.quiz?.attempts ?? 0) + 1, at: Date.now() }
+    const completedAt = prev?.completedAt ?? (quizPassed(correct, total) ? Date.now() : undefined)
+    update((p) => ({ ...p, lessons: { ...p.lessons, [k]: { visitedAt: prev?.visitedAt ?? Date.now(), completedAt, quiz } } }))
+    return { completed: !prev?.completedAt && completedAt !== undefined, quiz }
   },
   recordPractice(event: Omit<PracticeEvent, 'at'>) {
     const at = Date.now()

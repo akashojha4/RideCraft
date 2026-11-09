@@ -1904,3 +1904,26 @@ A walk-through of the live site as a beginner found 19 problems; all fixed (plan
   - unit 293/293; lint, types and build clean;
   - check:dist 0 problems; prodrender 144/144; seoaudit clean; sitemap 144/144;
   - fixtest 35/35; lesson and page sweeps clean.
+
+## GA4 learning events: lesson_started, lesson_completed (2026-11-09) · BUILT, not pushed
+
+- **Source of truth is the progress store:**
+  - `progress.visitLesson()` returns true only when it creates the lesson's record (first open in this browser).
+  - `progress.recordQuiz()` returns `{ completed: true, quiz }` only on the first passing attempt (≥ ⅔: 2 of 3, 3 of 4).
+  - No gtag in the store.
+- **`lib/analytics/ga.ts`:** `trackEvent(name, params, { once })` uses the same gtag and the same production-only, not-localhost rule. It also guards against repeats per page load.
+- **`lib/analytics/lessonEvents.ts`:** `trackLessonStarted` / `trackLessonCompleted`.
+  - Parameters: `lesson_id` (topic/lesson — `weight-transfer` exists in two topics), `lesson_title`, `lesson_category` (topic name).
+  - On completion also `quiz_score` (the passing attempt), `quiz_total`, `quiz_attempts`.
+  - No PII.
+  - Sent at once, without waiting for SEO metadata.
+- **`LessonView` and `SituationLessonView`:** the visit effect now uses a braced body and calls the tracker on the one-time change. The knowledge check's `onComplete` goes through `onQuizComplete`.
+- **Tests:**
+  - Unit 303/303: store one-time changes, `trackEvent`, lesson parameters.
+  - Browser `galessons` 21/21 on the production build, hits answered locally:
+    - first open → one start; reload, back/forward and section changes → none;
+    - failed check → none; first pass → one completion with the right parameters; retakes → none;
+    - a situation lesson; the shared id across topics; network hits carry all six parameters to `G-2F5Z15DSM5`;
+    - off on localhost.
+  - `gatest` 21/21, check:dist 0 problems, prodrender 144/144, fixtest 35/35.
+- **After deploy (user):** add event-scoped custom dimensions `lesson_id`, `lesson_title`, `lesson_category` and custom metrics or dimensions for `quiz_score`, `quiz_total`, `quiz_attempts`.

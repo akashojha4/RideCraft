@@ -5,6 +5,7 @@ import {
   initAnalytics,
   resetAnalyticsForTests,
   shouldEnableAnalytics,
+  trackEvent,
   trackPageView,
 } from './ga'
 
@@ -94,5 +95,24 @@ describe('trackPageView title', () => {
     expect(trackPageView('/learn/basics', '', { enabled: true, title: 'Motorcycle Basics · RideCraft' })).toBe(true)
     const events = (window.dataLayer as unknown as Array<IArguments>).filter((entry) => entry[0] === 'event')
     expect(events.at(-1)?.[2]).toMatchObject({ page_path: '/learn/basics', page_title: 'Motorcycle Basics · RideCraft' })
+  })
+})
+
+describe('trackEvent', () => {
+  it('stays off outside production (unit tests, localhost)', () => {
+    expect(trackEvent('lesson_started', { lesson_id: 'basics/x' })).toBe(false)
+  })
+
+  it('sends a custom event through the same gtag, once per key per page load', () => {
+    const { appendChild } = stubBrowser()
+    const on = { enabled: true as const }
+    expect(trackEvent('lesson_started', { lesson_id: 'basics/x' }, { ...on, once: 'basics/x' })).toBe(true)
+    expect(trackEvent('lesson_started', { lesson_id: 'basics/x' }, { ...on, once: 'basics/x' })).toBe(false)
+    expect(trackEvent('lesson_completed', { lesson_id: 'basics/x' }, { ...on, once: 'basics/x' })).toBe(true)
+    expect(trackPageView('/learn', '', on)).toBe(true)
+    // One gtag script for page views and events alike.
+    expect(appendChild).toHaveBeenCalledTimes(1)
+    const events = (window.dataLayer as unknown as Array<IArguments>).filter((entry) => entry[0] === 'event').map((e) => e[1])
+    expect(events).toEqual(['lesson_started', 'lesson_completed', 'page_view'])
   })
 })

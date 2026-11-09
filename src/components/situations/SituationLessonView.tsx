@@ -14,6 +14,7 @@ import { ControlTimeline } from './ControlTimeline'
 import { ControlsSection, MistakesSection, SituationSection } from './SituationSections'
 import { SECTIONS } from './sections'
 import { WatchItDone } from './WatchItDone'
+import { trackLessonCompleted, trackLessonStarted } from '@/lib/analytics/lessonEvents'
 
 /*
  * A Riding Situations lesson: learn the situation → each control → the whole manoeuvre →
@@ -34,7 +35,15 @@ export function SituationLessonView({ module, lesson, previous, next, place }: {
   const record = useProgress().lessons[`${module.id}/${lesson.id}`]
   const path = lessonPath(module.id, lesson.id)
   const practice = `/simulators/cockpit?practice=${scenario.id}&from=${encodeURIComponent(`${path}?section=practice`)}`
-  useEffect(() => progress.visitLesson(module.id, lesson.id), [module.id, lesson.id])
+  // First open of this lesson in this browser: the store creates its record, and GA hears about it once.
+  useEffect(() => {
+    if (progress.visitLesson(module.id, lesson.id)) trackLessonStarted(module, lesson)
+  }, [module, lesson])
+  /** A finished knowledge check; GA hears about the attempt that first completes the lesson. */
+  const onQuizComplete = (correct: number, total: number) => {
+    const { completed, quiz } = progress.recordQuiz(module.id, lesson.id, correct, total)
+    if (completed) trackLessonCompleted(module, lesson, quiz)
+  }
   const go = (k: number) => {
     setParams(k === 0 ? {} : { section: SECTIONS[k].id })
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -123,7 +132,7 @@ export function SituationLessonView({ module, lesson, previous, next, place }: {
             </>
           )}
           {section.id === 'mistakes' && <MistakesSection teaching={teaching} scenario={scenario} />}
-          {section.id === 'check' && <KnowledgeCheck key={`${module.id}/${lesson.id}`} questions={lesson.knowledgeCheck} onComplete={(r) => progress.recordQuiz(module.id, lesson.id, r.correct, r.total)} />}
+          {section.id === 'check' && <KnowledgeCheck key={`${module.id}/${lesson.id}`} questions={lesson.knowledgeCheck} onComplete={(r) => onQuizComplete(r.correct, r.total)} />}
           {section.id === 'practice' && (
             <div className="space-y-5">
               <div className="rounded-2xl border border-ignition-500/40 bg-surface p-6">

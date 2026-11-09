@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn'
 import { progress } from '@/lib/progress/store'
 import { KnowledgeCheck } from './KnowledgeCheck'
 import { LessonBlock } from './LessonBlock'
+import { trackLessonCompleted, trackLessonStarted } from '@/lib/analytics/lessonEvents'
 
 const QUIZ_ANCHOR = 'knowledge-check'
 
@@ -44,7 +45,15 @@ export function LessonView({
     })
     .filter((x) => x !== null)
   const anchorFor = (i: number) => outline.find((o) => o.blockIndex === i)?.id
-  useEffect(() => progress.visitLesson(module.id, lesson.id), [module.id, lesson.id])
+  // First open of this lesson in this browser: the store creates its record, and GA hears about it once.
+  useEffect(() => {
+    if (progress.visitLesson(module.id, lesson.id)) trackLessonStarted(module, lesson)
+  }, [module, lesson])
+  /** A finished knowledge check; GA hears about the attempt that first completes the lesson. */
+  const onQuizComplete = (correct: number, total: number) => {
+    const { completed, quiz } = progress.recordQuiz(module.id, lesson.id, correct, total)
+    if (completed) trackLessonCompleted(module, lesson, quiz)
+  }
 
   return (
     <article className="pt-8 pb-8 sm:pt-12">
@@ -103,7 +112,7 @@ export function LessonView({
 
             <div className="mt-14">
               {/* Keyed by lesson so quiz state resets when moving between lessons. */}
-              <KnowledgeCheck key={`${module.id}/${lesson.id}`} id={QUIZ_ANCHOR} questions={lesson.knowledgeCheck} onComplete={(r) => progress.recordQuiz(module.id, lesson.id, r.correct, r.total)} />
+              <KnowledgeCheck key={`${module.id}/${lesson.id}`} id={QUIZ_ANCHOR} questions={lesson.knowledgeCheck} onComplete={(r) => onQuizComplete(r.correct, r.total)} />
             </div>
 
             <nav aria-label="Lesson navigation" className="mt-12 grid gap-3 sm:grid-cols-2">

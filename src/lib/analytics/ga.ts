@@ -21,6 +21,8 @@ type Gtag = {
 
 let scriptLoaded = false
 let lastPageKey = ''
+/** Custom events already sent during this page load (name + key), as a second guard against repeats. */
+const sentEvents = new Set<string>()
 
 /** Pathname + search only. Hash is omitted so fragments never reach GA. */
 export function analyticsPath(pathname: string, search = '') {
@@ -38,6 +40,7 @@ export function shouldEnableAnalytics(
 export function resetAnalyticsForTests() {
   scriptLoaded = false
   lastPageKey = ''
+  sentEvents.clear()
 }
 
 function installGtag() {
@@ -87,5 +90,23 @@ export function trackPageView(pathname: string, search = '', options?: { enabled
     page_location: `${window.location.origin}${path}`,
     page_title: options?.title ?? document.title,
   })
+  return true
+}
+
+export type EventParams = Record<string, string | number | boolean>
+
+/**
+ * A custom GA4 event through the same gtag, with the same production-only rules as page views.
+ * `once`: a key (e.g. the lesson id) — the same event with the same key is sent at most once per
+ * page load. Returns false when analytics is off or the event was already sent.
+ */
+export function trackEvent(name: string, params: EventParams, options?: { enabled?: boolean; once?: string }) {
+  if (!initAnalytics(options)) return false
+  if (options?.once !== undefined) {
+    const key = `${name}:${options.once}`
+    if (sentEvents.has(key)) return false
+    sentEvents.add(key)
+  }
+  window.gtag('event', name, params)
   return true
 }
