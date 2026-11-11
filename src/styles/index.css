@@ -252,15 +252,25 @@
   stroke: var(--color-ignition-400);
 }
 
-/* Cockpit gear lever: a brief nudge of the toe piece on each shift. */
+/* Cockpit gear lever: on each shift the toe piece swings and holds there long enough to see on video. */
 @keyframes gear-lift {
-  40% { transform: rotate(-9deg); }
+  0% { transform: rotate(0deg); }
+  14%, 72% { transform: rotate(-20deg); }
+  100% { transform: rotate(0deg); }
 }
 @keyframes gear-press {
-  40% { transform: rotate(9deg); }
+  0% { transform: rotate(0deg); }
+  14%, 72% { transform: rotate(19deg); }
+  100% { transform: rotate(0deg); }
 }
-.gear-lift { animation: gear-lift 220ms ease-out; }
-.gear-press { animation: gear-press 220ms ease-out; }
+@keyframes gear-half {
+  0% { transform: rotate(0deg); }
+  14%, 72% { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+.gear-lift { animation: gear-lift 700ms ease-out; }
+.gear-press { animation: gear-press 700ms ease-out; }
+.gear-half { animation: gear-half 700ms ease-out; }
 
 /* Twist grip: a flash when the throttle opens or shuts, on top of the rolling index. */
 @keyframes throttle-open {
@@ -272,7 +282,7 @@
 .throttle-open { animation: throttle-open 320ms ease-out; }
 .throttle-shut { animation: throttle-shut 320ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
-  .gear-lift, .gear-press, .throttle-open, .throttle-shut { animation: none; }
+  .gear-lift, .gear-press, .gear-half, .throttle-open, .throttle-shut { animation: none; }
 }
 
 /*
@@ -307,4 +317,35 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
+}
+
+/*
+ * On a wide screen (a computer, or a recording) full screen is the rider's seat: the road fills
+ * the whole view and the controls sit over its corners with no cards, where the hands and feet are.
+ */
+@media (min-aspect-ratio: 4/3) and (min-height: 560px) {
+  .cockpit-expanded {
+    display: block;
+  }
+  .cockpit-expanded [data-zone='road'] {
+    position: absolute;
+    inset: 0;
+  }
+  .cockpit-expanded [data-zone='clutch'],
+  .cockpit-expanded [data-zone='gear'],
+  .cockpit-expanded [data-zone='throttle'],
+  .cockpit-expanded [data-zone='rear-brake'] {
+    position: absolute;
+    height: auto;
+    overflow: visible;
+  }
+  .cockpit-expanded [data-zone='clutch'] { top: 1.5%; left: 1%; width: 30%; }
+  .cockpit-expanded [data-zone='throttle'] { top: 1.5%; right: 1%; width: 30%; }
+  .cockpit-expanded [data-zone='gear'] { bottom: 2%; left: 1%; width: 25%; }
+  .cockpit-expanded [data-zone='rear-brake'] { bottom: 2%; right: 1%; width: 25%; }
+  /* The cluster keeps its own centring (Tailwind's translate); only its size changes here. */
+  .cockpit-expanded [data-cluster] {
+    bottom: 2%;
+    width: min(38%, 640px);
+  }
 }

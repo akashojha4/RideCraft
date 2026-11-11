@@ -65,6 +65,38 @@ export interface RoadScene {
 /** How far beyond its stop line the signal head stands, m. */
 const SIGNAL_BEYOND = 4
 
+/*
+ * The world's own colours — a dusk road — kept apart from the site's greys, so the road never
+ * looks like part of the page and every control drawn over it stands out.
+ */
+const W = {
+  skyTop: '#121a30',
+  skyMid: '#26334f',
+  skyLow: '#5a5266',
+  hillFar: '#2b3742',
+  hillNear: '#26342b',
+  verge: '#2c3825',
+  vergeNear: '#1d2618',
+  asphaltFar: '#30343c',
+  asphaltNear: '#14161a',
+  gravel: '#4a4237',
+  line: '#d8dbe0',
+  dash: '#e6e2cf',
+  post: '#d5d8dc',
+  reflector: '#f2994a',
+  trunk: '#4a3a2b',
+  leaf: ['#2f4a34', '#3a5236', '#2a4038'],
+  pole: '#3a3f47',
+  car: '#3d5e80',
+  carDark: '#1b2532',
+  oncoming: '#7a5a3a',
+  truck: '#8a6d3b',
+  tractor: '#8c3b2c',
+  tyre: '#16181c',
+  island: '#3f5233',
+  kerb: '#cfd3d8',
+} as const
+
 const LIGHT_CLASS: Record<SignalColour, string> = { red: 'fill-danger-400', amber: 'fill-caution-400', green: 'fill-ok-400' }
 
 function Signal({ gap, colour, curvature }: { gap: number; colour: SignalColour; curvature: number }) {
@@ -75,10 +107,10 @@ function Signal({ gap, colour, curvature }: { gap: number; colour: SignalColour;
   const lamps: SignalColour[] = ['red', 'amber', 'green']
   return (
     <g data-signal={colour}>
-      <rect x={p.x - 0.06 * s} y={p.y - h} width={0.12 * s} height={h} className="fill-ink-subtle" />
-      <rect x={p.x - 0.22 * s} y={p.y - h - 0.95 * s} width={0.44 * s} height={1.05 * s} rx={0.08 * s} className="fill-bg stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
+      <rect x={p.x - 0.06 * s} y={p.y - h} width={0.12 * s} height={h} fill={W.pole} />
+      <rect x={p.x - 0.22 * s} y={p.y - h - 0.95 * s} width={0.44 * s} height={1.05 * s} rx={0.08 * s} fill="#0c0e12" stroke={W.pole} strokeWidth={Math.max(0.5, 0.03 * s)} />
       {lamps.map((c, i) => (
-        <circle key={c} cx={p.x} cy={p.y - h - 0.78 * s + i * 0.32 * s} r={0.12 * s} className={c === colour ? LIGHT_CLASS[c] : 'fill-surface-overlay'} />
+        <circle key={c} cx={p.x} cy={p.y - h - 0.78 * s + i * 0.32 * s} r={0.12 * s} className={c === colour ? LIGHT_CLASS[c] : undefined} fill={c === colour ? undefined : '#22262d'} />
       ))}
     </g>
   )
@@ -130,7 +162,7 @@ function poseLine(c: Cam, [X1, Y1]: [number, number], [X2, Y2]: [number, number]
 }
 
 /** The road, its markings and roadside things as seen from a pose. */
-function PoseRoad({ pose, surfaceClass }: { pose: WorldPose; surfaceClass: string }) {
+function PoseRoad({ pose, surfaceFill }: { pose: WorldPose; surfaceFill: string }) {
   const c: Cam = pose
   const far = 300
   const road = posePolygon(c, [
@@ -163,9 +195,9 @@ function PoseRoad({ pose, surfaceClass }: { pose: WorldPose; surfaceClass: strin
   things.sort((a, b) => b.d - a.d)
   return (
     <>
-      {road && <polygon data-road-pose points={road} className={surfaceClass} />}
-      {edges.map((l, i) => l && <line key={i} {...l} strokeWidth={3} className="stroke-ink-subtle" />)}
-      <g className="fill-ink-muted">
+      {road && <polygon data-road-pose points={road} fill={surfaceFill} />}
+      {edges.map((l, i) => l && <line key={i} {...l} strokeWidth={3} stroke={W.line} strokeOpacity={0.85} />)}
+      <g fill={W.dash}>
         {dashes.map((p, i) => (
           <polygon key={i} points={p} />
         ))}
@@ -213,11 +245,11 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const h = 2.55 * s
     return (
       <g data-car="truck" data-truck opacity={t.unlit ? 0.08 : 1}>
-        <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.12 * s} className="fill-surface-overlay stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
-        <rect x={p.x - w * 0.38} y={p.y - h * 0.96} width={w * 0.76} height={h * 0.28} rx={0.06 * s} className="fill-surface-sunken" />
+        <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.12 * s} fill={W.truck} stroke="#0c0e12" strokeOpacity={0.6} strokeWidth={Math.max(0.5, 0.03 * s)} />
+        <rect x={p.x - w * 0.38} y={p.y - h * 0.96} width={w * 0.76} height={h * 0.28} rx={0.06 * s} fill={W.carDark} />
         <rect x={p.x - w * 0.46} y={p.y - h * 0.42} width={w * 0.16} height={h * 0.1} className="fill-danger-400" />
         <rect x={p.x + w * 0.3} y={p.y - h * 0.42} width={w * 0.16} height={h * 0.1} className="fill-danger-400" />
-        <rect x={p.x - w * 0.5} y={p.y - h * 0.04} width={w} height={h * 0.08} className="fill-bg" />
+        <rect x={p.x - w * 0.5} y={p.y - h * 0.04} width={w} height={h * 0.08} fill={W.tyre} />
       </g>
     )
   }
@@ -226,10 +258,10 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const h = 2.1 * s
     return (
       <g data-car="tractor" data-tractor opacity={t.unlit ? 0.08 : 1}>
-        <rect x={p.x - w * 0.38} y={p.y - h} width={w * 0.76} height={h * 0.55} rx={0.12 * s} className="fill-surface-raised stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
-        <ellipse cx={p.x - w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} className="fill-ink-subtle" />
-        <ellipse cx={p.x + w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} className="fill-ink-subtle" />
-        <rect x={p.x - w * 0.22} y={p.y - h * 0.92} width={w * 0.44} height={h * 0.22} rx={0.04 * s} className="fill-surface-sunken" />
+        <rect x={p.x - w * 0.38} y={p.y - h} width={w * 0.76} height={h * 0.55} rx={0.12 * s} fill={W.tractor} stroke="#0c0e12" strokeOpacity={0.6} strokeWidth={Math.max(0.5, 0.03 * s)} />
+        <ellipse cx={p.x - w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} fill={W.tyre} />
+        <ellipse cx={p.x + w * 0.42} cy={p.y - h * 0.28} rx={0.28 * s} ry={0.38 * s} fill={W.tyre} />
+        <rect x={p.x - w * 0.22} y={p.y - h * 0.92} width={w * 0.44} height={h * 0.22} rx={0.04 * s} fill={W.carDark} />
       </g>
     )
   }
@@ -237,7 +269,7 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const r = (t.r ?? 2.4) * s
     return (
       <g data-island>
-        <ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.35} className="fill-surface-overlay stroke-ink-muted" strokeWidth={Math.max(0.6, 0.04 * s)} />
+        <ellipse cx={p.x} cy={p.y} rx={r} ry={r * 0.35} fill={W.island} stroke={W.kerb} strokeWidth={Math.max(0.6, 0.04 * s)} />
       </g>
     )
   }
@@ -246,11 +278,11 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const h = 1.35 * s
     return (
       <g data-car={t.kind} data-oncoming={t.kind === 'oncoming' || undefined} opacity={t.unlit ? 0.08 : 1}>
-        <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.18 * s} className="fill-surface-overlay stroke-line-strong" strokeWidth={Math.max(0.5, 0.03 * s)} />
-        <rect x={p.x - w * 0.36} y={p.y - h * 0.92} width={w * 0.72} height={h * 0.34} rx={0.08 * s} className="fill-surface-sunken" />
+        <rect x={p.x - w / 2} y={p.y - h} width={w} height={h} rx={0.18 * s} fill={t.kind === 'car' ? W.car : W.oncoming} stroke="#0c0e12" strokeOpacity={0.6} strokeWidth={Math.max(0.5, 0.03 * s)} />
+        <rect x={p.x - w * 0.36} y={p.y - h * 0.92} width={w * 0.72} height={h * 0.34} rx={0.08 * s} fill={W.carDark} />
         <rect x={p.x - w * 0.47} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className={t.kind === 'oncoming' ? 'fill-caution-400' : 'fill-danger-400'} />
         <rect x={p.x + w * 0.31} y={p.y - h * 0.48} width={w * 0.16} height={h * 0.12} className={t.kind === 'oncoming' ? 'fill-caution-400' : 'fill-danger-400'} />
-        <rect x={p.x - w * 0.5} y={p.y - h * 0.05} width={w} height={h * 0.1} className="fill-bg" />
+        <rect x={p.x - w * 0.5} y={p.y - h * 0.05} width={w} height={h * 0.1} fill={W.tyre} />
       </g>
     )
   }
@@ -280,8 +312,8 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const h = (4 + t.seed * 3) * s
     return (
       <g>
-        <rect x={p.x - 0.12 * s} y={p.y - h * 0.35} width={0.24 * s} height={h * 0.35} className="fill-ink-subtle" />
-        <ellipse cx={p.x} cy={p.y - h * 0.62} rx={h * 0.24} ry={h * 0.36} className="fill-surface-overlay" />
+        <rect x={p.x - 0.12 * s} y={p.y - h * 0.35} width={0.24 * s} height={h * 0.35} fill={W.trunk} />
+        <ellipse cx={p.x} cy={p.y - h * 0.62} rx={h * 0.24} ry={h * 0.36} fill={W.leaf[Math.floor(t.seed * W.leaf.length) % W.leaf.length]} />
       </g>
     )
   }
@@ -289,13 +321,18 @@ function Object3D({ t, curvature }: { t: Thing; curvature: number }) {
     const h = 2.2 * s
     return (
       <g>
-        <rect x={p.x - 0.05 * s} y={p.y - h} width={0.1 * s} height={h} className="fill-ink-subtle" />
-        <circle cx={p.x} cy={p.y - h} r={0.38 * s} className="fill-bg stroke-danger-400" strokeWidth={Math.max(0.6, 0.08 * s)} />
+        <rect x={p.x - 0.05 * s} y={p.y - h} width={0.1 * s} height={h} fill={W.pole} />
+        <circle cx={p.x} cy={p.y - h} r={0.38 * s} fill="#f4f4f2" className="stroke-danger-400" strokeWidth={Math.max(0.6, 0.08 * s)} />
       </g>
     )
   }
   const h = 1 * s
-  return <rect x={p.x - 0.06 * s} y={p.y - h} width={Math.max(1, 0.12 * s)} height={h} rx={0.03 * s} className="fill-ink-muted" />
+  return (
+    <g>
+      <rect x={p.x - 0.06 * s} y={p.y - h} width={Math.max(1, 0.12 * s)} height={h} rx={0.03 * s} fill={W.post} />
+      <rect x={p.x - 0.06 * s} y={p.y - h * 0.88} width={Math.max(1, 0.12 * s)} height={h * 0.12} fill={W.reflector} />
+    </g>
+  )
 }
 
 export function RoadAhead({
@@ -388,37 +425,65 @@ export function RoadAhead({
 
   // Over the speed breaker the rider's eye rises and falls with it (exaggerated so it reads).
   const onBump = scene.bump && bumpGap != null && bumpGap <= 0 && -bumpGap <= scene.bump.length ? Math.sin((Math.PI * -bumpGap) / scene.bump.length) : 0
-  const shake = { x: idling && !reduce ? Math.sin(t * 157) * 0.9 : 0, y: (idling && !reduce ? Math.sin(t * 211) * 0.7 : 0) + (reduce ? 0 : onBump * 14) }
+  // Idling at a standstill the whole machine trembles a little with the engine's beat.
+  const idle = idling && !reduce
+  const shake = { x: idle ? Math.sin(t * 157) * 1.6 + Math.sin(t * 71) * 0.5 : 0, y: (idle ? Math.sin(t * 211) * 1.3 : 0) + (reduce ? 0 : onBump * 14) }
+  const bikeShake = idle ? { x: Math.sin(t * 163 + 1) * 1.1, y: Math.sin(t * 197) * 1.4 } : { x: 0, y: reduce ? 0 : onBump * 6 }
   const roll = -(pose ? pose.lean : lean) * HEAD_ROLL
 
   return (
     <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="xMidYMid slice" className={cn('h-full w-full', className)} role="img" aria-label="The road ahead from the rider's seat." data-distance={d.toFixed(2)} data-heading={psi.toFixed(4)} data-car-gap={gap?.toFixed(2)} data-person={traffic.personGap?.toFixed(2)} data-oncoming={traffic.oncomingGap?.toFixed(2)} data-behind={traffic.behindGap?.toFixed(2)} data-pose={pose ? `${pose.x.toFixed(2)},${pose.y.toFixed(2)}` : undefined}>
       <defs>
         <linearGradient id="cockpit-sky" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="var(--color-surface-sunken)" />
-          <stop offset="1" stopColor="var(--color-surface-raised)" />
+          <stop offset="0" stopColor={W.skyTop} />
+          <stop offset="0.62" stopColor={W.skyMid} />
+          <stop offset="1" stopColor={W.skyLow} />
+        </linearGradient>
+        <linearGradient id="cockpit-verge" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1={HORIZON} y2={VIEW_H}>
+          <stop offset="0" stopColor={W.verge} />
+          <stop offset="1" stopColor={W.vergeNear} />
+        </linearGradient>
+        {/* Asphalt: lighter far away where it catches the sky, darker under the wheel. */}
+        <linearGradient id="cockpit-asphalt" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1={HORIZON} y2={VIEW_H}>
+          <stop offset="0" stopColor={W.asphaltFar} />
+          <stop offset="0.35" stopColor="#202329" />
+          <stop offset="1" stopColor={W.asphaltNear} />
+        </linearGradient>
+        <linearGradient id="cockpit-gravel" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1={HORIZON} y2={VIEW_H}>
+          <stop offset="0" stopColor="#5a5144" />
+          <stop offset="1" stopColor={W.gravel} />
+        </linearGradient>
+        {/* The top of the view darkens a little, like the edge of a helmet visor. */}
+        <linearGradient id="cockpit-visor" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#05070b" stopOpacity="0.55" />
+          <stop offset="0.22" stopColor="#05070b" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="cockpit-tank" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#2a2f38" />
+          <stop offset="1" stopColor="#0b0d11" />
         </linearGradient>
       </defs>
       <g data-road-scene transform={`translate(${shake.x.toFixed(2)} ${shake.y.toFixed(2)}) rotate(${roll.toFixed(2)} ${VIEW_W / 2} ${VIEW_H})`}>
         <rect x={-600} y={-600} width={VIEW_W + 1200} height={HORIZON + 600} fill={night ? 'var(--color-bg)' : 'url(#cockpit-sky)'} opacity={night ? 0.92 : 1} />
-        <g transform={`translate(0 ${(FOCAL * grade).toFixed(1)})`}>
-          <path data-hills d={hills(psi * FOCAL)} className="fill-surface-overlay" />
+        <g transform={`translate(0 ${(FOCAL * grade).toFixed(1)})`} opacity={night ? 0.35 : 1}>
+          <path d={hills(psi * FOCAL * 0.6 + 700)} fill={W.hillFar} transform="translate(0 -14)" />
+          <path data-hills d={hills(psi * FOCAL)} fill={W.hillNear} />
         </g>
-        <rect x={-600} y={HORIZON} width={VIEW_W + 1200} height={VIEW_H + 600} className="fill-surface" />
+        <rect x={-600} y={HORIZON} width={VIEW_W + 1200} height={VIEW_H + 600} fill="url(#cockpit-verge)" />
         {pose ? (
-          <PoseRoad pose={pose} surfaceClass="fill-surface-sunken" />
+          <PoseRoad pose={pose} surfaceFill="url(#cockpit-asphalt)" />
         ) : (
           <>
-            <polygon data-road data-surface={surface} data-grade={grade.toFixed(3)} points={`${pts(left)} ${pts([...right].reverse())}`} className={surface === 'gravel' ? 'fill-surface-overlay' : 'fill-surface-sunken'} />
+            <polygon data-road data-surface={surface} data-grade={grade.toFixed(3)} points={`${pts(left)} ${pts([...right].reverse())}`} fill={surface === 'gravel' ? 'url(#cockpit-gravel)' : 'url(#cockpit-asphalt)'} />
             {sheen.map(({ p, s: k }, i) => (
               <ellipse key={`w${i}`} cx={p.x} cy={p.y} rx={0.7 * k} ry={0.07 * k} className="fill-coolant-400/15" />
             ))}
             {grains.map((p, i) => (
-              <circle key={`g${i}`} cx={p.x} cy={p.y} r={Math.max(0.6, (p.y - HORIZON) / 90)} className="fill-ink-subtle" />
+              <circle key={`g${i}`} cx={p.x} cy={p.y} r={Math.max(0.6, (p.y - HORIZON) / 90)} fill="#8a7d68" />
             ))}
-            <polyline points={pts(left)} fill="none" strokeWidth={3} className="stroke-ink-subtle" />
-            <polyline points={pts(right)} fill="none" strokeWidth={3} className="stroke-ink-subtle" />
-            <g data-dashes className="fill-ink-muted">
+            <polyline points={pts(left)} fill="none" strokeWidth={3} stroke={W.line} strokeOpacity={0.85} />
+            <polyline points={pts(right)} fill="none" strokeWidth={3} stroke={W.line} strokeOpacity={0.85} />
+            <g data-dashes fill={W.dash}>
               {dashes.map((p, i) => (
                 <path key={i} d={p} />
               ))}
@@ -439,13 +504,28 @@ export function RoadAhead({
             ))}
           </>
         )}
-        <line x1={-600} y1={HORIZON} x2={VIEW_W + 600} y2={HORIZON} strokeWidth={1} className="stroke-line" />
         {night && (
           <g data-night pointerEvents="none">
             <rect x={-600} y={HORIZON} width={VIEW_W + 1200} height={VIEW_H + 600} className="fill-bg" opacity={0.28} />
             {beam != null && <polygon points={`${VIEW_W / 2},${VIEW_H * 0.78} ${VIEW_W / 2 - 220},${HORIZON} ${VIEW_W / 2 + 220},${HORIZON}`} className="fill-caution-400" opacity={0.1} />}
           </g>
         )}
+      </g>
+      {/* The motorcycle under the rider: handlebar across the top, tank and fork tops at the bottom. Faint, so the road reads first. */}
+      <g data-bike pointerEvents="none" transform={`translate(${bikeShake.x.toFixed(2)} ${bikeShake.y.toFixed(2)})`}>
+        <rect x={-600} y={-600} width={VIEW_W + 1200} height={VIEW_H + 600} fill="url(#cockpit-visor)" />
+        <g data-handlebar opacity={0.55}>
+          <path d={`M-40,124 C120,116 250,92 ${VIEW_W / 2 - 40},84 L${VIEW_W / 2 + 40},84 C550,92 680,116 ${VIEW_W + 40},124`} fill="none" stroke="#07090c" strokeWidth={9} strokeLinecap="round" />
+          <path d={`M-40,120.5 C120,112.5 250,88.5 ${VIEW_W / 2 - 40},80.5 M${VIEW_W / 2 + 40},80.5 C550,88.5 680,112.5 ${VIEW_W + 40},120.5`} fill="none" stroke="#8b95a3" strokeOpacity={0.35} strokeWidth={1.2} />
+          <rect x={VIEW_W / 2 - 30} y={73} width={60} height={22} rx={7} fill="#0a0c10" stroke="#8b95a3" strokeOpacity={0.3} />
+        </g>
+        <g data-tank opacity={0.92}>
+          <path
+            d={`M${VIEW_W / 2 - 250},${VIEW_H + 4} C${VIEW_W / 2 - 230},${VIEW_H - 46} ${VIEW_W / 2 - 150},${VIEW_H - 70} ${VIEW_W / 2},${VIEW_H - 72} C${VIEW_W / 2 + 150},${VIEW_H - 70} ${VIEW_W / 2 + 230},${VIEW_H - 46} ${VIEW_W / 2 + 250},${VIEW_H + 4} Z`}
+            fill="url(#cockpit-tank)"
+          />
+          <path d={`M${VIEW_W / 2 - 236},${VIEW_H - 18} C${VIEW_W / 2 - 200},${VIEW_H - 54} ${VIEW_W / 2 - 120},${VIEW_H - 68} ${VIEW_W / 2},${VIEW_H - 69} C${VIEW_W / 2 + 120},${VIEW_H - 68} ${VIEW_W / 2 + 200},${VIEW_H - 54} ${VIEW_W / 2 + 236},${VIEW_H - 18}`} fill="none" stroke="#9aa4b2" strokeOpacity={0.28} strokeWidth={1.5} />
+        </g>
       </g>
       {scene.pillion && (
         <g data-pillion transform={`translate(${VIEW_W / 2 + 36}, ${VIEW_H - 58})`}>

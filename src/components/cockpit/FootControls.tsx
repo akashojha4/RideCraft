@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { LeverAction } from '@/lib/mechanics/gearbox'
 import { cn } from '@/lib/cn'
 import { LeverHit } from './LeverHit'
@@ -10,6 +11,10 @@ import { LeverHit } from './LeverHit'
 const pct = (x: number) => `${Math.round(x * 100)} %`
 const gearName = (g: number) => (g === 0 ? 'N' : String(g))
 
+/** How long a shift is held on screen: the toe piece stays lifted or pressed, with the boot on it. */
+const SHIFT_HOLD_MS = 700
+const KICK_CLASS: Record<LeverAction, string> = { up: 'gear-lift', down: 'gear-press', half: 'gear-half' }
+
 /**
  * Left foot: gear lever and the gear-position indicator. `pattern` lists the positions from
  * the bottom of the lever's travel to the top — 1-N-2-3-4-5 by default, so first is a press
@@ -18,18 +23,39 @@ const gearName = (g: number) => (g === 0 ? 'N' : String(g))
 export function GearSelector({
   gear = 0,
   pattern = [1, 0, 2, 3, 4, 5],
-  kick = null,
+  kick,
   onShift,
   className,
 }: {
   gear?: number
   pattern?: readonly number[]
-  /** The last shift: the toe piece gives a brief nudge in its direction each time it changes. */
+  /**
+   * The last shift: the toe piece swings that way and holds there for a moment, with the rider's
+   * boot on it. Left out (a demonstration, a static picture), a change of `gear` is shown the same way.
+   */
   kick?: { dir: LeverAction; at: number } | null
   /** Tapping above the toe piece lifts it; below presses it down. */
   onShift?: (action: LeverAction) => void
   className?: string
 }) {
+  // Without a `kick`, work out the direction of a gear change from where it sits in the pattern.
+  const [seen, setSeen] = useState({ gear, kick: null as { dir: LeverAction; at: number } | null })
+  if (kick === undefined && gear !== seen.gear) {
+    const from = pattern.indexOf(seen.gear)
+    const to = pattern.indexOf(gear)
+    // First to neutral is the gentle half-lift; otherwise up the pattern is a lift, down a press.
+    const dir: LeverAction = seen.gear === 1 && gear === 0 ? 'half' : to > from ? 'up' : 'down'
+    setSeen({ gear, kick: { dir, at: (seen.kick?.at ?? 0) + 1 } })
+  }
+  if (kick === undefined) kick = seen.kick
+  // The boot is drawn only while a shift is being made.
+  const [doneAt, setDoneAt] = useState<number | null>(null)
+  useEffect(() => {
+    if (!kick) return
+    const id = window.setTimeout(() => setDoneAt(kick.at), SHIFT_HOLD_MS)
+    return () => window.clearTimeout(id)
+  }, [kick])
+  const booted: LeverAction | null = kick && doneAt !== kick.at ? kick.dir : null
   return (
     <svg viewBox="0 30 280 110" className={cn('w-full', className)} role="img" aria-label={`Gear lever, left foot: ${gear === 0 ? 'neutral' : `gear ${gear}`}. Pattern ${pattern.map(gearName).join('-')}`}>
       <g strokeLinecap="round" strokeLinejoin="round">
@@ -42,10 +68,26 @@ export function GearSelector({
           <line key={i} x1={56 + i * 15} y1={115} x2={56 + i * 15} y2={127} strokeWidth={2} className="stroke-surface-raised" />
         ))}
         {/* Gear lever arm and toe piece, ahead of the peg */}
-        <g key={kick?.at} className={kick ? (kick.dir === 'down' ? 'gear-press' : 'gear-lift') : undefined} style={{ transformOrigin: '62px 92px' }}>
-          <path d="M62,92 L150,58" strokeWidth={8} className="stroke-coolant-400" />
-          <rect x={142} y={48} width={34} height={14} rx={7} transform="rotate(-21 159 55)" className="fill-coolant-500" />
+        {/* While a shift is made, a ghost of the lever at rest shows how far the toe piece has moved. */}
+        {booted && (
+          <g opacity={0.3}>
+            <path d="M62,92 L150,58" strokeWidth={9} strokeDasharray="3 4" className="stroke-coolant-400" />
+            <rect x={140} y={47} width={38} height={16} rx={8} transform="rotate(-21 159 55)" fill="none" strokeDasharray="3 3" strokeWidth={1.5} className="stroke-coolant-300" />
+          </g>
+        )}
+        <g key={kick?.at} data-shift={booted ?? undefined} className={kick ? KICK_CLASS[kick.dir] : undefined} style={{ transformOrigin: '62px 92px' }}>
+          {/* A lift: the toe of the boot is under the toe piece and comes up with it. */}
+          {booted && booted !== 'down' && <Boot x={152} y={77} />}
+          <path d="M62,92 L150,58" strokeWidth={9} className="stroke-coolant-400" />
+          <rect x={140} y={47} width={38} height={16} rx={8} transform="rotate(-21 159 55)" className="fill-coolant-500 stroke-coolant-300" strokeWidth={1} />
+          {/* A press: the boot sits on top of the toe piece and pushes it down. */}
+          {booted === 'down' && <Boot x={168} y={33} />}
         </g>
+        {booted && (
+          <text x={206} y={booted === 'down' ? 104 : 46} textAnchor="middle" className="fill-coolant-300 font-mono text-[13px] font-semibold tracking-wider" data-shift-label>
+            {booted === 'down' ? '▼ PRESS' : booted === 'up' ? '▲ LIFT' : '▲ HALF'}
+          </text>
+        )}
         {onShift && (
           <>
             <rect x={110} y={30} width={110} height={26} fill="transparent" className="cursor-pointer" onPointerDown={() => onShift('up')} aria-hidden />
@@ -54,6 +96,21 @@ export function GearSelector({
         )}
       </g>
     </svg>
+  )
+}
+
+/** The toe of the rider's boot on (or under) the gear lever, centred at x, y: toe cap, laces and sole. */
+function Boot({ x, y }: { x: number; y: number }) {
+  return (
+    <g data-boot transform={`rotate(-21 ${x} ${y})`}>
+      <path
+        d={`M${x - 44},${y + 13} L${x - 44},${y - 8} C${x - 30},${y - 14} ${x - 8},${y - 15} ${x + 12},${y - 13} C${x + 30},${y - 11} ${x + 40},${y - 4} ${x + 40},${y + 4} C${x + 40},${y + 11} ${x + 32},${y + 13} ${x + 20},${y + 13} Z`}
+        className="fill-[#2b3038] stroke-ink-muted"
+        strokeWidth={1.6}
+      />
+      <path d={`M${x - 36},${y - 7} L${x - 30},${y + 2} M${x - 26},${y - 9} L${x - 20},${y + 1} M${x - 16},${y - 10} L${x - 10},${y}`} strokeWidth={1.6} className="stroke-ink-subtle" />
+      <path d={`M${x - 44},${y + 13} L${x + 22},${y + 13}`} strokeWidth={4} className="stroke-[#111318]" />
+    </g>
   )
 }
 
