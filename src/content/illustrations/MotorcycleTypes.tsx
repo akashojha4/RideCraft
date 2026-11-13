@@ -73,6 +73,19 @@ export default function MotorcycleTypes() {
             <Readout label="Posture" value={`${posture} (${Math.round(body.lean)}°)`} />
             <Readout label="Controls" value={t.controls} tone={t.controls === 'Geared' ? 'coolant' : 'caution'} />
           </dl>
+          <div>
+            <h3 className="font-mono text-[11px] tracking-[0.16em] text-ink-subtle uppercase">Kinds of {t.name.toLowerCase()}</h3>
+            <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+              {t.examples.map((e) => (
+                <li key={e.name} className="rounded-lg border border-line bg-surface px-3 py-2 text-sm leading-relaxed">
+                  <span className="font-medium text-ink">{e.name}</span>
+                  <span className="text-ink-muted"> — {e.what}</span>
+                  {e.models && <span className="mt-0.5 block text-xs text-ink-subtle">e.g. {e.models}</span>}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-ink-subtle">Example models are for recognition only, not recommendations.</p>
+          </div>
         </>
       }
       status={

@@ -20,6 +20,15 @@ export interface MotoType {
   use: string
   note: string
   controls: 'Geared' | 'Usually automatic'
+  /** Kinds of motorcycle in this family, each with example models a learner may recognise. */
+  examples: MotoExample[]
+}
+
+export interface MotoExample {
+  name: string
+  what: string
+  /** Well-known models, for recognition only (not recommendations). */
+  models?: string
 }
 
 export const motoTypes: MotoType[] = [
@@ -43,6 +52,11 @@ export const motoTypes: MotoType[] = [
     use: 'Commuting, learning and everyday riding. Comfortable, easy to see from and to see over traffic. Typically 100–400 cc.',
     note: 'This is the kind of motorcycle RideCraft is modelled on.',
     controls: 'Geared',
+    examples: [
+      { name: 'Commuter', what: 'Small, light and economical — the everyday 100–125 cc motorcycle.', models: 'Hero Splendor, Honda Shine, Bajaj Platina' },
+      { name: 'Naked / street', what: 'A sportier engine with no fairing and higher bars. Sits between standard and sport.', models: 'Bajaj Pulsar, TVS Apache, KTM Duke' },
+      { name: 'Retro / roadster', what: 'Classic looks, upright and relaxed, usually 350 cc or more.', models: 'Royal Enfield Classic 350, Royal Enfield Hunter 350' },
+    ],
   },
   {
     id: 'sport',
@@ -64,6 +78,11 @@ export const motoTypes: MotoType[] = [
     use: 'Fast road riding and track days. The tucked position cuts wind resistance and gives ground clearance in corners, but is tiring in traffic.',
     note: 'A full fairing improves aerodynamics at speed.',
     controls: 'Geared',
+    examples: [
+      { name: 'Supersport', what: 'Full fairing, low clip-on bars and high pegs. Built for speed and corners.', models: 'Yamaha R15, KTM RC 390' },
+      { name: 'Sport-tourer', what: 'A milder sport posture with more wind protection, for long distances.', models: 'Kawasaki Ninja 650' },
+      { name: 'Café racer', what: 'Retro style with low bars and rear-set pegs — a sport triangle in classic clothes.', models: 'Royal Enfield Continental GT 650' },
+    ],
   },
   {
     id: 'cruiser',
@@ -86,6 +105,11 @@ export const motoTypes: MotoType[] = [
     use: 'Relaxed riding at steady speeds. The low seat makes it easy to put your feet down, but lean angle is limited by the low footpegs and exhaust.',
     note: 'Often heavy, with large, slow-revving engines.',
     controls: 'Geared',
+    examples: [
+      { name: 'Classic cruiser', what: 'Low seat, feet forward, relaxed bars.', models: 'Royal Enfield Meteor 350' },
+      { name: 'Bobber', what: 'A stripped-down cruiser: short rear fender, often a single seat.', models: 'Jawa Perak' },
+      { name: 'Touring cruiser', what: 'A bigger, heavier cruiser with more comfort for long trips.', models: 'Royal Enfield Super Meteor 650' },
+    ],
   },
   {
     id: 'adventure',
@@ -109,6 +133,11 @@ export const motoTypes: MotoType[] = [
     use: 'Long journeys on and off tarmac. Long-travel suspension and a large front wheel cope with rough roads; luggage carries the load.',
     note: 'The tall seat can make it hard for shorter riders to reach the ground.',
     controls: 'Geared',
+    examples: [
+      { name: 'Dual-sport', what: 'Light and tall, closer to a dirt bike but road legal.', models: 'Hero Xpulse 200' },
+      { name: 'Adventure tourer', what: 'Mid-size, built for long trips on bad roads with luggage.', models: 'Royal Enfield Himalayan, KTM 390 Adventure' },
+      { name: 'Big adventure', what: 'Large engines (800 cc and up), heavy and tall. Not a first motorcycle.' },
+    ],
   },
   {
     id: 'offroad',
@@ -130,6 +159,12 @@ export const motoTypes: MotoType[] = [
     use: 'Dirt tracks and trails. Light, with long suspension, high ground clearance and knobbly tyres.',
     note: 'Pure off-road machines often have no lights and are not road legal.',
     controls: 'Geared',
+    examples: [
+      { name: 'Motocross', what: 'Light and powerful, for jumps on closed dirt tracks. Not road legal.' },
+      { name: 'Enduro', what: 'Long-distance trail riding over rough ground; some are road legal.' },
+      { name: 'Trials', what: 'Very low seat (riders stand the whole time), for slow, precise obstacle riding.' },
+      { name: 'Supermoto', what: 'A dirt-bike chassis with road tyres and wide bars, for tarmac.' },
+    ],
   },
   {
     id: 'scooter',
@@ -151,5 +186,11 @@ export const motoTypes: MotoType[] = [
     use: 'Short urban trips. Small wheels and a step-through frame make it easy to get on and manoeuvre; storage under the seat.',
     note: 'Most scooters are automatic (a CVT): no clutch lever and no gear lever — both brakes are levers on the handlebar. RideCraft focuses on geared motorcycles.',
     controls: 'Usually automatic',
+    examples: [
+      { name: 'Scooter', what: 'Step-through, automatic, storage under the seat.', models: 'Honda Activa, TVS Jupiter' },
+      { name: 'Maxi-scooter', what: 'A bigger scooter with larger wheels and motorcycle-like speed.', models: 'Suzuki Burgman Street' },
+      { name: 'Electric scooter', what: 'Same layout with an electric motor: twist and go, no gears.', models: 'Ather 450, TVS iQube' },
+      { name: 'Moped', what: 'Very small and light, low speed.', models: 'TVS XL100' },
+    ],
   },
 ]
